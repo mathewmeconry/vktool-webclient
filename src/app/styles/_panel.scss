@@ -1,0 +1,39 @@
+@import 'variables';
+
+.panel {
+    background-color: #fff;
+    border: none;
+    border-radius: 5px;
+    position: relative;
+    margin-bottom: 24px;
+    box-shadow: 0 5px 5px 0 rgba(0,0,0,.25);
+}
+
+.panel .panel-header {
+    line-height: $panel_header_line_height;
+    border-bottom: 1px solid rgba(0,0,0,.12);
+    text-transform: uppercase;
+    padding: $panel_content_padding;
+    min-height: $panel_header_min_height;
+}
+
+.panel .panel-body {
+    max-height: calc(100vh - #{$header_height} - #{$page_padding_top} - #{$panel_header_min_height} - 100px);
+    overflow: auto;
+    padding: $panel_content_padding;
+    clear: both;
+}
+
+::-webkit-scrollbar {
+    width: .4em;
+    height: .4em
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,.5);
+    cursor: pointer
+}
+
+::-webkit-scrollbar-track {
+    background: #fff
+}

@@ -1,0 +1,39 @@
+@import 'colors';
+
+#login {
+    position: absolute;
+    text-align: center;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    position: relative;
+    background-color: $default_blue;
+    border-radius: 5px;
+    color: $white;
+    padding: 10px;
+    width: 300px;
+    height: 300px;
+}
+
+#login .form-group {
+    padding-top: 20px;
+}
+
+#login .form-group .form-control {
+    margin-bottom: 5px;
+    background-color: $default_blue;
+    color: white;
+    border: none;
+    border-bottom: 1px solid white;
+    border-radius: 0;
+}
+
+#login .form-group .form-control::placeholder {
+    color: white;
+}
+
+#login .form-group .form-control:focus {
+    border: none;
+    border-bottom: 1px solid white;
+    box-shadow: none;
+}

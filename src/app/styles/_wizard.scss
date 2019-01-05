@@ -1,0 +1,34 @@
+@import 'colors';
+@import 'variables';
+
+#WizardNav .col {
+    text-align: center;
+}
+
+.dot {
+    color: #bbb;
+    font-size: 22pt;
+    margin: 0 15px;
+}
+
+.dot.active{
+    color: $default_blue;
+}
+
+.wizard-step-header {
+    line-height: $wizard_header_line_height;
+    border-bottom: 1px solid rgba(0,0,0,.12);
+    padding: $wizard_content_padding;
+    min-height: $wizard_header_min_height;
+}
+
+.wizard-step-body {
+    padding: $wizard_content_padding;
+}
+
+.wizard-step-footer {
+    line-height: $wizard_header_line_height;
+    border-top: 1px solid rgba(0,0,0,.12);
+    padding: $wizard_content_padding;
+    min-height: $wizard_header_min_height;
+}
