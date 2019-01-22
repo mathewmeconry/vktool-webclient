@@ -1,0 +1,71 @@
+@import 'colors';
+@import 'variables';
+
+#header {
+    width: 100%;
+    height: $header_height_mobile;
+    position: fixed;
+    background-color: $default_blue;
+    box-shadow: 2px 0 3px rgba(0,0,0,.5);
+    z-index: 1;
+}
+
+#header-title {
+    background-color: $default_blue_darken;
+    transition: width $navibar_transition_speed;
+    height: $header_height_mobile;
+    text-align: center;
+    @include float-left;
+}
+
+#header-title.navibar-open {
+    width: $navibar_width_open;
+}
+
+#header-title.navibar-collapsed {
+    width: 0px;
+}
+
+#header-title.navibar-collapsed * {
+    display: none;
+}
+
+#header-bars {
+    color: white;
+    line-height: $header_height_mobile;
+    margin-left: 10px;
+    font-size: $header_height_mobile / 2;
+    cursor: pointer;
+    @include float-left;
+}
+
+#user {
+    color: white;
+    font-weight: bold;
+    line-height: $header_height_mobile;
+}
+
+// No media query necessary for xs breakpoint as it's effectively `@media (min-width: 0) { ... }`
+@include media-breakpoint-up(sm) { }
+
+@include media-breakpoint-up(md) { 
+    #header-title.navibar-collapsed {
+        width: $navibar_width_collapse;
+    }
+    #header-bars {
+        line-height: $header_height;
+        font-size: $header_height / 2;
+    }
+    #header-title {
+        height: $header_height;
+    }
+    #header {
+        height: $header_height;
+    }
+    #user {
+        line-height: $header_height;
+    }
+}
+
+@include media-breakpoint-up(lg) {  }
+@include media-breakpoint-up(xl) {  }

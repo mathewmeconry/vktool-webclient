@@ -1,0 +1,13 @@
+@import 'colors';
+.badge {
+    margin: 0.25em 0.4em 0.25em 0;
+    color: white;
+}
+
+.badge-primary {
+    background-color: $default_blue;
+}
+
+.btn {
+    font-size: 9pt;
+}
