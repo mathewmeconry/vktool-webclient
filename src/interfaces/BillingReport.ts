@@ -5,8 +5,8 @@ export interface PutBillingReport {
     orderId: number,
     date: Date,
     compensationEntries: StringIndexed<BillingReportCompensationEntry>,
-    els: Array<number>,
-    drivers: Array<number>,
+    els: Array<Contact>,
+    drivers: Array<Contact>,
     food: boolean,
     remarks: string,
     creatorId: number

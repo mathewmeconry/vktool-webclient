@@ -5,15 +5,15 @@ import StringIndexed from "../../interfaces/StringIndexed";
 import WizardStep from "../../components/WizardStep";
 import { BillingReportCompensationEntry } from "../../interfaces/BillingReport";
 import Contact from "../../entities/Contact";
-import Select from "react-select";
 import { ValueType } from "react-select/lib/types";
+import { MemberSelect } from "../../components/MemberSelect";
 
 export interface Step2Props {
     onNext: (data: StringIndexed<any>) => void,
     members: DataInterface<Contact>
 }
 
-export default class AddBillingReportStep2 extends Component<Step2Props, { tableEntries: StringIndexed<BillingReportCompensationEntry>, vks: Array<{ label: string, value: string }>, from: string, until: string, charge: boolean }> {
+export default class AddBillingReportStep2 extends Component<Step2Props, { tableEntries: StringIndexed<BillingReportCompensationEntry>, vks: Array<Contact>, from: string, until: string, charge: boolean }> {
     private formEl?: HTMLFormElement
 
     constructor(props: Step2Props) {
@@ -52,10 +52,9 @@ export default class AddBillingReportStep2 extends Component<Step2Props, { table
                 if (totalHours < 0) totalHours = totalHours + 24
 
                 for (let i of this.state.vks) {
-                    let iScoped = i as { label: string, value: string }
-                    selection[iScoped.value] = {
-                        id: parseInt(iScoped.value),
-                        member: this.props.members.byId[parseInt(iScoped.value)],
+                    selection[i.id] = {
+                        id: i.id,
+                        member: i,
                         from: this.state.from,
                         until: this.state.until,
                         charge: this.state.charge,
@@ -85,9 +84,9 @@ export default class AddBillingReportStep2 extends Component<Step2Props, { table
         });
     }
 
-    private onSelectChange(opt: ValueType<{ label: string, value: string }>) {
+    private onSelectChange(opt: Contact) {
         if (opt) {
-            let optlet: Array<{ label: string, value: string }> = opt as Array<{ label: string, value: string }>
+            let optlet: Array<Contact> = (opt as any) as Array<Contact>
             this.setState({
                 vks: optlet
             })
@@ -120,21 +119,6 @@ export default class AddBillingReportStep2 extends Component<Step2Props, { table
         return false
     }
 
-    private prepareMembers() {
-        let options = []
-        if (Object.keys(this.props.members.byId).length > 0) {
-            for (let i in this.props.members.byId) {
-                let member = this.props.members.byId[i]
-                options.push({
-                    label: (member.firstname + ' ' + member.lastname),
-                    value: i
-                })
-            }
-        }
-
-        return options
-    }
-
     public render() {
         return (
             <WizardStep title="Einsatzzeiten" onNextStep={this.validate} {...this.props}>
@@ -142,15 +126,10 @@ export default class AddBillingReportStep2 extends Component<Step2Props, { table
                     <div className="row">
                         <div className="col">
                             <h5>VKs</h5>
-                            <Select
-                                isClearable={true}
+                            <MemberSelect
                                 onChange={this.onSelectChange}
-                                options={this.prepareMembers()}
-                                backspaceRemovesValue={true}
-                                hideSelectedOptions={true}
-                                openMenuOnFocus={true}
                                 isMulti={true}
-                                value={this.state.vks}
+                                defaultValue={this.state.vks}
                             />
                         </div>
                         <div className="col-1">

@@ -22,18 +22,33 @@ import Order from '../entities/Order';
 import User from '../entities/User';
 import { AuthRoles } from '../interfaces/AuthRoles';
 import Action from '../components/Action';
+import Contact from '../entities/Contact';
+import { OrderSelect } from '../components/OrderSelect';
+import { MemberSelect } from '../components/MemberSelect';
 
 export interface BillingReportProps extends RouteComponentProps<{ id: string }> {
     billingReports: DataInterface<BillingReportEntity.default>,
+    orders: DataInterface<Order>,
     loading: boolean,
     fetchBillingReports: Function,
+    fetchOrders: Function,
     history: History,
     user: User,
     approve: Function,
     decline: Function
 }
 
-export class _BillingReport extends Component<BillingReportProps> {
+interface BillingReportState {
+    informationEdit: boolean
+    order: Order
+    date: Date
+    els: Array<Contact>
+    drivers: Array<Contact>
+    food: boolean
+    remarks: string
+}
+
+export class _BillingReport extends Component<BillingReportProps, BillingReportState> {
     private billingReport: BillingReportEntity.default;
 
     constructor(props: BillingReportProps) {
@@ -44,14 +59,41 @@ export class _BillingReport extends Component<BillingReportProps> {
         this.elementView = this.elementView.bind(this)
 
         this.billingReport = this.props.billingReports.byId[parseInt(this.props.match.params.id)]
+        this.onInformationEdit = this.onInformationEdit.bind(this)
+        this.onInformationSave = this.onInformationSave.bind(this)
+        this.onInputChange = this.onInputChange.bind(this)
+
+        if (this.billingReport) {
+            this.state = {
+                informationEdit: false,
+                order: (this.billingReport.order as Order),
+                date: this.billingReport.date,
+                els: this.billingReport.els,
+                drivers: this.billingReport.drivers,
+                food: this.billingReport.food,
+                remarks: this.billingReport.remarks
+            }
+        }
     }
 
     public componentWillReceiveProps(nextProps: BillingReportProps) {
         this.billingReport = nextProps.billingReports.byId[parseInt(nextProps.match.params.id)]
+
+        if (this.billingReport) {
+            this.setState({
+                order: (this.billingReport.order as Order),
+                date: this.billingReport.date,
+                els: this.billingReport.els,
+                drivers: this.billingReport.drivers,
+                food: this.billingReport.food,
+                remarks: this.billingReport.remarks
+            })
+        }
     }
 
     public componentWillMount() {
         this.props.fetchBillingReports()
+        this.props.fetchOrders()
     }
 
     public approve(): void {
@@ -60,6 +102,41 @@ export class _BillingReport extends Component<BillingReportProps> {
 
     public decline(): void {
         this.props.decline(this.billingReport.id)
+    }
+
+    public onInformationEdit(event: React.MouseEvent<HTMLElement>) {
+        this.setState({
+            informationEdit: true
+        })
+    }
+
+    public onInformationSave(event: React.MouseEvent<HTMLElement>) {
+        this.setState({
+            informationEdit: false
+        })
+    }
+
+    private onInputChange(event: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) {
+        const target = event.target;
+        const value = target.value;
+        const id = target.id;
+
+        let dateValue
+        if (target.type === 'date') {
+            dateValue = new Date(value)
+        }
+
+        //@ts-ignore
+        this.setState({
+            [id]: dateValue || value
+        });
+    }
+
+    public onSelectChange(state: string): (opts: Array<Contact> | Order) => void {
+        return (opts: Array<Contact> | Order) => {
+            //@ts-ignore
+            this.setState({ [state]: opts })
+        }
     }
 
     public elementView(event: React.MouseEvent<HTMLButtonElement>) {
@@ -99,27 +176,64 @@ export class _BillingReport extends Component<BillingReportProps> {
         return actions
     }
 
+    public renderOrder() {
+        if (this.state.informationEdit) {
+            return <OrderSelect defaultValue={[this.state.order]} onChange={this.onSelectChange('order')} />
+        }
+
+        return (this.state.order as Order).title
+    }
+
+    public renderEls() {
+        if (this.state.informationEdit) {
+            return <MemberSelect defaultValue={this.state.els} isMulti={true} onChange={this.onSelectChange('els')} />
+        }
+
+        return this.state.els.map(el => el.firstname + ' ' + el.lastname).join(',')
+    }
+
+    public renderDrivers() {
+        if (this.state.informationEdit) {
+            return <MemberSelect defaultValue={this.state.drivers} isMulti={true} onChange={this.onSelectChange('drivers')} />
+        }
+
+        return this.state.drivers.map(driver => driver.firstname + ' ' + driver.lastname).join(',')
+    }
+
     public renderInformations() {
         let statusBadgeClass = 'badge-success'
         if (this.billingReport.state === 'pending') statusBadgeClass = 'badge-warning'
         if (this.billingReport.state === 'declined') statusBadgeClass = 'badge-danger'
 
+        let panelActions = []
+        if (!this.state.informationEdit) {
+            panelActions.push(<Action icon="pencil-alt" onClick={this.onInformationEdit} />)
+        } else {
+            panelActions.push(<Action icon="save" onClick={this.onInformationSave} />)
+        }
+
         return (
-            <Panel title="Informationen">
-                <FormEntry id="orderTitle" title="Auftrag">{(this.billingReport.order as Order).title}</FormEntry>
-                <FormEntry id="date" title="Datum">{this.billingReport.date.toLocaleDateString()}</FormEntry>
+            <Panel title="Informationen" actions={panelActions} className={(this.state.informationEdit) ? 'editable' : ''}>
+                <FormEntry id="orderTitle" title="Auftrag">
+                    {this.renderOrder()}
+                </FormEntry>
+                <FormEntry id="date" title="Datum" value={this.state.date.toISOString().split('T')[0]} type='date' editable={this.state.informationEdit} onChange={this.onInputChange}></FormEntry>
                 <FormEntry id="creator" title="Ersteller">{(this.billingReport.creator as User).displayName}</FormEntry>
                 <FormEntry id="state" title="Status"><div className={"badge " + statusBadgeClass}>{this.billingReport.state}</div></FormEntry>
-                <FormEntry id="els" title="ELs">{this.billingReport.els.map(el => el.firstname + ' ' + el.lastname).join(',')}</FormEntry>
-                <FormEntry id="drivers" title="Fahrer">{this.billingReport.drivers.map(driver => driver.firstname + ' ' + driver.lastname).join(',')}</FormEntry>
-                <FormEntry id="food" title="Verpflegung">{(this.billingReport.food) ? '✓' : '⨯'}</FormEntry>
-                <FormEntry id="remarks" title="Bemerkungen">{this.billingReport.remarks}</FormEntry>
+                <FormEntry id="els" title="ELs">
+                    {this.renderEls()}
+                </FormEntry>
+                <FormEntry id="drivers" title="Fahrer">
+                    {this.renderDrivers()}
+                </FormEntry>
+                <FormEntry id="food" title="Verpflegung" value={this.state.food} type='checkbox' editable={this.state.informationEdit} onChange={this.onInputChange}></FormEntry>
+                <FormEntry id="remarks" title="Bemerkungen" value={this.state.remarks} type='textarea' editable={this.state.informationEdit} onChange={this.onInputChange}></FormEntry>
             </Panel>
         )
     }
 
     public render() {
-        if (this.props.loading || !this.billingReport) {
+        if (this.props.loading || !this.billingReport || !this.state) {
             return (<Page title="Verrechnungsrapport"><Loading /></Page>)
         }
 
@@ -163,7 +277,8 @@ const mapStateToProps = (state: State, props: any) => {
     return {
         billingReports: state.data.billingReports,
         user: state.data.user.data,
-        loading: state.data.billingReports.loading || state.data.user.loading
+        orders: state.data.orders,
+        loading: state.data.billingReports.loading || state.data.user.loading || state.data.orders.loading
     }
 }
 
@@ -171,6 +286,9 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>
     return {
         fetchBillingReports: () => {
             dispatch(Data.fetchBillingReports())
+        },
+        fetchOrders: () => {
+            dispatch(Data.fetchOrders())
         },
         approve: (id: string) => {
             dispatch(Data.approveBillingReport(id))

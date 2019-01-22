@@ -1,9 +1,30 @@
+@import 'colors';
+@import 'variables';
+
 .action-button {
-    width: 30px;
-    height: 30px;
-    padding: 6px 0px;
+    width: $action_button_size_mobile;
+    height: $action_button_size_mobile;
+    padding: 3px 0 0 0;
     border-radius: 15px;
     text-align: center;
-    font-size: 12px;
     line-height: 1.42857;
+    color: $default_text_color;
+    border-color: $default_text_color;
+    font-size: 10px;
 }
+
+@include media-breakpoint-up(sm) {}
+
+@include media-breakpoint-up(md) {
+    .action-button {
+        width: $action_button_size;
+        height: $action_button_size;
+        padding: 6px 0px;
+        font-size: 12px;
+    }
+    
+}
+
+@include media-breakpoint-up(lg) {}
+
+@include media-breakpoint-up(xl) {}

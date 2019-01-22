@@ -39,8 +39,8 @@ interface AddBillingReportState {
     order: Order,
     date: Date,
     vks: StringIndexed<BillingReportCompensationEntry>,
-    els: Array<number>,
-    drivers: Array<number>,
+    els: Array<Contact>,
+    drivers: Array<Contact>,
     food: boolean,
     remarks: string,
     [index: string]: any
@@ -119,8 +119,8 @@ export class _AddBillingReport extends Component<AddBillingReportProps, AddBilli
                                     order={this.state.order}
                                     date={this.state.date}
                                     vks={this.state.vks}
-                                    els={this.state.els.map(el => { let member = this.props.members.byId[el]; return member.firstname + ' ' + member.lastname })}
-                                    drivers={this.state.drivers.map(driver => { let member = this.props.members.byId[driver]; return member.firstname + ' ' + member.lastname })}
+                                    els={this.state.els.map(el =>  el.firstname + ' ' + el.lastname )}
+                                    drivers={this.state.drivers.map(driver => driver.firstname + ' ' + driver.lastname )}
                                     food={this.state.food}
                                     remarks={this.state.remarks}
                                 />

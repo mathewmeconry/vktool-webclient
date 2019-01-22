@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 
-export default class Panel extends Component<{ title?: string | React.ReactNode, actions?: Array<any> }> {
+export default class Panel extends Component<{ title?: string | React.ReactNode, actions?: Array<any>, className?: string }> {
     public render() {
         let header;
         let actions = this.props.actions || []
@@ -11,7 +11,7 @@ export default class Panel extends Component<{ title?: string | React.ReactNode,
                     {actions.map(el => el)}
                 </div>
             </div>
-        } else if(this.props.actions && this.props.actions.length > 0) {
+        } else if (this.props.actions && this.props.actions.length > 0) {
             header = <div className="panel-header">
                 <div className="panel-actions">
                     {actions.map(el => el)}
@@ -20,7 +20,7 @@ export default class Panel extends Component<{ title?: string | React.ReactNode,
         }
 
         return (
-            <div className="panel">
+            <div className={"panel " + (this.props.className || '')}>
                 {header}
                 <div className="panel-body">
                     {this.props.children}

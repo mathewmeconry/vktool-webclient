@@ -12,6 +12,8 @@
 @import '404';
 @import 'datalist';
 @import 'action';
+@import 'colors';
+@import 'form_entry';
 * {
     /* So 100% means 100% */
     box-sizing: border-box;
@@ -25,7 +27,7 @@ body,
     margin: 0;
     overflow: hidden;
     font-size: $font_size_mobile;
-    color: #666;
+    color: $default_text_color;
     background-color: #d9d9d9;
     font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
 }
