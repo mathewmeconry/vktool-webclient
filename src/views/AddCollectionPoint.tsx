@@ -10,11 +10,12 @@ import { State } from "../reducers/IndexReducer";
 import { AnyAction } from "redux";
 import { Data } from "../actions/DataActions";
 import { connect } from "react-redux";
+import { RouteComponentProps } from "react-router";
 
-export class _AddCollectionPoint extends Component<{ save: Function }, PutCollectionPoints> {
+export class _AddCollectionPoint extends Component<{ save: Function } & RouteComponentProps, PutCollectionPoints> {
     private formEl: HTMLFormElement
 
-    constructor(props: { save: Function }) {
+    constructor(props: { save: Function } & RouteComponentProps) {
         super(props)
 
         this.state = {
@@ -24,6 +25,7 @@ export class _AddCollectionPoint extends Component<{ save: Function }, PutCollec
         }
 
         this.onInputChange = this.onInputChange.bind(this)
+        this.save = this.save.bind(this)
     }
 
     private onInputChange(event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
@@ -37,7 +39,8 @@ export class _AddCollectionPoint extends Component<{ save: Function }, PutCollec
         });
     }
 
-    private save(): boolean {
+    private save(event: React.MouseEvent<HTMLButtonElement>): boolean {
+        event.preventDefault()
         if (this.formEl) {
             let valid = this.formEl.checkValidity()
             this.formEl.className = 'was-validated'
@@ -48,6 +51,7 @@ export class _AddCollectionPoint extends Component<{ save: Function }, PutCollec
                     address: this.state.address,
                     city: this.state.city
                 })
+                this.props.history.push('/draft/collection-points')
             }
             return valid
         }
@@ -62,7 +66,7 @@ export class _AddCollectionPoint extends Component<{ save: Function }, PutCollec
                         <Panel>
                             <form ref={(ref: HTMLFormElement) => this.formEl = ref}>
                                 <h5>Addresse</h5>
-                                <input type="text" name="adress" id="address" className='form-control' value={this.state.address} onChange={this.onInputChange} required={true} />
+                                <input type="text" name="address" id="address" className='form-control' value={this.state.address} onChange={this.onInputChange} required={true} />
                                 <br></br>
                                 <h5>PLZ</h5>
                                 <input type="text" minLength={4} maxLength={4} name="postcode" id="postcode" className='form-control' value={this.state.postcode} onChange={this.onInputChange} required={true} />
@@ -88,4 +92,4 @@ const mapDisptachToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>
     }
 }
 
-export const AddCollectionPoint = connect(mapDisptachToProps)(_AddCollectionPoint)
+export const AddCollectionPoint = connect(() => { }, mapDisptachToProps)(_AddCollectionPoint)

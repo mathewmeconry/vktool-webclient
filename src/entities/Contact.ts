@@ -67,5 +67,5 @@ export default class Contact extends BexioBase {
 
     public user?: User
 
-    public collectionPoints: Array<CollectionPoint>
+    public collectionPoint: CollectionPoint
 }
