@@ -118,11 +118,11 @@ export class _BillingReport extends Component<BillingReportProps, BillingReportS
 
     private onInputChange(event: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) {
         const target = event.target;
-        const value = target.value;
+        const value = target.type === 'checkbox' ? (target as HTMLInputElement).checked : target.value;
         const id = target.id;
 
         let dateValue
-        if (target.type === 'date') {
+        if (target.type === 'date' && typeof value === 'string') {
             dateValue = new Date(value)
         }
 
