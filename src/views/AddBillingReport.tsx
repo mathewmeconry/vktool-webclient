@@ -17,7 +17,7 @@ import AddBillingReportStep2 from './AddBillingReportSteps/AddBillingReportStep2
 import AddBillingReportStep3 from './AddBillingReportSteps/AddBillingReportStep3';
 import AddBillingReportStep4 from './AddBillingReportSteps/AddBillingReportStep4';
 import StringIndexed from '../interfaces/StringIndexed';
-import { BillingReportCompensationEntry, PutBillingReport } from '../interfaces/BillingReport';
+import { BillingReportCompensationEntry, CreateBillingReport } from '../interfaces/BillingReport';
 import { History } from "history";
 import Loading from '../components/Loading';
 import User from '../entities/User';
@@ -31,7 +31,7 @@ export interface AddBillingReportProps {
     loading: boolean,
     fetchOpenOrders: Function,
     fetchMembers: Function,
-    save: (data: PutBillingReport) => void,
+    save: (data: CreateBillingReport) => void,
     history: History
 }
 
@@ -155,7 +155,7 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>
         fetchMembers: () => {
             dispatch(Data.fetchMembers())
         },
-        save: (data: PutBillingReport) => {
+        save: (data: CreateBillingReport) => {
             dispatch(Data.addBillingReport(data))
         }
     }

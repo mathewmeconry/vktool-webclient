@@ -1,15 +1,22 @@
 import StringIndexed from "./StringIndexed";
 import Contact from "../entities/Contact";
 
-export interface PutBillingReport {
+interface BillingReportModificationBase {
     orderId: number,
     date: Date,
-    compensationEntries: StringIndexed<BillingReportCompensationEntry>,
     els: Array<Contact>,
     drivers: Array<Contact>,
     food: boolean,
-    remarks: string,
+    remarks: string
+}
+
+export interface CreateBillingReport extends BillingReportModificationBase {
+    compensationEntries: StringIndexed<BillingReportCompensationEntry>,
     creatorId: number
+}
+
+export interface EditBillingReport extends BillingReportModificationBase {
+    id: string
 }
 
 export interface BillingReportCompensationEntry<T = Contact> {
