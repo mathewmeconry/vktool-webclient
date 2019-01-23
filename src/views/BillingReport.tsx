@@ -25,6 +25,7 @@ import Action from '../components/Action';
 import Contact from '../entities/Contact';
 import { OrderSelect } from '../components/OrderSelect';
 import { MemberSelect } from '../components/MemberSelect';
+import { EditBillingReport } from '../interfaces/BillingReport';
 
 export interface BillingReportProps extends RouteComponentProps<{ id: string }> {
     billingReports: DataInterface<BillingReportEntity.default>,
@@ -34,8 +35,9 @@ export interface BillingReportProps extends RouteComponentProps<{ id: string }> 
     fetchOrders: Function,
     history: History,
     user: User,
-    approve: Function,
-    decline: Function
+    approve: (id: string) => void,
+    decline: (id: string) => void,
+    edit: (data: EditBillingReport) => void
 }
 
 interface BillingReportState {
@@ -97,11 +99,11 @@ export class _BillingReport extends Component<BillingReportProps, BillingReportS
     }
 
     public approve(): void {
-        this.props.approve(this.billingReport.id)
+        this.props.approve(this.billingReport.id.toString())
     }
 
     public decline(): void {
-        this.props.decline(this.billingReport.id)
+        this.props.decline(this.billingReport.id.toString())
     }
 
     public onInformationEdit(event: React.MouseEvent<HTMLElement>) {
@@ -111,6 +113,16 @@ export class _BillingReport extends Component<BillingReportProps, BillingReportS
     }
 
     public onInformationSave(event: React.MouseEvent<HTMLElement>) {
+        this.props.edit({
+            id: this.billingReport.id.toString(),
+            date: this.state.date,
+            drivers: this.state.drivers,
+            els: this.state.els,
+            food: this.state.food,
+            orderId: this.state.order.id,
+            remarks: this.state.remarks
+        })
+
         this.setState({
             informationEdit: false
         })
@@ -206,10 +218,13 @@ export class _BillingReport extends Component<BillingReportProps, BillingReportS
         if (this.billingReport.state === 'declined') statusBadgeClass = 'badge-danger'
 
         let panelActions = []
-        if (!this.state.informationEdit) {
-            panelActions.push(<Action icon="pencil-alt" onClick={this.onInformationEdit} />)
-        } else {
-            panelActions.push(<Action icon="save" onClick={this.onInformationSave} />)
+        if (this.props.user.roles.includes(AuthRoles.BILLINGREPORTS_EDIT) ||
+            (this.billingReport.state === 'pending' && this.billingReport.creator.id === this.props.user.id)) {
+            if (!this.state.informationEdit) {
+                panelActions.push(<Action icon="pencil-alt" onClick={this.onInformationEdit} />)
+            } else {
+                panelActions.push(<Action icon="save" onClick={this.onInformationSave} />)
+            }
         }
 
         return (
@@ -295,6 +310,9 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>
         },
         decline: (id: string) => {
             dispatch(Data.declineBillingReport(id))
+        },
+        edit: (data: EditBillingReport) => {
+            dispatch(Data.editBillingReport(data))
         }
     }
 }

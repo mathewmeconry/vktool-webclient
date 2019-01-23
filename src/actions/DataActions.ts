@@ -1,5 +1,5 @@
 import { UIActions } from "./UIActions";
-import { PutBillingReport } from "./../interfaces/BillingReport";
+import { CreateBillingReport, EditBillingReport } from "./../interfaces/BillingReport";
 import { Dispatch, AnyAction } from "redux";
 import { ThunkAction, ThunkDispatch } from "redux-thunk";
 import { State } from "../reducers/IndexReducer";
@@ -77,7 +77,7 @@ export class Data {
         return Data.fetchFromApi(Config.apiEndpoint + '/api/billing-reports', DataActions.FETCH_BILLING_REPORTS, DataActions.GOT_BILLING_REPORTS)
     }
 
-    public static addBillingReport(data: PutBillingReport): ThunkAction<Promise<AnyAction>, State, void, AnyAction> {
+    public static addBillingReport(data: CreateBillingReport): ThunkAction<Promise<AnyAction>, State, void, AnyAction> {
         return async (dispatch: ThunkDispatch<State, undefined, AnyAction>) => {
             return new Promise<AnyAction>((resolve, reject) => {
                 dispatch({
@@ -108,11 +108,6 @@ export class Data {
             })
 
             return Data.sendToApi('post', Config.apiEndpoint + '/api/billing-reports/approve', { 'id': id }, dispatch, () => {
-                dispatch({
-                    type: UIActions.NOTIFICATION_SUCCESS,
-                    payload: 'Genehmigt!'
-                })
-
                 dispatch(Data.fetchBillingReports())
             })
         }
@@ -126,23 +121,18 @@ export class Data {
             })
 
             return Data.sendToApi('post', Config.apiEndpoint + '/api/billing-reports/decline', { 'id': id }, dispatch, () => {
-                dispatch({
-                    type: UIActions.NOTIFICATION_SUCCESS,
-                    payload: 'Abgelehnt!'
-                })
-
                 dispatch(Data.fetchBillingReports())
             })
         }
     }
 
-    public static editBillingReport(data: any): ThunkAction<Promise<void>, State, void, AnyAction> {
+    public static editBillingReport(data: EditBillingReport): ThunkAction<Promise<void>, State, void, AnyAction> {
         return async (dispatch: ThunkDispatch<State, void, AnyAction>) => {
             dispatch({
-                type: DataActions.ADD_BILLING_REPORT
+                type: DataActions.EDIT_BILLING_REPORT
             })
 
-            Data.sendToApi('put', Config.apiEndpoint + '/api/billing-reports', data, dispatch, () => {
+            Data.sendToApi('post', Config.apiEndpoint + '/api/billing-reports', data, dispatch, () => {
                 dispatch(Data.fetchBillingReports())
             })
         }
