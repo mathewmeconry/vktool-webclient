@@ -19,7 +19,8 @@ export interface Props<T> {
     viewLocation: string,
     tableColumns: Array<TableColumn>
     history: History
-    actions?: Array<any>
+    panelActions?: Array<any>
+    rowActions?: Array<any>
 }
 
 export class DataList<T> extends Component<Props<T>> {
@@ -70,7 +71,13 @@ export class DataList<T> extends Component<Props<T>> {
         return (
             <Table<T>
                 columns={this.props.tableColumns.concat([
-                    { text: 'Actions', keys: ['id'], content: <div><button className="btn btn-success view" onMouseUp={this.elementView}><FontAwesomeIcon icon="eye" /></button></div> }
+                    {
+                        text: 'Actions', keys: ['id'], content:
+                            <div className="btn-group">
+                                <button className="btn btn-success view" onMouseUp={this.elementView}><FontAwesomeIcon icon="eye" /></button>
+                                {this.props.rowActions}
+                            </div>
+                    }
                 ])}
                 data={dataById}
                 sortClick={this.sortClick}
@@ -85,7 +92,7 @@ export class DataList<T> extends Component<Props<T>> {
                 <Row>
                     <Column>
                         <Panel
-                            actions={(this.props.actions || [])}
+                            actions={(this.props.panelActions || [])}
                             title={
                                 <input id="search" defaultValue={this.props.data.filter} placeholder="Search..." className="float-right form-control form-control-sm" onChange={(event) => this.textSearch(event)} />
                             }>

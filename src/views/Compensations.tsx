@@ -5,6 +5,8 @@ import { UI } from "../actions/UIActions";
 import { ThunkDispatch } from "redux-thunk";
 import { AnyAction } from "redux";
 import { DataList } from "../components/DataList";
+import React from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 
 const mapStateToProps = (state: State) => {
@@ -12,10 +14,11 @@ const mapStateToProps = (state: State) => {
         data: state.data.compensationEntries,
         title: 'Entschädigungen',
         viewLocation: '/compensation/',
+        rowActions: [<button className="btn btn-danger delete" onMouseUp={() => alert('del')}><FontAwesomeIcon icon="trash" /></button>],
         tableColumns: [
             { text: 'Mitglied', keys: { 'member': ['firstname', 'lastname'] }, sortable: true },
             { text: 'Datum', keys: ['date'], sortable: true },
-            { text: 'Betrag', keys: ['amount'], sortable: true, prefix: 'CHF '},
+            { text: 'Betrag', keys: ['amount'], sortable: true, prefix: 'CHF ' },
             { text: 'Ersteller', keys: { 'creator': ['displayName'] }, sortable: true },
             { text: 'Genehmigt', keys: ['approved'], sortable: true },
             { text: 'Ausbezahlt', keys: ['paied'], sortable: true }
