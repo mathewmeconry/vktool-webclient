@@ -23,13 +23,14 @@ before_script:
   
 build:
   stage: build
-  script: npm run build
+  script: ls -al
   only:
     refs:
       - master
       
 deploy:
   stage: deploy
+  script: npm run build
   only:
     refs:
       - master
