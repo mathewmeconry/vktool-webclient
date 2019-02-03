@@ -16,6 +16,7 @@ cache:
   
 stages:
   - build
+  - deploy
 
 before_script:
   - npm install
@@ -23,3 +24,12 @@ before_script:
 build:
   stage: build
   script: npm run build
+  only:
+    refs:
+      - master
+      
+deploy:
+  stage: deploy
+  only:
+    refs:
+      - master
