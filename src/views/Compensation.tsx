@@ -15,9 +15,11 @@ import Column from "../components/Column";
 import Panel from "../components/Panel";
 import FormEntry from "../components/FormEntry";
 import { Link } from "react-router-dom";
+import { Error404 } from "../components/Errors/404";
 
 interface CompensationProps extends RouteComponentProps<{ id: string }> {
     compensation: CompensationEntity.default,
+    compensationIds: Array<number>,
     loading: boolean,
     fetchCompensations: Function,
     approve: Function
@@ -70,6 +72,10 @@ export class _Compensation extends Component<CompensationProps> {
     }
 
     public render() {
+        if (!this.props.loading && !this.props.compensation && this.props.compensationIds.length > 0) {
+            return <Error404 />
+        }
+
         if (this.props.loading || !this.props.compensation) {
             return (<Page title="Compensation"><Loading /></Page>)
         }
@@ -78,6 +84,7 @@ export class _Compensation extends Component<CompensationProps> {
         if (!this.props.compensation.approved) {
             statusBadgeClass = 'badge-warning'
         }
+
 
         return (
             <Page title="Compensation">
@@ -121,9 +128,10 @@ export class _Compensation extends Component<CompensationProps> {
     }
 }
 
-const mapStateToProps = (state: State, props: RouteComponentProps<{id: string}>) => {
+const mapStateToProps = (state: State, props: RouteComponentProps<{ id: string }>) => {
     return {
         compensation: state.data.compensationEntries.byId[props.match.params.id],
+        compensationIds: state.data.compensationEntries.ids,
         loading: state.data.compensationEntries.loading
     }
 }
