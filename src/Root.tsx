@@ -29,7 +29,7 @@ import { User } from "./views/User";
 import { BillingReport } from "./views/BillingReport";
 import { AddCompensation } from "./views/AddCompensation";
 import { Compensation } from "./views/Compensation";
-import { Error404 } from "./components/Error404";
+import { Error404 } from "./components/Errors/404";
 import { MailingLists } from "./views/MailingLists";
 import { CollectionPoints } from "./views/CollectionPoints";
 import { AddCollectionPoint } from "./views/AddCollectionPoint";

@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Page } from "./Page";
+import { Page } from "../Page";
 
 export class Error404 extends Component {
     public render() {
