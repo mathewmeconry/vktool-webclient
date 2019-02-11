@@ -63,6 +63,7 @@ function Users(state: DataInterface<User> = { loading: false, byId: {}, ids: [],
             }
             return Object.assign({}, state, { loading: false })
         case DataActions.GOT_USERS:
+            if (Object.keys(action.payload).length < 1) return state
             for (let contact of action.payload) {
                 byId[contact.id] = contact
                 ids.push(contact.id)
@@ -90,6 +91,7 @@ function Ranks(state: DataInterface<ContactGroup> = { loading: false, byId: {}, 
             }
             return Object.assign({}, state, { loading: false })
         case DataActions.GOT_RANKS:
+            if (Object.keys(action.payload).length < 1) return state
             for (let rank of action.payload) {
                 byId[rank.id] = rank
                 ids.push(rank.id)
@@ -110,6 +112,7 @@ function Contacts(state: DataInterface<Contact> = { loading: false, byId: {}, id
             }
             return Object.assign({}, state, { loading: false })
         case DataActions.GOT_CONTACTS:
+            if (Object.keys(action.payload).length < 1) return state
             for (let contact of action.payload) {
                 byId[contact.id] = contact
                 ids.push(contact.id)
@@ -131,6 +134,7 @@ function Members(state: DataInterface<Contact> = { loading: false, byId: {}, ids
             }
             return Object.assign({}, state, { loading: false })
         case DataActions.GOT_MEMBERS:
+            if (Object.keys(action.payload).length < 1) return state
             for (let contact of action.payload) {
                 byId[contact.id] = contact
                 ids.push(contact.id)
@@ -159,6 +163,7 @@ function Orders(state: DataInterface<Order> = { loading: false, byId: {}, ids: [
             }
             return Object.assign({}, state, { loading: false })
         case DataActions.GOT_ORDERS:
+            if (Object.keys(action.payload).length < 1) return state
             for (let order of action.payload) {
                 byId[order.id] = order
                 ids.push(order.id)
@@ -187,6 +192,7 @@ function OpenOrders(state: DataInterface<Order> = { loading: false, byId: {}, id
             }
             return Object.assign({}, state, { loading: false })
         case DataActions.GOT_OPEN_ORDERS:
+            if (Object.keys(action.payload).length < 1) return state
             for (let order of action.payload) {
                 byId[order.id] = order
                 ids.push(order.id)
@@ -212,6 +218,7 @@ function BillingReports(state: DataInterface<BillingReport> = { loading: false, 
             }
             return Object.assign({}, state, { loading: false })
         case DataActions.GOT_BILLING_REPORTS:
+            if (Object.keys(action.payload).length < 1) return state
             for (let report of action.payload) {
                 byId[report.id] = report
                 ids.push(report.id)
@@ -243,7 +250,8 @@ function CompensationEntries(state: DataInterface<Compensation> = { loading: fal
             }
             return Object.assign({}, state, { loading: false })
         case DataActions.GOT_COMPENSATION_ENTRIES:
-            for (let entry of action.payload) {
+        if (Object.keys(action.payload).length < 0) return state
+                    for (let entry of action.payload) {
                 byId[entry.id] = entry
                 ids.push(entry.id)
             }
@@ -273,6 +281,7 @@ function CollectionPoints(state: DataInterface<Compensation> = { loading: false,
             }
             return Object.assign({}, state, { loading: false })
         case DataActions.GOT_COLLECTION_POINTS:
+            if (Object.keys(action.payload).length < 1) return state
             for (let entry of action.payload) {
                 byId[entry.id] = entry
                 ids.push(entry.id)
@@ -361,7 +370,7 @@ const search = function <T>(state: DataInterface<T>, searchFields: Array<string>
                 //@ts-ignore
                 let field = searchFields[i]
                 if (!field) field = i
-                
+
                 if (field instanceof Array) {
                     for (let f of field) {
                         if (f.indexOf('phone') > -1) {

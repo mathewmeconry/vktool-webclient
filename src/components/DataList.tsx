@@ -10,7 +10,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Loading from "./Loading";
 import StringIndexed from "../interfaces/StringIndexed";
 
-export interface Props<T> {
+export interface DataListProps<T> {
     data: DataInterface<T>,
     fetchData: Function,
     onSearch: Function,
@@ -23,8 +23,8 @@ export interface Props<T> {
     rowActions?: Array<any>
 }
 
-export class DataList<T> extends Component<Props<T>> {
-    constructor(props: Props<T>) {
+export class DataList<T> extends Component<DataListProps<T>> {
+    constructor(props: DataListProps<T>) {
         super(props)
 
         if (!this.props.data.loading) {

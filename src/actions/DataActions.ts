@@ -172,6 +172,24 @@ export class Data {
         }
     }
 
+    public static deleteCompensationEntry(id: number): ThunkAction<Promise<void>, State, void, AnyAction> {
+        return async (dispatch: ThunkDispatch<State, void, AnyAction>) => {
+            dispatch({
+                type: DataActions.APPROVE_COMPENSATION_ENTRY,
+                payload: id
+            })
+
+            return Data.sendToApi('delete', Config.apiEndpoint + '/api/compensations', { 'id': id }, dispatch, () => {
+                dispatch({
+                    type: UIActions.NOTIFICATION_SUCCESS,
+                    payload: 'Gelöscht!'
+                })
+
+                dispatch(Data.fetchCompensationEntries())
+            })
+        }
+    }
+
     public static fetchUsers(): ThunkAction<Promise<AnyAction>, State, void, AnyAction> {
         return Data.fetchFromApi(Config.apiEndpoint + '/api/users', DataActions.FETCH_USERS, DataActions.GOT_USERS)
     }
@@ -241,7 +259,7 @@ export class Data {
         }
     }
 
-    private static sendToApi(method: 'post' | 'put', route: string, data: any, dispatch: Dispatch, callback: () => void): Promise<void> {
+    private static sendToApi(method: 'post' | 'put' | 'delete', route: string, data: any, dispatch: Dispatch, callback: () => void): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             axios({
                 method: method,
@@ -250,11 +268,6 @@ export class Data {
                 withCredentials: true
             }).then(response => {
                 let data = Data.deepParser(response.data)
-
-                dispatch({
-                    type: UIActions.NOTIFICATION_SUCCESS,
-                    payload: 'Gespeichert!'
-                })
 
                 callback()
                 resolve()

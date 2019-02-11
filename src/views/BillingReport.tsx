@@ -26,6 +26,9 @@ import Contact from '../entities/Contact';
 import { OrderSelect } from '../components/OrderSelect';
 import { MemberSelect } from '../components/MemberSelect';
 import { EditBillingReport } from '../interfaces/BillingReport';
+import Compensation from '../entities/Compensation';
+import Modal from '../components/Modal';
+import { ButtonGroup, Button } from 'react-bootstrap';
 
 export interface BillingReportProps extends RouteComponentProps<{ id: string }> {
     billingReports: DataInterface<BillingReportEntity.default>,
@@ -37,7 +40,8 @@ export interface BillingReportProps extends RouteComponentProps<{ id: string }> 
     user: User,
     approve: (id: string) => void,
     decline: (id: string) => void,
-    edit: (data: EditBillingReport) => void
+    edit: (data: EditBillingReport) => void,
+    deleteCompensation: (id: number) => void
 }
 
 interface BillingReportState {
@@ -47,7 +51,9 @@ interface BillingReportState {
     els: Array<Contact>
     drivers: Array<Contact>
     food: boolean
-    remarks: string
+    remarks: string,
+    toDeleteCompensation?: Compensation,
+    modalShow: boolean
 }
 
 export class _BillingReport extends Component<BillingReportProps, BillingReportState> {
@@ -65,6 +71,12 @@ export class _BillingReport extends Component<BillingReportProps, BillingReportS
         this.onInformationSave = this.onInformationSave.bind(this)
         this.onInputChange = this.onInputChange.bind(this)
 
+        this.getCompensationActions = this.getCompensationActions.bind(this)
+        this.deleteCompensation = this.deleteCompensation.bind(this)
+        this.deleteCompensationConfirmed = this.deleteCompensationConfirmed.bind(this)
+        this.showModal = this.showModal.bind(this)
+        this.hideModal = this.hideModal.bind(this)
+
         if (this.billingReport) {
             this.state = {
                 informationEdit: false,
@@ -73,7 +85,8 @@ export class _BillingReport extends Component<BillingReportProps, BillingReportS
                 els: this.billingReport.els,
                 drivers: this.billingReport.drivers,
                 food: this.billingReport.food,
-                remarks: this.billingReport.remarks
+                remarks: this.billingReport.remarks,
+                modalShow: false
             }
         }
     }
@@ -164,6 +177,41 @@ export class _BillingReport extends Component<BillingReportProps, BillingReportS
         }
     }
 
+    private deleteCompensation(event: React.MouseEvent<HTMLButtonElement>) {
+        if (event.currentTarget.parentNode && event.currentTarget.parentNode.parentNode && event.currentTarget.parentNode.parentNode.parentElement) {
+            let id = event.currentTarget.parentNode.parentNode.parentElement.getAttribute('data-key')
+            if (id) {
+                this.setState({
+                    toDeleteCompensation: this.billingReport.compensations.find((compensation: Compensation) => compensation.id === parseInt(id || '')),
+                    modalShow: true
+                })
+            }
+        }
+    }
+
+    private deleteCompensationConfirmed() {
+        if (this.state.toDeleteCompensation) {
+            this.props.deleteCompensation(this.state.toDeleteCompensation.id)
+            this.setState({
+                toDeleteCompensation: undefined,
+                modalShow: false
+            })
+            this.props.fetchBillingReports()
+        }
+    }
+
+    private showModal() {
+        this.setState({
+            modalShow: true
+        })
+    }
+
+    private hideModal() {
+        this.setState({
+            modalShow: false
+        })
+    }
+
     public prepareCompensationsForTable() {
         let compensations: StringIndexed<OrderCompensation> = {}
         for (let compensation of (this.billingReport.compensations as Array<OrderCompensation>)) {
@@ -248,6 +296,47 @@ export class _BillingReport extends Component<BillingReportProps, BillingReportS
         )
     }
 
+    public renderModal() {
+        if (this.state.toDeleteCompensation) {
+            return (
+                <Modal
+                    show={this.state.modalShow}
+                    onHide={this.hideModal}
+                    header={<h3>{(this.state.toDeleteCompensation as Compensation).member.firstname + ' ' + (this.state.toDeleteCompensation as Compensation).member.lastname + ' vom  ' + (this.state.toDeleteCompensation as Compensation).date.toLocaleDateString()}</h3>}
+                    body={
+                        <span>
+                            {
+                                'Willst du die Entschädigung von ' +
+                                (this.state.toDeleteCompensation as Compensation).member.firstname + ' ' + (this.state.toDeleteCompensation as Compensation).member.lastname +
+                                ' vom  ' + (this.state.toDeleteCompensation as Compensation).date.toLocaleDateString() + ' mit einem Betrag von CHF' +
+                                (this.state.toDeleteCompensation as Compensation).amount + ' wirklich löschen?'
+                            }
+                        </span>
+                    }
+                    footer={
+                        <ButtonGroup>
+                            <Button variant="danger" onClick={this.deleteCompensationConfirmed}>Löschen</Button>
+                            <Button variant="secondary" onClick={this.hideModal}>Abbrechen</Button>
+                        </ButtonGroup>
+                    }
+
+                />
+            )
+        }
+
+        return null
+    }
+
+    public getCompensationActions() {
+        let actions = [<Button variant="success" className="view" onMouseUp={this.elementView}><FontAwesomeIcon icon="eye" /></Button>]
+        if (this.props.user.roles.includes(AuthRoles.ADMIN) ||
+            this.props.user.roles.includes(AuthRoles.BILLINGREPORTS_EDIT) ||
+            (this.billingReport.state === 'pending' && this.billingReport.creator.id === this.props.user.id)) {
+            actions.push(<Button variant="danger" className="delete" onMouseUp={this.deleteCompensation}><FontAwesomeIcon icon="trash" /></Button>)
+        }
+        return actions
+    }
+
     public render() {
         if (this.props.loading || !this.billingReport || !this.state) {
             return (<Page title="Verrechnungsrapport"><Loading /></Page>)
@@ -255,6 +344,7 @@ export class _BillingReport extends Component<BillingReportProps, BillingReportS
 
         return (
             <Page title="Verrechnungsrapport">
+                {this.renderModal()}
                 <Row>
                     <Column className="col-md-6">
                         {this.renderInformations()}
@@ -276,7 +366,9 @@ export class _BillingReport extends Component<BillingReportProps, BillingReportS
                                     { text: 'Verrechnen', keys: ['charge'] },
                                     { text: 'Betrag', keys: ['amount'], prefix: 'CHF ' },
                                     { text: 'Ausbezahlt', keys: ['paied'] },
-                                    { text: 'Actions', keys: ['_id'], content: <div><button className="btn btn-success view" onMouseUp={this.elementView}><FontAwesomeIcon icon="eye" /></button></div> }
+                                    {
+                                        text: 'Actions', keys: ['_id'], content: <ButtonGroup>{this.getCompensationActions()}</ButtonGroup>
+                                    }
                                 ]}
                                 defaultSort={{ keys: ['from'], direction: 'asc' }}
                                 data={this.prepareCompensationsForTable()}
@@ -314,6 +406,9 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>
         },
         edit: (data: EditBillingReport) => {
             dispatch(Data.editBillingReport(data))
+        },
+        deleteCompensation: (id: number) => {
+            dispatch(Data.deleteCompensationEntry(id))
         }
     }
 }
