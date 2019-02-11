@@ -37,10 +37,16 @@ function NavibarLevel(state: string = '', action: AnyAction) {
 function Notify(state = null, action: AnyAction): null {
     switch (action.type) {
         case UIActions.NOTIFICATION_SUCCESS:
-            toast.success(action.payload)
+            toast.success(action.payload, {
+                autoClose: 2000,
+                position: (CurrentDevice.mobile() ? 'bottom-center' : 'top-right')
+            })
             return state
         case UIActions.NOTIFICATION_ERROR:
-            toast.error(action.payload)
+            toast.error(action.payload, {
+                autoClose: 2000,
+                position: (CurrentDevice.mobile() ? 'bottom-center' : 'top-right')
+            })
             return state
         default:
             return state
