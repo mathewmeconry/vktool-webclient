@@ -218,7 +218,8 @@ export class _BillingReport extends Component<BillingReportProps, BillingReportS
         if (this.billingReport.state === 'declined') statusBadgeClass = 'badge-danger'
 
         let panelActions = []
-        if (this.props.user.roles.includes(AuthRoles.BILLINGREPORTS_EDIT) ||
+        if (this.props.user.roles.includes(AuthRoles.ADMIN) ||
+            this.props.user.roles.includes(AuthRoles.BILLINGREPORTS_EDIT) ||
             (this.billingReport.state === 'pending' && this.billingReport.creator.id === this.props.user.id)) {
             if (!this.state.informationEdit) {
                 panelActions.push(<Action icon="pencil-alt" onClick={this.onInformationEdit} />)
