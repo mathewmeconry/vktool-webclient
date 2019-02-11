@@ -30,7 +30,9 @@ build:
       
 deploy:
   stage: deploy
-  script: ls -al
+  script: 
+    - npm run build
+    - ls -al
   only:
     refs:
       - master
