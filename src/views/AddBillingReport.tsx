@@ -112,8 +112,8 @@ export class _AddBillingReport extends Component<AddBillingReportProps, AddBilli
                         <Panel title="">
                             <StepWizard nav={<WizardNav />}>
                                 <AddBillingReportStep1 openOrders={this.props.openOrders} onNext={this.onNext} />
-                                <AddBillingReportStep2 members={this.props.members} onNext={this.onNext} />
-                                <AddBillingReportStep3 members={this.props.members} onNext={this.onNext} />
+                                <AddBillingReportStep2 onNext={this.onNext} />
+                                <AddBillingReportStep3 onNext={this.onNext} />
                                 <AddBillingReportStep4
                                     onNext={this.save}
                                     order={this.state.order}
