@@ -235,7 +235,7 @@ function BillingReports(state: DataInterface<BillingReport> = { loading: false, 
 function CompensationEntries(state: DataInterface<Compensation> = { loading: false, byId: {}, ids: [], filter: '', sort: { keys: ['date'], direction: 'desc' } }, action: AnyAction): DataInterface<Compensation> {
     let byId: StringIndexed<Compensation> = {}
     let ids: Array<number> = []
-    let searchFields = { 'member': ['firstname', 'lastname'], 'amount': {}, 'creator': ['displayName'] }
+    let searchFields = { 'member': ['firstname', 'lastname'], 'amount': '', 'creator': ['displayName'] }
     switch (action.type) {
         case DataActions.FETCH_COMPENSATION_ENTRIES:
             if (state.ids.length === 0) {
@@ -360,6 +360,8 @@ const search = function <T>(state: DataInterface<T>, searchFields: Array<string>
             for (let i in searchFields) {
                 //@ts-ignore
                 let field = searchFields[i]
+                if (!field) field = i
+                
                 if (field instanceof Array) {
                     for (let f of field) {
                         if (f.indexOf('phone') > -1) {
