@@ -99,6 +99,7 @@ export default class AddBillingReportStep3 extends Component<AddBillingReportSte
                     <Checkbox id='food' checked={this.state.food} onChange={this.onInputChange} label="Verpflegung" />
                     <br></br>
                     <h5>Bemerkungen</h5>
+                    <small className="text-muted">Bei mehreren EL bitte die Schichtzeiten hier eingeben</small>
                     <textarea id="remarks" value={this.state.remarks} onChange={this.onInputChange} className='form-control'></textarea>
                 </form>
             </WizardStep>
