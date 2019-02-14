@@ -25,7 +25,7 @@ import Action from '../components/Action';
 import Contact from '../entities/Contact';
 import { OrderSelect } from '../components/OrderSelect';
 import { MemberSelect } from '../components/MemberSelect';
-import { EditBillingReport } from '../interfaces/BillingReport';
+import { EditBillingReport, BillingReportCompensationEntry } from '../interfaces/BillingReport';
 import Compensation from '../entities/Compensation';
 import Modal from '../components/Modal';
 import { ButtonGroup, Button } from 'react-bootstrap';
@@ -42,7 +42,8 @@ export interface BillingReportProps extends RouteComponentProps<{ id: string }> 
     approve: (id: string) => void,
     decline: (id: string) => void,
     edit: (data: EditBillingReport) => void,
-    deleteCompensation: (id: number) => void
+    deleteCompensation: (id: number) => void,
+    addCompensationEntries: (data: { billingReportId: number, entries: Array<BillingReportCompensationEntry> }) => void
 }
 
 interface BillingReportState {
@@ -204,7 +205,17 @@ export class _BillingReport extends Component<BillingReportProps, BillingReportS
     }
 
     private addCompensations(data: StringIndexed<any>) {
-        
+        let compensationEntries: Array<BillingReportCompensationEntry> = []
+        for(let i in data.vks) {
+            compensationEntries.push(data.vks[i])
+        }
+
+        this.props.addCompensationEntries({
+            billingReportId: this.billingReport.id,
+            entries: compensationEntries
+        })
+
+        this.hideModal()
     }
 
     private showModal() {
@@ -436,7 +447,14 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>
             dispatch(Data.editBillingReport(data))
         },
         deleteCompensation: (id: number) => {
-            dispatch(Data.deleteCompensationEntry(id))
+            dispatch(Data.deleteCompensationEntry(id)).then(() => {
+                dispatch(Data.fetchBillingReports())
+            })
+        },
+        addCompensationEntries: (data: { billingReportId: number, entries: Array<BillingReportCompensationEntry> }) => {
+            dispatch(Data.addCompensationEntriesForBillingReport(data)).then(() => {
+                dispatch(Data.fetchBillingReports())
+            })
         }
     }
 }
