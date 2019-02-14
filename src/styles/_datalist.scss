@@ -1,6 +1,6 @@
 #search {
-    width: 100%;
-    margin: 10px 15px 0 0;
+    width: calc(100% - 20px);
+    margin: 10px 10px 0 0;
 }
 
 @include media-breakpoint-up(sm) {}
