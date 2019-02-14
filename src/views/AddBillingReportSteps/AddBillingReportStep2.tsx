@@ -1,16 +1,14 @@
 import React, { Component } from "react";
-import { DataInterface } from "../../reducers/DataReducer";
 import Table from "../../components/Table";
 import StringIndexed from "../../interfaces/StringIndexed";
 import WizardStep from "../../components/WizardStep";
 import { BillingReportCompensationEntry } from "../../interfaces/BillingReport";
 import Contact from "../../entities/Contact";
-import { ValueType } from "react-select/lib/types";
 import { MemberSelect } from "../../components/MemberSelect";
 
 export interface Step2Props {
     onNext: (data: StringIndexed<any>) => void,
-    members: DataInterface<Contact>
+    onPrevious?: () => boolean
 }
 
 export default class AddBillingReportStep2 extends Component<Step2Props, { tableEntries: StringIndexed<BillingReportCompensationEntry>, vks: Array<Contact>, from: string, until: string, charge: boolean }> {
@@ -121,7 +119,7 @@ export default class AddBillingReportStep2 extends Component<Step2Props, { table
 
     public render() {
         return (
-            <WizardStep title="Einsatzzeiten" onNextStep={this.validate} {...this.props}>
+            <WizardStep title="Einsatzzeiten" onNextStep={this.validate} onPreviousStep={this.props.onPrevious || function () { return true }} {...this.props}>
                 <form ref={(form: HTMLFormElement) => this.formEl = form}>
                     <div className="row">
                         <div className="col">
@@ -132,7 +130,7 @@ export default class AddBillingReportStep2 extends Component<Step2Props, { table
                                 defaultValue={this.state.vks}
                             />
                         </div>
-                        <div className="col-1">
+                        <div className="col-2">
                             <h5>Verrechnen</h5>
                             <span className="switch switch-sm">
                                 <input type="checkbox" className="switch" id="charge" name="charge" checked={this.state.charge} onChange={this.onInputChange} />
@@ -173,7 +171,7 @@ export default class AddBillingReportStep2 extends Component<Step2Props, { table
                         data={this.state.tableEntries}
                     />
                 </div>
-            </WizardStep>
+            </WizardStep >
         )
     }
 }

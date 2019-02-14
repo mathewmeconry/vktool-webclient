@@ -1,5 +1,5 @@
 import { UIActions } from "./UIActions";
-import { CreateBillingReport, EditBillingReport } from "./../interfaces/BillingReport";
+import { CreateBillingReport, EditBillingReport, BillingReportCompensationEntry } from "./../interfaces/BillingReport";
 import { Dispatch, AnyAction } from "redux";
 import { ThunkAction, ThunkDispatch } from "redux-thunk";
 import { State } from "../reducers/IndexReducer";
@@ -36,6 +36,7 @@ export const DataActions = {
 
     FETCH_COMPENSATION_ENTRIES: 'fetch_compensation_entries',
     GOT_COMPENSATION_ENTRIES: 'got_compensation_entries',
+    ADD_COMPENSATION_ENTRIES: 'add_compensation_entries',
     ADD_COMPENSATION_ENTRY: 'add_compensation_entry',
     APPROVE_COMPENSATION_ENTRY: 'approve_compensation_entry',
     DECLINE_COMPENSATION_ENTRY: 'dcline_compensation_entry',
@@ -140,6 +141,23 @@ export class Data {
 
     public static fetchCompensationEntries(): ThunkAction<Promise<AnyAction>, State, void, AnyAction> {
         return Data.fetchFromApi(Config.apiEndpoint + '/api/compensations', DataActions.FETCH_COMPENSATION_ENTRIES, DataActions.GOT_COMPENSATION_ENTRIES)
+    }
+
+    public static addCompensationEntriesForBillingReport(data: { billingReportId: number, entries: Array<BillingReportCompensationEntry> }): ThunkAction<Promise<void>, State, void, AnyAction> {
+        return async (dispatch: ThunkDispatch<State, void, AnyAction>) => {
+            dispatch({
+                type: DataActions.ADD_COMPENSATION_ENTRIES
+            })
+
+            return Data.sendToApi('put', Config.apiEndpoint + '/api/compensations/bulk', data, dispatch, () => {
+                dispatch(Data.fetchCompensationEntries())
+
+                dispatch({
+                    type: UIActions.NOTIFICATION_SUCCESS,
+                    payload: 'Gespeichert!'
+                })
+            })
+        }
     }
 
     public static addCompensationEntry(data: CompensationEntry): ThunkAction<Promise<void>, State, void, AnyAction> {

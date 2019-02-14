@@ -24,7 +24,7 @@ export default class Modal extends Component<ModalProps> {
 
     public render() {
         return (
-            <BootstrapModal show={this.props.show} onHide={this.handleClose}>
+            <BootstrapModal show={this.props.show} onHide={this.handleClose} dialogClassName="modal-lg">
                 <BootstrapModal.Header closeButton>
                     {this.props.header}
                 </BootstrapModal.Header>

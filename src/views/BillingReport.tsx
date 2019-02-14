@@ -25,10 +25,11 @@ import Action from '../components/Action';
 import Contact from '../entities/Contact';
 import { OrderSelect } from '../components/OrderSelect';
 import { MemberSelect } from '../components/MemberSelect';
-import { EditBillingReport } from '../interfaces/BillingReport';
+import { EditBillingReport, BillingReportCompensationEntry } from '../interfaces/BillingReport';
 import Compensation from '../entities/Compensation';
 import Modal from '../components/Modal';
 import { ButtonGroup, Button } from 'react-bootstrap';
+import AddBillingReportStep2 from './AddBillingReportSteps/AddBillingReportStep2';
 
 export interface BillingReportProps extends RouteComponentProps<{ id: string }> {
     billingReports: DataInterface<BillingReportEntity.default>,
@@ -41,7 +42,8 @@ export interface BillingReportProps extends RouteComponentProps<{ id: string }> 
     approve: (id: string) => void,
     decline: (id: string) => void,
     edit: (data: EditBillingReport) => void,
-    deleteCompensation: (id: number) => void
+    deleteCompensation: (id: number) => void,
+    addCompensationEntries: (data: { billingReportId: number, entries: Array<BillingReportCompensationEntry> }) => void
 }
 
 interface BillingReportState {
@@ -74,6 +76,8 @@ export class _BillingReport extends Component<BillingReportProps, BillingReportS
         this.getCompensationActions = this.getCompensationActions.bind(this)
         this.deleteCompensation = this.deleteCompensation.bind(this)
         this.deleteCompensationConfirmed = this.deleteCompensationConfirmed.bind(this)
+        this.addCompensations = this.addCompensations.bind(this)
+
         this.showModal = this.showModal.bind(this)
         this.hideModal = this.hideModal.bind(this)
 
@@ -200,16 +204,32 @@ export class _BillingReport extends Component<BillingReportProps, BillingReportS
         }
     }
 
+    private addCompensations(data: StringIndexed<any>) {
+        let compensationEntries: Array<BillingReportCompensationEntry> = []
+        for(let i in data.vks) {
+            compensationEntries.push(data.vks[i])
+        }
+
+        this.props.addCompensationEntries({
+            billingReportId: this.billingReport.id,
+            entries: compensationEntries
+        })
+
+        this.hideModal()
+    }
+
     private showModal() {
         this.setState({
             modalShow: true
         })
     }
 
-    private hideModal() {
+    private hideModal(): boolean {
         this.setState({
             modalShow: false
         })
+
+        return true
     }
 
     public prepareCompensationsForTable() {
@@ -296,7 +316,7 @@ export class _BillingReport extends Component<BillingReportProps, BillingReportS
         )
     }
 
-    public renderModal() {
+    public renderCompensationDeletionModal() {
         if (this.state.toDeleteCompensation) {
             return (
                 <Modal
@@ -327,6 +347,24 @@ export class _BillingReport extends Component<BillingReportProps, BillingReportS
         return null
     }
 
+    public renderCompensationsAddModal() {
+        if (!this.state.toDeleteCompensation) {
+            return (
+                <Modal
+                    show={this.state.modalShow}
+                    onHide={this.hideModal}
+                    header={<h3>Entschädigungen hinzufügen</h3>}
+                    body={
+                        <AddBillingReportStep2 onNext={this.addCompensations} onPrevious={this.hideModal} />
+                    }
+                    footer={<div></div>}
+
+                />
+            )
+        }
+        return null
+    }
+
     public getCompensationActions() {
         let actions = [<Button variant="success" className="view" onMouseUp={this.elementView}><FontAwesomeIcon icon="eye" /></Button>]
         if (this.props.user.roles.includes(AuthRoles.ADMIN) ||
@@ -344,7 +382,8 @@ export class _BillingReport extends Component<BillingReportProps, BillingReportS
 
         return (
             <Page title="Verrechnungsrapport">
-                {this.renderModal()}
+                {this.renderCompensationDeletionModal()}
+                {this.renderCompensationsAddModal()}
                 <Row>
                     <Column className="col-md-6">
                         {this.renderInformations()}
@@ -357,7 +396,7 @@ export class _BillingReport extends Component<BillingReportProps, BillingReportS
                 </Row>
                 <Row>
                     <Column>
-                        <Panel title="VKs">
+                        <Panel title="VKs" actions={[<Action icon="plus" onClick={this.showModal} />]}>
                             <Table<OrderCompensation>
                                 columns={[
                                     { text: 'Name', keys: { 'member': ['firstname', 'lastname'] } },
@@ -408,7 +447,14 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>
             dispatch(Data.editBillingReport(data))
         },
         deleteCompensation: (id: number) => {
-            dispatch(Data.deleteCompensationEntry(id))
+            dispatch(Data.deleteCompensationEntry(id)).then(() => {
+                dispatch(Data.fetchBillingReports())
+            })
+        },
+        addCompensationEntries: (data: { billingReportId: number, entries: Array<BillingReportCompensationEntry> }) => {
+            dispatch(Data.addCompensationEntriesForBillingReport(data)).then(() => {
+                dispatch(Data.fetchBillingReports())
+            })
         }
     }
 }

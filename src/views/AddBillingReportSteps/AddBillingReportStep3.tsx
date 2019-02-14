@@ -9,8 +9,7 @@ import Checkbox from "../../components/Checkbox";
 import { MemberSelect } from "../../components/MemberSelect";
 
 export interface AddBillingReportStep3Props {
-    onNext: (data: StringIndexed<any>) => void,
-    members: DataInterface<Contact>
+    onNext: (data: StringIndexed<any>) => void
 }
 
 export default class AddBillingReportStep3 extends Component<AddBillingReportStep3Props, { els: Array<Contact>, drivers: Array<Contact>, food: boolean, remarks: string }> {
