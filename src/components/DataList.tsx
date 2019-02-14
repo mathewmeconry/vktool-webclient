@@ -48,7 +48,7 @@ export class DataList<T> extends Component<DataListProps<T>> {
         }
     }
 
-    private sortClick(event: React.MouseEvent<HTMLTableHeaderCellElement>, sortKeys: Array<string>, sortDirection: 'asc' | 'desc') {
+    private sortClick(event: React.MouseEvent<HTMLTableHeaderCellElement>, sortKeys: Array<string> | StringIndexed<any>, sortDirection: 'asc' | 'desc') {
         this.props.onSort(sortKeys, sortDirection)
     }
 

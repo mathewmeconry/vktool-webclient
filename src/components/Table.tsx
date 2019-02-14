@@ -17,8 +17,8 @@ export interface TableColumn {
 interface TableProps<T> {
     columns: Array<TableColumn>,
     data: StringIndexed<T> | Array<T>,
-    sortClick?: (event: MouseEvent<HTMLTableHeaderCellElement>, clickedKeys: Array<string>, sortDirection: 'asc' | 'desc') => void,
-    defaultSort?: { keys: Array<string>, direction: 'asc' | 'desc' }
+    sortClick?: (event: MouseEvent<HTMLTableHeaderCellElement>, clickedKeys: Array<string> | StringIndexed<any>, sortDirection: 'asc' | 'desc') => void,
+    defaultSort?: { keys: Array<string> | StringIndexed<any>, direction: 'asc' | 'desc' }
 }
 
 export default class Table<T> extends Component<TableProps<T>, { sortKey: string, sortDirection: 'asc' | 'desc', data: StringIndexed<T> | Array<T>, }> {
@@ -59,7 +59,20 @@ export default class Table<T> extends Component<TableProps<T>, { sortKey: string
         }
 
         if (this.props.sortClick) {
-            this.props.sortClick(event, dataKey.split('-'), direction)
+            let keys = [dataKey]
+            if (dataKey.indexOf('_') > -1) keys = dataKey.split('_')
+
+            let finalKeys: StringIndexed<any> | Array<string> = {}
+            for (let key of keys) {
+                if (key) {
+                    if (key.indexOf('.') > -1) {
+                        (finalKeys as StringIndexed<any>)[key.split('.')[0]] = key.split('.')[1].split('-')
+                    } else {
+                        (finalKeys as Array<string>) = key.split('-')
+                    }
+                }
+            }
+            this.props.sortClick(event, finalKeys, direction)
             this.setState({
                 sortKey: dataKey,
                 sortDirection: direction

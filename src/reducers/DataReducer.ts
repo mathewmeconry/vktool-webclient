@@ -250,8 +250,8 @@ function CompensationEntries(state: DataInterface<Compensation> = { loading: fal
             }
             return Object.assign({}, state, { loading: false })
         case DataActions.GOT_COMPENSATION_ENTRIES:
-        if (Object.keys(action.payload).length < 0) return state
-                    for (let entry of action.payload) {
+            if (Object.keys(action.payload).length < 0) return state
+            for (let entry of action.payload) {
                 byId[entry.id] = entry
                 ids.push(entry.id)
             }
@@ -411,13 +411,29 @@ const sort = function <T>(state: DataInterface<T>, action: AnyAction): Array<num
     for (let id of state.ids) {
         let element = state.byId[id]
         let sortValues = []
-        for (let i of sortKeys) {
-            if (i.indexOf('phone') > -1) {
-                //@ts-ignore
-                sortValues.push(element[i].replace(' ', ''))
+        for (let i in sortKeys) {
+            //@ts-ignore
+            let key = sortKeys[i]
+            if (!key) key = i
+
+            if (key instanceof Array) {
+                for(let k of key) {
+                    if (key.indexOf('phone') > -1) {
+                        //@ts-ignore
+                        sortValues.push(element[i][k].replace(' ', ''))
+                    } else {
+                        //@ts-ignore
+                        sortValues.push(element[i][k])
+                    }
+                }
             } else {
-                //@ts-ignore
-                sortValues.push(element[i])
+                if (key.indexOf('phone') > -1) {
+                    //@ts-ignore
+                    sortValues.push(element[key].replace(' ', ''))
+                } else {
+                    //@ts-ignore
+                    sortValues.push(element[key])
+                }
             }
         }
         prepared.push({ id: id, value: sortValues.join(' ').toLowerCase() })
