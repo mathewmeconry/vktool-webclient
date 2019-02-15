@@ -73,7 +73,8 @@ function Users(state: DataInterface<User> = { loading: false, byId: {}, ids: [],
             ids = sort(Object.assign({}, state, { loading: false, byId: byId, ids: ids }), Object.assign({}, action, { payload: '' }))
             return Object.assign({}, state, { loading: false, byId: byId, ids: ids })
         case UIActions.SEARCH_USERS:
-            return Object.assign({}, state, { ids: search(state, searchFields, action), filter: action.payload })
+            ids = search(state, searchFields, action)
+            return Object.assign({}, state, { ids: sort(Object.assign({}, state, { ids: ids }), Object.assign({}, action, { payload: '' })) })
         case UIActions.SORT_USERS:
             return Object.assign({}, state, { ids: sort(state, action), sort: { keys: action.payload.keys, direction: action.payload.direction } })
         default:
@@ -144,7 +145,8 @@ function Members(state: DataInterface<Contact> = { loading: false, byId: {}, ids
             ids = sort(Object.assign({}, state, { loading: false, byId: byId, ids: ids }), Object.assign({}, action, { payload: '' }))
             return Object.assign({}, state, { loading: false, byId: byId, ids: ids })
         case UIActions.SEARCH_MEMBERS:
-            return Object.assign({}, state, { ids: search(state, searchFields, action), filter: action.payload })
+            ids = search(state, searchFields, action)
+            return Object.assign({}, state, { ids: sort(Object.assign({}, state, { ids: ids }), Object.assign({}, action, { payload: '' })) })
         case UIActions.SORT_MEMBERS:
             return Object.assign({}, state, { ids: sort(state, action), sort: { keys: action.payload.keys, direction: action.payload.direction } })
         default:
@@ -173,7 +175,8 @@ function Orders(state: DataInterface<Order> = { loading: false, byId: {}, ids: [
             ids = sort(Object.assign({}, state, { loading: false, byId: byId, ids: ids }), Object.assign({}, action, { payload: '' }))
             return Object.assign({}, state, { loading: false, byId: byId, ids: ids })
         case UIActions.SEARCH_ORDERS:
-            return Object.assign({}, state, { ids: search(state, searchFields, action), filter: action.payload })
+            ids = search(state, searchFields, action)
+            return Object.assign({}, state, { ids: sort(Object.assign({}, state, { ids: ids }), Object.assign({}, action, { payload: '' })) })
         case UIActions.SORT_ORDERS:
             return Object.assign({}, state, { ids: sort(state, action), sort: { keys: action.payload.keys, direction: action.payload.direction } })
         default:
@@ -228,7 +231,8 @@ function BillingReports(state: DataInterface<BillingReport> = { loading: false, 
             ids = sort(Object.assign({}, state, { loading: false, byId: byId, ids: ids }), Object.assign({}, action, { payload: '' }))
             return Object.assign({}, state, { loading: false, byId: byId, ids: ids })
         case UIActions.SEARCH_BILLING_REPORTS:
-            return Object.assign({}, state, { ids: search(state, searchFields, action), filter: action.payload })
+            ids = search(state, searchFields, action)
+            return Object.assign({}, state, { ids: sort(Object.assign({}, state, { ids: ids }), Object.assign({}, action, { payload: '' })) })
         case UIActions.SORT_BILLING_REPORTS:
             return Object.assign({}, state, { ids: sort(state, action), sort: { keys: action.payload.keys, direction: action.payload.direction } })
         case DataActions.APPROVE_BILLING_REPORT:
@@ -260,7 +264,8 @@ function CompensationEntries(state: DataInterface<Compensation> = { loading: fal
             ids = sort(Object.assign({}, state, { loading: false, byId: byId, ids: ids }), Object.assign({}, action, { payload: '' }))
             return Object.assign({}, state, { loading: false, byId: byId, ids: ids })
         case UIActions.SEARCH_COMPENSATION_ENTRIES:
-            return Object.assign({}, state, { ids: search(state, searchFields, action), filter: action.payload })
+            ids = search(state, searchFields, action)
+            return Object.assign({}, state, { ids: sort(Object.assign({}, state, { ids: ids }), Object.assign({}, action, { payload: '' })) })
         case UIActions.SORT_COMPENSATION_ENTRIES:
             return Object.assign({}, state, { ids: sort(state, action), sort: { keys: action.payload.keys, direction: action.payload.direction } })
         case DataActions.APPROVE_COMPENSATION_ENTRY:
@@ -362,6 +367,12 @@ export default combineReducers({ collectionPoints: CollectionPoints, user: UserR
 const search = function <T>(state: DataInterface<T>, searchFields: Array<string> | { [index: string]: any }, action: AnyAction): Array<number> {
     let ids: Array<number> = []
     let filter = action.payload || state.filter
+
+    // override if the action type includes search
+    if (action.type.indexOf('search') > -1) {
+        filter = action.payload
+    }
+
     if (filter) {
         for (let i in state.byId) {
             let contact = state.byId[i]
@@ -417,7 +428,7 @@ const sort = function <T>(state: DataInterface<T>, action: AnyAction): Array<num
             if (!key) key = i
 
             if (key instanceof Array) {
-                for(let k of key) {
+                for (let k of key) {
                     if (key.indexOf('phone') > -1) {
                         //@ts-ignore
                         sortValues.push(element[i][k].replace(' ', ''))
