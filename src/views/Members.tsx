@@ -13,7 +13,7 @@ const mapStateToProps = (state: State) => {
     return {
         data: state.data.members,
         title: 'Mitglieder',
-        actions: [<Action icon="download" to="" />],
+        panelActions: [<Action icon="download" to="" />],
         viewLocation: '/contact/',
         tableColumns: [
             { text: 'Name', keys: ['firstname', 'lastname'], sortable: true },
