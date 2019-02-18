@@ -13,6 +13,7 @@ import { DataInterface } from "../reducers/DataReducer";
 import Loading from "../components/Loading";
 import * as ContactEntity from "../entities/Contact";
 import ContactGroup from "../entities/ContactGroup";
+import Action from "../components/Action";
 
 export interface ContactProps {
     contact: ContactEntity.default,
@@ -59,21 +60,31 @@ export default class _Contact extends Component<ContactProps> {
             }
         }
 
+
+        let address = this.props.contact.address + ', ' + this.props.contact.postcode + ' ' + this.props.contact.city
+        let collectionPoint = ''
+        if (this.props.contact.collectionPoint) {
+            collectionPoint = this.props.contact.collectionPoint.address + ', ' + this.props.contact.collectionPoint.postcode + ' ' + this.props.contact.collectionPoint.city
+        }
         return (
             <Page title={this.props.contact.firstname + ' ' + this.props.contact.lastname}>
                 <Row>
                     <Column className="col-md-6">
-                        <Panel title="Persönliche Informationen">
+                        <Panel title="Persönliche Informationen" actions={[<Action icon="pencil-alt" onClick={() => { }} />]}>
                             <div className="container-fluid">
                                 <FormEntry id="firstname" title="Vorname" >{this.props.contact.firstname}</FormEntry>
                                 <FormEntry id="lastname" title="Nachname" >{this.props.contact.lastname}</FormEntry>
                                 <FormEntry id="rank" title="Rang">{this.rank}</FormEntry>
-                                <FormEntry id="birthday" title="Geburtstag">{new Date(this.props.contact.birthday).toLocaleDateString('de-CH', { year: 'numeric', month: 'numeric', day: 'numeric' })}</FormEntry>
-                                <FormEntry id="mail" title="E-Mail"><a href={'mailto:' + this.props.contact.mail}>{this.props.contact.mail}</a></FormEntry>
-                                <FormEntry id="mailSecond" title="E-Mail 2"><a href={'mailto:' + this.props.contact.mailSecond}>{this.props.contact.mailSecond}</a></FormEntry>
+                                <FormEntry id="birthday" title="Geburtstag">{new Date(this.props.contact.birthday).toLocaleDateString()}</FormEntry>
+                                <FormEntry id="address" title="Adresse"><a href={'https://www.google.com/maps/place/' + address} target='_blank'>{address}</a></FormEntry>
+                                <FormEntry id="collectionPoint" title="Abholpunkt">{(collectionPoint) ? <a href={'https://www.google.com/maps/place/' + collectionPoint} target='_blank'>{collectionPoint}</a> : ''}</FormEntry>
                                 <FormEntry id="phoneFixed" title="Festnetz"><a href={'tel:' + this.props.contact.phoneFixed}>{this.props.contact.phoneFixed}</a></FormEntry>
                                 <FormEntry id="phoneFixedSecond" title="Festnetz 2"><a href={'tel:' + this.props.contact.phoneFixedSecond}>{this.props.contact.phoneFixedSecond}</a></FormEntry>
                                 <FormEntry id="phoneMobile" title="Mobile"><a href={'tel:' + this.props.contact.phoneMobile}>{this.props.contact.phoneMobile}</a></FormEntry>
+                                <FormEntry id="mail" title="E-Mail"><a href={'mailto:' + this.props.contact.mail}>{this.props.contact.mail}</a></FormEntry>
+                                <FormEntry id="mailSecond" title="E-Mail 2"><a href={'mailto:' + this.props.contact.mailSecond}>{this.props.contact.mailSecond}</a></FormEntry>
+                                <FormEntry id="entryDate" title="Eintrittsdatum">{(this.props.contact.entryDate) ? new Date(this.props.contact.entryDate).toLocaleDateString() : ''}</FormEntry>
+                                <FormEntry id="exitDate" title="Austrittsdatum">{(this.props.contact.exitDate) ? new Date(this.props.contact.exitDate).toLocaleDateString() : ''}</FormEntry>
                                 <FormEntry id="groups" title="Gruppen">
                                     {(this.groups) ? this.groups.map((group: ContactGroup) => {
                                         return <span className="badge badge-primary">{group.name}</span>
