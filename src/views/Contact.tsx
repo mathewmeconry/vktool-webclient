@@ -76,8 +76,8 @@ export default class _Contact extends Component<ContactProps> {
                                 <FormEntry id="lastname" title="Nachname" >{this.props.contact.lastname}</FormEntry>
                                 <FormEntry id="rank" title="Rang">{this.rank}</FormEntry>
                                 <FormEntry id="birthday" title="Geburtstag">{new Date(this.props.contact.birthday).toLocaleDateString()}</FormEntry>
-                                <FormEntry id="address" title="Adresse"><a href={'https://www.google.com/maps/place/' + address} target='_blank'>{address}</a></FormEntry>
-                                <FormEntry id="collectionPoint" title="Abholpunkt">{(collectionPoint) ? <a href={'https://www.google.com/maps/place/' + collectionPoint} target='_blank'>{collectionPoint}</a> : ''}</FormEntry>
+                                <FormEntry id="address" title="Adresse"><a href={'https://www.google.com/maps/search/' + address} target='_blank'>{address}</a></FormEntry>
+                                <FormEntry id="collectionPoint" title="Abholpunkt">{(collectionPoint) ? <a href={'https://www.google.com/maps/search/' + collectionPoint} target='_blank'>{collectionPoint}</a> : ''}</FormEntry>
                                 <FormEntry id="phoneFixed" title="Festnetz"><a href={'tel:' + this.props.contact.phoneFixed}>{this.props.contact.phoneFixed}</a></FormEntry>
                                 <FormEntry id="phoneFixedSecond" title="Festnetz 2"><a href={'tel:' + this.props.contact.phoneFixedSecond}>{this.props.contact.phoneFixedSecond}</a></FormEntry>
                                 <FormEntry id="phoneMobile" title="Mobile"><a href={'tel:' + this.props.contact.phoneMobile}>{this.props.contact.phoneMobile}</a></FormEntry>

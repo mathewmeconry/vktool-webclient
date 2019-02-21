@@ -16,7 +16,7 @@ const mapStateToProps = (state: State) => {
         panelActions: [<Action icon="plus" to="/draft/collection-points/add" />],
         viewLocation: '/collection-point/',
         tableColumns: [
-            { text: 'Abholpunkt', keys: ['address', 'postcode', 'city'], link: true, linkPrefix: 'https://www.google.com/maps/place/', sortable: true },
+            { text: 'Abholpunkt', keys: ['address', 'postcode', 'city'], link: true, linkPrefix: 'https://www.google.com/maps/search/', sortable: true },
         ]
     }
 }
