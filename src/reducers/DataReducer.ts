@@ -335,7 +335,6 @@ function MailingLists(state: StringIndexed<Array<string>> = {}, action: AnyActio
                 // Squad
                 if (member.contactGroups.find(group =>
                     group.bexioId === 13 ||
-                    group.bexioId === 11 ||
                     group.bexioId === 12 ||
                     group.bexioId === 28 ||
                     group.bexioId === 29 ||
