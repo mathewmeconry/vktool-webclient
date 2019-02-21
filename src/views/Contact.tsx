@@ -14,16 +14,25 @@ import Loading from "../components/Loading";
 import * as ContactEntity from "../entities/Contact";
 import ContactGroup from "../entities/ContactGroup";
 import Action from "../components/Action";
+import CollectionPoint from "../entities/CollectionPoint";
+import { CollectionPointSelect } from "../components/CollectionPointSelect";
+import { EditMember } from "../interfaces/Member";
 
 export interface ContactProps {
     contact: ContactEntity.default,
     ranks: DataInterface<ContactGroup>,
     loading: boolean,
-    loadContacts: Function,
-    loadRanks: Function
+    loadContacts: () => void,
+    loadRanks: () => void,
+    editMember: (data: EditMember) => void
 }
 
-export default class _Contact extends Component<ContactProps> {
+export interface ContactState {
+    editable: boolean,
+    collectionPoint: CollectionPoint
+}
+
+export default class _Contact extends Component<ContactProps, ContactState> {
     private rank: string;
     private groups: Array<ContactGroup>
 
@@ -39,6 +48,65 @@ export default class _Contact extends Component<ContactProps> {
         if (this.props.ranks.ids.length === 0 && !this.props.loading) {
             this.props.loadRanks()
         }
+
+        this.onSave = this.onSave.bind(this)
+        this.onSelectChange = this.onSelectChange.bind(this)
+        this.renderCollectionPoint = this.renderCollectionPoint.bind(this)
+        this.renderPanelActions = this.renderPanelActions.bind(this)
+
+        this.state = {
+            editable: false,
+            collectionPoint: new CollectionPoint()
+        }
+    }
+
+    public componentWillReceiveProps(nextProps: ContactProps) {
+        if (nextProps.contact) {
+            this.setState({
+                collectionPoint: nextProps.contact.collectionPoint || new CollectionPoint()
+            })
+        }
+    }
+
+    private onSave() {
+        this.setState({ editable: false })
+
+        if (this.props.contact.contactGroups.find(group => group.bexioId === 7)) {
+            this.props.editMember({ id: this.props.contact.id, collectionPointId: this.state.collectionPoint.id })
+        }
+    }
+
+    private onSelectChange(state: string): (opts: CollectionPoint) => void {
+        return (opts: CollectionPoint) => {
+            //@ts-ignore
+            this.setState({ [state]: opts })
+        }
+    }
+
+    private renderCollectionPoint() {
+        if (this.state.editable) {
+            return <CollectionPointSelect multi={false} onChange={this.onSelectChange('collectionPoint')} defaultValue={this.state.collectionPoint || undefined} />
+        }
+        if (this.state.collectionPoint &&
+            this.state.collectionPoint.hasOwnProperty('address') &&
+            this.state.collectionPoint.hasOwnProperty('postcode') &&
+            this.state.collectionPoint.hasOwnProperty('city')) {
+            return <a
+                href={`https://www.google.com/maps/search/${this.state.collectionPoint.address}, ${this.state.collectionPoint.postcode} ${this.state.collectionPoint.city}`}
+                target='_blank'>
+                {`${this.state.collectionPoint.address}, ${this.state.collectionPoint.postcode} ${this.state.collectionPoint.city}`}
+            </a>
+        }
+
+        return null
+    }
+
+    private renderPanelActions() {
+        if (this.state.editable) {
+            return [<Action icon="save" onClick={this.onSave} />]
+        }
+
+        return [<Action icon="pencil-alt" onClick={() => { this.setState({ editable: true }) }} />]
     }
 
     public render() {
@@ -62,22 +130,21 @@ export default class _Contact extends Component<ContactProps> {
 
 
         let address = this.props.contact.address + ', ' + this.props.contact.postcode + ' ' + this.props.contact.city
-        let collectionPoint = ''
-        if (this.props.contact.collectionPoint) {
-            collectionPoint = this.props.contact.collectionPoint.address + ', ' + this.props.contact.collectionPoint.postcode + ' ' + this.props.contact.collectionPoint.city
-        }
+
         return (
             <Page title={this.props.contact.firstname + ' ' + this.props.contact.lastname}>
                 <Row>
                     <Column className="col-md-6">
-                        <Panel title="Persönliche Informationen" actions={[<Action icon="pencil-alt" onClick={() => { }} />]}>
+                        <Panel title="Persönliche Informationen" actions={this.renderPanelActions()}>
                             <div className="container-fluid">
                                 <FormEntry id="firstname" title="Vorname" >{this.props.contact.firstname}</FormEntry>
                                 <FormEntry id="lastname" title="Nachname" >{this.props.contact.lastname}</FormEntry>
                                 <FormEntry id="rank" title="Rang">{this.rank}</FormEntry>
                                 <FormEntry id="birthday" title="Geburtstag">{new Date(this.props.contact.birthday).toLocaleDateString()}</FormEntry>
                                 <FormEntry id="address" title="Adresse"><a href={'https://www.google.com/maps/search/' + address} target='_blank'>{address}</a></FormEntry>
-                                <FormEntry id="collectionPoint" title="Abholpunkt">{(collectionPoint) ? <a href={'https://www.google.com/maps/search/' + collectionPoint} target='_blank'>{collectionPoint}</a> : ''}</FormEntry>
+                                <FormEntry id="collectionPoint" title="Abholpunkt">
+                                    {this.renderCollectionPoint()}
+                                </FormEntry>
                                 <FormEntry id="phoneFixed" title="Festnetz"><a href={'tel:' + this.props.contact.phoneFixed}>{this.props.contact.phoneFixed}</a></FormEntry>
                                 <FormEntry id="phoneFixedSecond" title="Festnetz 2"><a href={'tel:' + this.props.contact.phoneFixedSecond}>{this.props.contact.phoneFixedSecond}</a></FormEntry>
                                 <FormEntry id="phoneMobile" title="Mobile"><a href={'tel:' + this.props.contact.phoneMobile}>{this.props.contact.phoneMobile}</a></FormEntry>
@@ -121,6 +188,9 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>
         },
         loadRanks: () => {
             dispatch(Data.fetchRanks())
+        },
+        editMember: (data: EditMember) => {
+            dispatch(Data.editMember(data))
         }
     }
 }

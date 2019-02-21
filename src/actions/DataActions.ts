@@ -7,6 +7,7 @@ import axios, { AxiosError, AxiosResponse } from 'axios'
 import { CompensationEntry } from "../interfaces/CompensationEntry";
 import Config from '../Config'
 import { PutCollectionPoints } from "../interfaces/CollectionPoints";
+import { EditMember } from "../interfaces/Member";
 
 export const DataActions = {
     FETCH_USER: 'fetch_user',
@@ -14,6 +15,7 @@ export const DataActions = {
 
     FETCH_MEMBERS: 'fetch_members',
     GOT_MEMBERS: 'got_members',
+    EDIT_MEMBER: 'edit_member',
 
     FETCH_RANKS: 'fetch_ranks',
     GOT_RANKS: 'got_ranks',
@@ -60,6 +62,18 @@ export class Data {
 
     public static fetchMembers(): ThunkAction<Promise<AnyAction>, State, void, AnyAction> {
         return Data.fetchFromApi(Config.apiEndpoint + '/api/members', DataActions.FETCH_MEMBERS, DataActions.GOT_MEMBERS)
+    }
+
+    public static editMember(data: EditMember): ThunkAction<Promise<void>, State, void, AnyAction> {
+        return async (dispatch: ThunkDispatch<State, void, AnyAction>) => {
+            dispatch({
+                type: DataActions.EDIT_MEMBER
+            })
+
+            Data.sendToApi('post', Config.apiEndpoint + '/api/members', data, dispatch, () => {
+                dispatch(Data.fetchMembers())
+            })
+        }
     }
 
     public static fetchRanks(): ThunkAction<Promise<AnyAction>, State, void, AnyAction> {
