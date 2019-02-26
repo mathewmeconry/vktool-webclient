@@ -20,6 +20,7 @@ export default class WizardStep extends Component<WizardStepProps> {
         super(props)
         this.previousStep = this.previousStep.bind(this)
         this.nextStep = this.nextStep.bind(this)
+        this.renderBackButton = this.renderBackButton.bind(this)
     }
 
     public nextStep() {
@@ -45,6 +46,11 @@ export default class WizardStep extends Component<WizardStepProps> {
         }
     }
 
+    private renderBackButton() {
+        if ((this.props.currentStep || 0) > 1) return <button className="btn btn-secondary" onClick={this.previousStep}>Zurück</button>
+        return <div></div>
+    }
+
     public render() {
         let nextButtonText = 'Weiter'
         let nextButtonClasses = 'btn btn-primary'
@@ -62,7 +68,7 @@ export default class WizardStep extends Component<WizardStepProps> {
                     {this.props.children}
                 </div>
                 <div className="d-flex justify-content-between wizard-step-footer">
-                    <button className="btn btn-secondary" onClick={this.previousStep}>Zurück</button>
+                    {this.renderBackButton()}
                     <button className={nextButtonClasses} onClick={this.nextStep}>{nextButtonText}</button>
                 </div>
             </div>
