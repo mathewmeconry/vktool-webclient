@@ -5,6 +5,7 @@ import { State } from '../reducers/IndexReducer'
 import { NavibarLevelHeader } from "./NavibarLevelHeader";
 import { AuthRoles } from "../interfaces/AuthRoles";
 import User from "../entities/User";
+import Config from "../Config";
 
 export class _Navibar extends Component<{ open: boolean, user?: User }> {
     public renderElement(element: JSX.Element, roles?: Array<AuthRoles>) {
@@ -54,6 +55,7 @@ export class _Navibar extends Component<{ open: boolean, user?: User }> {
                             , [AuthRoles.COMPENSATIONS_READ]
                         )}
                         {this.renderElement(<NavibarElement to="/users" text="Benutzer" leftIcon="user" />, [AuthRoles.ADMIN])}
+                        <NavibarElement to={`${Config.apiEndpoint}/api/logout`} text="Abmelden" leftIcon="power-off" />
                     </ol>
                 </div>
             )

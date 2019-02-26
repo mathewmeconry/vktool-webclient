@@ -38,15 +38,6 @@
     @include float-left;
 }
 
-#header-logout {
-    color: white;
-    line-height: $header_height_mobile;
-    font-size: 15pt;
-    margin-right: 10px;
-    cursor: pointer;
-    @include float-right;
-}
-
 #user {
     color: white;
     font-weight: bold;

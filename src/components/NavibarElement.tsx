@@ -38,6 +38,22 @@ export class _NavibarElement extends Component<NavibarElementProps> {
         if (CurrentDevice.mobile() && this.props.toggleNavibar && this.props.to) this.props.toggleNavibar()
     }
 
+    private renderLinkElement(to: string, content: Array<JSX.Element>, onMouseUp: (event: React.MouseEvent<HTMLElement>) => void) {
+        if (to.match(/^(http|https):\/\//)) {
+            return (
+                <a href={to} className="navibar-element" onMouseUp={onMouseUp} >
+                    {content}
+                </a>
+            )
+        } else {
+            return (
+                <NavLink exact to={to} className="navibar-element" activeClassName="navibar-element-active" onMouseUp={onMouseUp} >
+                    {content}
+                </ NavLink>
+            )
+        }
+    }
+
     public render() {
         let leftIcon
         let rightIcon: JSX.Element = <p></p>
@@ -46,15 +62,13 @@ export class _NavibarElement extends Component<NavibarElementProps> {
         if (this.props.rightIcon) rightIcon = <FontAwesomeIcon icon={this.props.rightIcon} className="navibar-element-icon navibar-element-icon-right float-right" />
 
         if (this.props.to) {
-            return (
-                <NavLink exact to={this.props.to} className="navibar-element" activeClassName="navibar-element-active" onMouseUp={this.onMouseUp} >
-                    <li>
-                        {leftIcon}
-                        <p className="navibar-element-text">{this.props.text}</p>
-                        {rightIcon}
-                    </li>
-                </ NavLink>
-            )
+            return this.renderLinkElement(this.props.to, [
+                <li>
+                    {leftIcon}
+                    <p className="navibar-element-text">{this.props.text}</p>
+                    {rightIcon}
+                </li>
+            ], this.onMouseUp)
         } else {
             return (
                 <li className="navibar-element" onMouseUp={this.onMouseUp}>

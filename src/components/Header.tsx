@@ -9,16 +9,6 @@ import { RouterProps } from "react-router";
 import Config from "../Config";
 
 export class _Header extends Component<{ open: boolean, user: User, onClick: () => {} } & RouterProps, {}> {
-    constructor(props: { open: boolean, user: User, onClick: () => {} } & RouterProps) {
-        super(props)
-
-        this.logout = this.logout.bind(this)
-    }
-
-    private logout() {
-        document.location.href = Config.apiEndpoint + '/api/logout'
-    }
-
     public render() {
         let className = 'navibar-open'
         if (!this.props.open) {
@@ -36,11 +26,6 @@ export class _Header extends Component<{ open: boolean, user: User, onClick: () 
                     <div id="header-bars" onClick={this.props.onClick}>
                         <span>
                             <FontAwesomeIcon icon="bars" />
-                        </span>
-                    </div>
-                    <div id="header-logout" onClick={this.logout}>
-                        <span>
-                            <FontAwesomeIcon icon="power-off" />
                         </span>
                     </div>
                 </div>
