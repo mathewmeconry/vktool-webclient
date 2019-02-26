@@ -16,7 +16,8 @@ const mapStateToProps = (state: State) => {
         tableColumns: [
             { text: 'Auftragsnummer', keys: ['documentNr'], sortable: true },
             { text: 'Titel', keys: ['title'], sortable: true },
-            { text: 'Total', keys: ['total'], sortable: true, prefix: 'CHF ' }
+            { text: 'Total', keys: ['total'], sortable: true, prefix: 'CHF ' },
+            { text: 'Auftragsdaten', keys: ['execDates'], sortable: true }
         ]
     }
 }

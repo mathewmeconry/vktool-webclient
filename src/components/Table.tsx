@@ -155,6 +155,25 @@ export default class Table<T> extends Component<TableProps<T>, { sortKey: string
                                     return '✓'
                                 }
                                 return '⨯'
+                            } else if (dataEntry[key] instanceof Array) {
+                                //@ts-ignore
+                                return dataEntry[key].map((entry: any) => {
+                                    if (entry instanceof Date) {
+                                        if (column.format) {
+                                            //@ts-ignore
+                                            return entry[column.format]() + '\n\r'
+                                        } else {
+                                            return entry.toLocaleDateString() + '\n\r'
+                                        }
+                                    } else if (typeof entry === 'boolean') {
+                                        if (entry) {
+                                            return '✓' + '\n\r'
+                                        }
+                                        return '⨯' + '\n\r'
+                                    }
+
+                                    return entry + '\n\r'
+                                })
                             }
                             //@ts-ignore
                             return dataEntry[key]
