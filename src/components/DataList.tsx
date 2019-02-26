@@ -100,6 +100,7 @@ export class DataList<T> extends Component<DataListProps<T>> {
                         </Panel>
                     </Column>
                 </Row>
+                {this.props.children}
             </Page>
         )
     }

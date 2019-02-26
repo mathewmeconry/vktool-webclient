@@ -95,29 +95,28 @@ export class _Compensations extends Component<CompensationsProps & RouteComponen
 
     public render() {
         return (
-            <div>
+            <DataList<Compensation>
+                title='Entschädigungen'
+                viewLocation='/compensation/'
+                rowActions={[
+                    <button className="btn btn-danger delete" onMouseUp={this.deleteCompensation}><FontAwesomeIcon icon="trash" /></button>
+                ]}
+                tableColumns={[
+                    { text: 'Mitglied', keys: { 'member': ['firstname', 'lastname'] }, sortable: true },
+                    { text: 'Datum', keys: ['date'], sortable: true },
+                    { text: 'Betrag', keys: ['amount'], sortable: true, prefix: 'CHF ' },
+                    { text: 'Ersteller', keys: { 'creator': ['displayName'] }, sortable: true },
+                    { text: 'Genehmigt', keys: ['approved'], sortable: true },
+                    { text: 'Ausbezahlt', keys: ['paied'], sortable: true }
+                ]}
+                data={this.props.data}
+                fetchData={this.props.fetchData}
+                onSearch={this.props.onSearch}
+                onSort={this.props.onSort}
+                history={this.props.history}
+            >
                 {this.renderModal()}
-                <DataList<Compensation>
-                    title='Entschädigungen'
-                    viewLocation='/compensation/'
-                    rowActions={[
-                        <button className="btn btn-danger delete" onMouseUp={this.deleteCompensation}><FontAwesomeIcon icon="trash" /></button>
-                    ]}
-                    tableColumns={[
-                        { text: 'Mitglied', keys: { 'member': ['firstname', 'lastname'] }, sortable: true },
-                        { text: 'Datum', keys: ['date'], sortable: true },
-                        { text: 'Betrag', keys: ['amount'], sortable: true, prefix: 'CHF ' },
-                        { text: 'Ersteller', keys: { 'creator': ['displayName'] }, sortable: true },
-                        { text: 'Genehmigt', keys: ['approved'], sortable: true },
-                        { text: 'Ausbezahlt', keys: ['paied'], sortable: true }
-                    ]}
-                    data={this.props.data}
-                    fetchData={this.props.fetchData}
-                    onSearch={this.props.onSearch}
-                    onSort={this.props.onSort}
-                    history={this.props.history}
-                />
-            </div>
+            </DataList>
         )
     }
 }
