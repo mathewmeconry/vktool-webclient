@@ -181,25 +181,28 @@ export default class Table<T> extends Component<TableProps<T>, { sortKey: string
                     } else {
                         for (let k in column.keys) {
                             content = content.concat(column.keys[k].map((key) => {
-                                //@ts-ignore
-                                if (dataEntry[k][key] instanceof Date) {
-                                    if (column.format) {
+                                if (dataEntry.hasOwnProperty(k)) {
+                                    //@ts-ignore
+                                    if (dataEntry[k][key] instanceof Date) {
+                                        if (column.format) {
+                                            //@ts-ignore
+                                            return dataEntry[k][key][column.format]()
+                                        } else {
+                                            //@ts-ignore
+                                            return dataEntry[k][key].toLocaleDateString()
+                                        }
                                         //@ts-ignore
-                                        return dataEntry[k][key][column.format]()
-                                    } else {
+                                    } else if (typeof dataEntry[k][key] === 'boolean') {
                                         //@ts-ignore
-                                        return dataEntry[k][key].toLocaleDateString()
+                                        if (dataEntry[k][key]) {
+                                            return '✓'
+                                        }
+                                        return '⨯'
                                     }
                                     //@ts-ignore
-                                } else if (typeof dataEntry[k][key] === 'boolean') {
-                                    //@ts-ignore
-                                    if (dataEntry[k][key]) {
-                                        return '✓'
-                                    }
-                                    return '⨯'
+                                    return dataEntry[k][key]
                                 }
-                                //@ts-ignore
-                                return dataEntry[k][key]
+                                return ''
                             }))
                         }
                     }
