@@ -38,7 +38,7 @@ export class _Members extends Component<MembersProps> {
                 Mobile: member.phoneMobile
             }
 
-            if (member.collectionPoint) germanizedMember.Abholpunkt = `${member.collectionPoint.address}, ${member.collectionPoint.postcode} ${member.collectionPoint.city}`
+            if (member.collectionPoint) germanizedMember.Abholpunkt = `(${member.collectionPoint.name}) ${member.collectionPoint.address}, ${member.collectionPoint.postcode} ${member.collectionPoint.city}`
 
             membersAsArray.push(germanizedMember)
         }

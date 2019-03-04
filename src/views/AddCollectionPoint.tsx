@@ -19,6 +19,7 @@ export class _AddCollectionPoint extends Component<{ save: Function } & RouteCom
         super(props)
 
         this.state = {
+            name: '',
             address: '',
             postcode: '',
             city: ''
@@ -47,6 +48,7 @@ export class _AddCollectionPoint extends Component<{ save: Function } & RouteCom
 
             if (valid) {
                 this.props.save({
+                    name: this.state.name,
                     postcode: this.state.postcode,
                     address: this.state.address,
                     city: this.state.city
@@ -65,6 +67,9 @@ export class _AddCollectionPoint extends Component<{ save: Function } & RouteCom
                     <Column>
                         <Panel>
                             <form ref={(ref: HTMLFormElement) => this.formEl = ref}>
+                                <h5>Name</h5>
+                                <input type="text" name="name" id="name" className='form-control' value={this.state.name} onChange={this.onInputChange} required={true} />
+                                <br></br>
                                 <h5>Addresse</h5>
                                 <input type="text" name="address" id="address" className='form-control' value={this.state.address} onChange={this.onInputChange} required={true} />
                                 <br></br>

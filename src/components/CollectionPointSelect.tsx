@@ -28,7 +28,7 @@ export class _CollectionPointSelect extends Component<CollectionPointSelectProps
             for (let collectionPoint of this.props.defaultValue) {
                 valueProps.push({
                     value: collectionPoint.id.toString(),
-                    label: collectionPoint.address + ', ' + collectionPoint.postcode + ' ' + collectionPoint.city,
+                    label: `(${collectionPoint.name}) ${collectionPoint.address}, ${collectionPoint.postcode} ${collectionPoint.city}`,
                 })
             }
 
@@ -46,7 +46,7 @@ export class _CollectionPointSelect extends Component<CollectionPointSelectProps
             for (let collectionPoint of nextProps.defaultValue) {
                 valueProps.push({
                     value: collectionPoint.id.toString(),
-                    label: collectionPoint.address + ', ' + collectionPoint.postcode + ' ' + collectionPoint.city,
+                    label: `(${collectionPoint.name}) ${collectionPoint.address}, ${collectionPoint.postcode} ${collectionPoint.city}`,
                 })
             }
 
@@ -68,7 +68,7 @@ export class _CollectionPointSelect extends Component<CollectionPointSelectProps
             for (let i in this.props.collectionPoints.byId) {
                 let collectionPoint = this.props.collectionPoints.byId[i]
                 options.push({
-                    label: collectionPoint.address + ', ' + collectionPoint.postcode + ' ' + collectionPoint.city,
+                    label: `(${collectionPoint.name}) ${collectionPoint.address}, ${collectionPoint.postcode} ${collectionPoint.city}`,
                     value: i
                 })
             }
