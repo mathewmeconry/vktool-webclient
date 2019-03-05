@@ -21,7 +21,13 @@ interface TableProps<T> {
     defaultSort?: { keys: Array<string> | StringIndexed<any>, direction: 'asc' | 'desc' }
 }
 
-export default class Table<T> extends Component<TableProps<T>, { sortKey: string, sortDirection: 'asc' | 'desc', data: StringIndexed<T> | Array<T>, }> {
+interface TableState<T> {
+    sortKey: string,
+    sortDirection: 'asc' | 'desc',
+    data: StringIndexed<T> | Array<T>
+}
+
+export default class Table<T> extends Component<TableProps<T>, TableState<T>> {
     constructor(props: TableProps<T>) {
         super(props)
         this.sortClick = this.sortClick.bind(this)
@@ -49,6 +55,10 @@ export default class Table<T> extends Component<TableProps<T>, { sortKey: string
     private sortClick(event: MouseEvent<HTMLTableHeaderCellElement>) {
         let dataKey = (event.target as HTMLElement).dataset.key as string
         let direction: 'asc' | 'desc' = 'asc';
+        let newState: TableState<T> = Object.assign({}, this.state, {
+            sortDirection: direction,
+            sortKey: dataKey
+        })
 
         if (this.state.sortKey === dataKey) {
             if (this.state.sortDirection === 'asc') {
@@ -58,41 +68,39 @@ export default class Table<T> extends Component<TableProps<T>, { sortKey: string
             }
         }
 
-        if (this.props.sortClick) {
-            let keys = [dataKey]
-            if (dataKey.indexOf('_') > -1) keys = dataKey.split('_')
+        let keys = [dataKey]
+        if (dataKey.indexOf('_') > -1) keys = dataKey.split('_')
 
-            let finalKeys: StringIndexed<any> | Array<string> = {}
-            for (let key of keys) {
-                if (key) {
-                    if (key.indexOf('.') > -1) {
-                        (finalKeys as StringIndexed<any>)[key.split('.')[0]] = key.split('.')[1].split('-')
-                    } else {
-                        (finalKeys as Array<string>) = key.split('-')
-                    }
+        let finalKeys: StringIndexed<any> | Array<string> = {}
+        for (let key of keys) {
+            if (key) {
+                if (key.indexOf('.') > -1) {
+                    (finalKeys as StringIndexed<any>)[key.split('.')[0]] = key.split('.')[1].split('-')
+                } else {
+                    (finalKeys as Array<string>) = key.split('-')
                 }
             }
+        }
+
+        if (this.props.sortClick) {
             this.props.sortClick(event, finalKeys, direction)
-            this.setState({
-                sortKey: dataKey,
-                sortDirection: direction
-            })
         } else {
             let prepared = []
-            for (let i in this.props.data) {
+            for (let a in this.props.data) {
                 //@ts-ignore
-                let element = this.props.data[i]
+                let element = this.props.data[a]
                 let sortValues = []
-                for (let i of dataKey) {
-                    if (i.indexOf('phone') > -1) {
+                for (let i in finalKeys) {
+                    let key = finalKeys[i]
+                    if (key.indexOf('phone') > -1) {
                         //@ts-ignore
-                        sortValues.push(element[i].replace(' ', ''))
+                        sortValues.push(element[key].replace(' ', ''))
                     } else {
                         //@ts-ignore
-                        sortValues.push(element[i])
+                        sortValues.push(element[key])
                     }
                 }
-                prepared.push({ id: i, value: sortValues.join(' ').toLowerCase() })
+                prepared.push({ id: a, value: sortValues.join(' ').toLowerCase() })
             }
 
             prepared.sort((a, b) => {
@@ -117,12 +125,10 @@ export default class Table<T> extends Component<TableProps<T>, { sortKey: string
                 sorted[id.id] = this.props.data[id.id]
             }
 
-            this.setState({
-                sortDirection: direction,
-                sortKey: dataKey,
-                data: sorted
-            })
+            newState.data = sorted
         }
+
+        this.setState(newState)
     }
 
     private renderRows() {
