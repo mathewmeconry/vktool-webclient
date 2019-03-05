@@ -14,7 +14,7 @@ export interface DataListProps<T> {
     data: DataInterface<T>,
     fetchData: Function,
     onSearch: Function,
-    onSort: Function,
+    onSort: (sortKeys: Array<string> | StringIndexed<any>, sortDirection: 'asc' | 'desc') => void,
     title: string,
     viewLocation: string,
     tableColumns: Array<TableColumn>
@@ -48,8 +48,13 @@ export class DataList<T> extends Component<DataListProps<T>> {
         }
     }
 
-    private sortClick(event: React.MouseEvent<HTMLTableHeaderCellElement>, sortKeys: Array<string> | StringIndexed<any>, sortDirection: 'asc' | 'desc') {
-        this.props.onSort(sortKeys, sortDirection)
+    private sortClick(): undefined | ((event: React.MouseEvent<HTMLTableHeaderCellElement>, sortKeys: Array<string> | StringIndexed<any>, sortDirection: 'asc' | 'desc') => void) {
+        if (this.props.onSort) {
+            return (event: React.MouseEvent<HTMLTableHeaderCellElement>, sortKeys: Array<string> | StringIndexed<any>, sortDirection: 'asc' | 'desc') => {
+                this.props.onSort(sortKeys, sortDirection)
+            }
+        }
+        return undefined
     }
 
     private textSearch(event: React.ChangeEvent<HTMLInputElement>) {
@@ -80,7 +85,7 @@ export class DataList<T> extends Component<DataListProps<T>> {
                     }
                 ])}
                 data={dataById}
-                sortClick={this.sortClick}
+                sortClick={this.sortClick()}
                 defaultSort={{ keys: this.props.data.sort.keys, direction: this.props.data.sort.direction }}
             />
         )

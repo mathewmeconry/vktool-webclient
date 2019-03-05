@@ -1,3 +1,5 @@
+import StringIndexed from "../interfaces/StringIndexed";
+
 export const UIActions = {
     NAVIBAR_TOGGLE: 'navibar_toggle',
     NAVIBAR_OPEN: 'navibar_open',
@@ -63,7 +65,7 @@ export class UI {
         }
     }
 
-    public static sortMembers(keys: Array<string>, direction: 'asc' | 'desc') {
+    public static sortMembers(keys: Array<string> | StringIndexed<any>, direction: 'asc' | 'desc') {
         return {
             type: UIActions.SORT_MEMBERS,
             payload: {
@@ -80,7 +82,7 @@ export class UI {
         }
     }
 
-    public static sortOrders(keys: Array<string>, direction: 'asc' | 'desc') {
+    public static sortOrders(keys: Array<string> | StringIndexed<any>, direction: 'asc' | 'desc') {
         return {
             type: UIActions.SORT_ORDERS,
             payload: {
@@ -97,7 +99,7 @@ export class UI {
         }
     }
 
-    public static sortBillingReports(keys: Array<string>, direction: 'asc' | 'desc') {
+    public static sortBillingReports(keys: Array<string> | StringIndexed<any>, direction: 'asc' | 'desc') {
         return {
             type: UIActions.SORT_BILLING_REPORTS,
             payload: {
@@ -114,7 +116,7 @@ export class UI {
         }
     }
 
-    public static sortCompensationEntries(keys: Array<string>, direction: 'asc' | 'desc') {
+    public static sortCompensationEntries(keys: Array<string> | StringIndexed<any>, direction: 'asc' | 'desc') {
         return {
             type: UIActions.SORT_COMPENSATION_ENTRIES,
             payload: {
@@ -131,7 +133,7 @@ export class UI {
         }
     }
 
-    public static sortUsers(keys: Array<string>, direction: 'asc' | 'desc') {
+    public static sortUsers(keys: Array<string> | StringIndexed<any>, direction: 'asc' | 'desc') {
         return {
             type: UIActions.SORT_COMPENSATION_ENTRIES,
             payload: {
