@@ -20,10 +20,8 @@ import { EditMember } from "../interfaces/Member";
 
 export interface ContactProps {
     contact: ContactEntity.default,
-    ranks: DataInterface<ContactGroup>,
     loading: boolean,
     loadContacts: () => void,
-    loadRanks: () => void,
     editMember: (data: EditMember) => void
 }
 
@@ -33,20 +31,14 @@ export interface ContactState {
 }
 
 export default class _Contact extends Component<ContactProps, ContactState> {
-    private rank: string;
     private groups: Array<ContactGroup>
 
     constructor(props: ContactProps) {
         super(props)
-        this.rank = ''
         this.groups = []
 
         if (!this.props.contact && !this.props.loading) {
             this.props.loadContacts()
-        }
-
-        if (this.props.ranks.ids.length === 0 && !this.props.loading) {
-            this.props.loadRanks()
         }
 
         this.onSave = this.onSave.bind(this)
@@ -131,15 +123,6 @@ export default class _Contact extends Component<ContactProps, ContactState> {
 
         this.groups = this.props.contact.contactGroups as Array<ContactGroup>
 
-        for (let id of this.props.ranks.ids) {
-            let found = this.groups.find((el: ContactGroup) => el.id === id)
-            if (found) {
-                this.rank = found.name
-                break
-            }
-        }
-
-
         let address = this.props.contact.address + ', ' + this.props.contact.postcode + ' ' + this.props.contact.city
 
         return (
@@ -150,7 +133,7 @@ export default class _Contact extends Component<ContactProps, ContactState> {
                             <div className="container-fluid">
                                 <FormEntry id="firstname" title="Vorname" >{this.props.contact.firstname}</FormEntry>
                                 <FormEntry id="lastname" title="Nachname" >{this.props.contact.lastname}</FormEntry>
-                                <FormEntry id="rank" title="Rang">{this.rank}</FormEntry>
+                                <FormEntry id="rank" title="Rang">{this.props.contact.rank}</FormEntry>
                                 <FormEntry id="birthday" title="Geburtstag">{new Date(this.props.contact.birthday).toLocaleDateString()}</FormEntry>
                                 <FormEntry id="address" title="Adresse"><a href={'https://www.google.com/maps/search/' + address} target='_blank'>{address}</a></FormEntry>
                                 <FormEntry id="collectionPoint" title="Abholpunkt">
@@ -187,8 +170,7 @@ export default class _Contact extends Component<ContactProps, ContactState> {
 const mapStateToProps = (state: State, props: any) => {
     return {
         contact: state.data.contacts.byId[props.match.params.id] || state.data.members.byId[props.match.params.id],
-        ranks: state.data.ranks,
-        loading: state.data.contacts.loading || state.data.ranks.loading || state.data.members.loading
+        loading: state.data.contacts.loading || state.data.members.loading
     }
 }
 
@@ -196,9 +178,6 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>
     return {
         loadContacts: () => {
             dispatch(Data.fetchContacts())
-        },
-        loadRanks: () => {
-            dispatch(Data.fetchRanks())
         },
         editMember: (data: EditMember) => {
             dispatch(Data.editMember(data))
