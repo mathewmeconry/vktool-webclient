@@ -151,28 +151,32 @@ export default class _Contact extends Component<ContactProps, ContactState> {
     }
 
     public renderPanelCompensations() {
+        if (!this.props.user.roles.indexOf(AuthRoles.COMPENSATIONS_READ)) return null
+
         if (!this.state.compensationsLoaded) {
             this.loadCompensations()
-            return <Loading />
+            return <Panel title="Entschädigungen"><Loading /></Panel>
         }
 
         return (
-            <Table<Compensation>
-                columns={[
-                    { text: 'Datum', keys: ['date'], sortable: true },
-                    { text: 'Betrag', keys: ['amount'], prefix: 'CHF ', sortable: true },
-                    { text: 'Genehmigt', keys: ['approved'], sortable: true },
-                    { text: 'Ausbezahlt', keys: ['paied'], sortable: true },
-                    {
-                        text: 'Actions', keys: ['_id'], content: <Button variant="success" className="view" onMouseUp={this.compensationView}><FontAwesomeIcon icon="eye" /></Button>
-                    }
-                ]}
-                defaultSort={{
-                    keys: ['date'],
-                    direction: 'desc'
-                }}
-                data={this.state.compensations}
-            />
+            <Panel title="Entschädigungen">
+                <Table<Compensation>
+                    columns={[
+                        { text: 'Datum', keys: ['date'], sortable: true },
+                        { text: 'Betrag', keys: ['amount'], prefix: 'CHF ', sortable: true },
+                        { text: 'Genehmigt', keys: ['approved'], sortable: true },
+                        { text: 'Ausbezahlt', keys: ['paied'], sortable: true },
+                        {
+                            text: 'Actions', keys: ['_id'], content: <Button variant="success" className="view" onMouseUp={this.compensationView}><FontAwesomeIcon icon="eye" /></Button>
+                        }
+                    ]}
+                    defaultSort={{
+                        keys: ['date'],
+                        direction: 'desc'
+                    }}
+                    data={this.state.compensations}
+                />
+            </Panel>
         )
     }
 
@@ -228,9 +232,7 @@ export default class _Contact extends Component<ContactProps, ContactState> {
                 </Row>
                 <Row>
                     <Column className="col-md-6">
-                        <Panel title="Entschädigungen">
-                            {this.renderPanelCompensations()}
-                        </Panel>
+                        {this.renderPanelCompensations()}
                     </Column>
                 </Row>
             </Page>
