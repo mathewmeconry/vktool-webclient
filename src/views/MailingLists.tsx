@@ -40,7 +40,7 @@ export class _MailingLists extends Component<{ fetchMembers: Function, mailingLi
                     </Column>
 
                     <Column className="col-md-4">
-                        <Panel title="VKs">
+                        <Panel title="VKs (ohne Fahrer und Condor)">
                             <div className="input-group">
                                 <input className="form-control" readOnly value={this.props.mailingLists.vks.join(';')}></input>
                                 {/* <div className="input-group-prepend">
@@ -77,6 +77,17 @@ export class _MailingLists extends Component<{ fetchMembers: Function, mailingLi
                         <Panel title="Vorstand">
                             <div className="input-group">
                                 <input className="form-control" readOnly value={this.props.mailingLists.vst.join(';')}></input>
+                               {/* <div className="input-group-prepend">
+                                    <div className="input-group-text" id="btnGroupAddon"><FontAwesomeIcon icon="clipboard" /></div>
+                                </div> */}
+                            </div>
+                        </Panel>
+                    </Column>
+
+                    <Column className="col-md-4">
+                        <Panel title="Condor">
+                            <div className="input-group">
+                                <input className="form-control" readOnly value={this.props.mailingLists.con.join(';')}></input>
                                {/* <div className="input-group-prepend">
                                     <div className="input-group-text" id="btnGroupAddon"><FontAwesomeIcon icon="clipboard" /></div>
                                 </div> */}

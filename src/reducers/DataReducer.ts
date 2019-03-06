@@ -302,7 +302,7 @@ function CollectionPoints(state: DataInterface<Compensation> = { loading: false,
 function MailingLists(state: StringIndexed<Array<string>> = {}, action: AnyAction): StringIndexed<Array<string>> {
     switch (action.type) {
         case DataActions.GOT_MEMBERS:
-            let mailingLists = { all: ([] as Array<string>), drivers: ([] as Array<string>), vks: ([] as Array<string>), squad: ([] as Array<string>), vst: ([] as Array<string>) }
+            let mailingLists = { all: ([] as Array<string>), drivers: ([] as Array<string>), vks: ([] as Array<string>), squad: ([] as Array<string>), vst: ([] as Array<string>), con: ([] as Array<string>) }
 
             for (let member of (action.payload as Array<Contact>)) {
                 mailingLists.all.push(member.mail)
@@ -339,8 +339,6 @@ function MailingLists(state: StringIndexed<Array<string>> = {}, action: AnyActio
                     group.bexioId === 28 ||
                     group.bexioId === 29 ||
                     group.bexioId === 15 ||
-                    group.bexioId === 27 ||
-                    group.bexioId === 26 ||
                     group.bexioId === 14
                 )) {
                     mailingLists.squad.push(member.mail)
@@ -351,6 +349,12 @@ function MailingLists(state: StringIndexed<Array<string>> = {}, action: AnyActio
                 if (member.contactGroups.find(group => group.bexioId === 16)) {
                     mailingLists.vst.push(member.mail)
                     if (member.mailSecond) mailingLists.vst.push(member.mailSecond)
+                }
+
+                // Condor
+                if (member.contactGroups.find(group => group.bexioId === 22)) {
+                    mailingLists.con.push(member.mail)
+                    if (member.mailSecond) mailingLists.con.push(member.mailSecond)
                 }
             }
             return mailingLists
