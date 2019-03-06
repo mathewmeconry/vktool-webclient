@@ -32,10 +32,15 @@ export default class Table<T> extends Component<TableProps<T>, TableState<T>> {
         super(props)
         this.sortClick = this.sortClick.bind(this)
         if (this.props.defaultSort) {
+            let data = this.props.data
+            if (!this.props.sortClick) {
+                data = this.sort(this.props.defaultSort.keys, this.props.defaultSort.direction)
+            }
+
             this.state = {
                 sortKey: this.props.defaultSort.keys.join('-'),
                 sortDirection: this.props.defaultSort.direction,
-                data: this.props.data
+                data: data
             }
         } else {
             this.state = {
@@ -50,6 +55,68 @@ export default class Table<T> extends Component<TableProps<T>, TableState<T>> {
         this.setState({
             data: props.data
         })
+    }
+
+    private sort(keys: StringIndexed<any> | Array<string>, direction: 'asc' | 'desc') {
+        let prepared = []
+        for (let a in this.props.data) {
+            //@ts-ignore
+            let element = this.props.data[a]
+            let sortValues = []
+            for (let i in keys) {
+                //@ts-ignore
+                let key = keys[i]
+                if (key instanceof Array) {
+                    for (let b of key) {
+                        if (b.indexOf('phone') > -1) {
+                            //@ts-ignore
+                            sortValues.push(element[i][b].replace(' ', ''))
+                        } else if (element[key] instanceof Date) {
+                            sortValues.push(element[key].getTime())
+                        } else {
+                            //@ts-ignore
+                            sortValues.push(element[i][b])
+                        }
+                    }
+                } else {
+                    if (key.indexOf('phone') > -1) {
+                        //@ts-ignore
+                        sortValues.push(element[key].replace(' ', ''))
+                    } else if (element[key] instanceof Date) {
+                        sortValues.push(element[key].getTime())
+                    } else {
+                        //@ts-ignore
+                        sortValues.push(element[key])
+                    }
+                }
+
+            }
+            prepared.push({ id: a, value: sortValues.join(' ').toLowerCase() })
+        }
+
+        prepared.sort((a, b) => {
+            let aValue, bValue
+            aValue = parseFloat(a.value)
+            bValue = parseFloat(b.value)
+            if (isNaN(aValue) || isNaN(bValue)) {
+                aValue = a.value
+                bValue = b.value
+            }
+
+            if (aValue < bValue)
+                return (direction === 'asc') ? -1 : 1;
+            if (aValue > bValue)
+                return (direction === 'asc') ? 1 : -1;
+            return 0;
+        })
+
+        let sorted = {}
+        for (let id of prepared) {
+            //@ts-ignore
+            sorted[`_${id.id}`] = this.props.data[id.id]
+        }
+
+        return sorted
     }
 
     private sortClick(event: MouseEvent<HTMLTableHeaderCellElement>) {
@@ -86,64 +153,7 @@ export default class Table<T> extends Component<TableProps<T>, TableState<T>> {
         if (this.props.sortClick) {
             this.props.sortClick(event, finalKeys, direction)
         } else {
-            let prepared = []
-            for (let a in this.props.data) {
-                //@ts-ignore
-                let element = this.props.data[a]
-                let sortValues = []
-                for (let i in finalKeys) {
-                    let key = finalKeys[i]
-                    if (key instanceof Array) {
-                        for (let b of key) {
-                            if (b.indexOf('phone') > -1) {
-                                //@ts-ignore
-                                sortValues.push(element[i][b].replace(' ', ''))
-                            } else if (element[key] instanceof Date) {
-                                sortValues.push(element[key].getTime())
-                            } else {
-                                //@ts-ignore
-                                sortValues.push(element[i][b])
-                            }
-                        }
-                    } else {
-                        if (key.indexOf('phone') > -1) {
-                            //@ts-ignore
-                            sortValues.push(element[key].replace(' ', ''))
-                        } else if (element[key] instanceof Date) {
-                            sortValues.push(element[key].getTime())
-                        } else {
-                            //@ts-ignore
-                            sortValues.push(element[key])
-                        }
-                    }
-
-                }
-                prepared.push({ id: a, value: sortValues.join(' ').toLowerCase() })
-            }
-
-            prepared.sort((a, b) => {
-                let aValue, bValue
-                aValue = parseFloat(a.value)
-                bValue = parseFloat(b.value)
-                if (isNaN(aValue) || isNaN(bValue)) {
-                    aValue = a.value
-                    bValue = b.value
-                }
-
-                if (aValue < bValue)
-                    return (direction === 'asc') ? -1 : 1;
-                if (aValue > bValue)
-                    return (direction === 'asc') ? 1 : -1;
-                return 0;
-            })
-
-            let sorted = {}
-            for (let id of prepared) {
-                //@ts-ignore
-                sorted[`_${id.id}`] = this.props.data[id.id]
-            }
-
-            newState.data = sorted
+            newState.data = this.sort(finalKeys, direction)
         }
 
         this.setState(newState)

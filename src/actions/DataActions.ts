@@ -320,7 +320,7 @@ export class Data {
         })
     }
 
-    private static deepParser(data: any) {
+    public static deepParser(data: any) {
         if (data instanceof Array || typeof data === 'object') {
             for (let i in data) {
                 data[i] = Data.deepParser(data[i])

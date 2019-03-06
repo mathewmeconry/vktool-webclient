@@ -11,7 +11,6 @@ import { connect } from 'react-redux'
 import { Data } from "../actions/DataActions";
 import Loading from "../components/Loading";
 import User from "../entities/User";
-import Contact from "../entities/Contact";
 
 export class _Dashboard extends Component<{ user: User, loading: boolean, fetchUser: Function }> {
 
