@@ -17,8 +17,18 @@ import Action from "../components/Action";
 import CollectionPoint from "../entities/CollectionPoint";
 import { CollectionPointSelect } from "../components/CollectionPointSelect";
 import { EditMember } from "../interfaces/Member";
+import User from "../entities/User";
+import { AuthRoles } from "../interfaces/AuthRoles";
+import Compensation from "../entities/Compensation";
+import Axios from "axios";
+import Config from "../Config";
+import Table from "../components/Table";
+import { RouteComponentProps } from "react-router";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Button from "react-bootstrap/Button";
 
-export interface ContactProps {
+export interface ContactProps extends RouteComponentProps<{ id: string }> {
+    user: User,
     contact: ContactEntity.default,
     loading: boolean,
     loadContacts: () => void,
@@ -27,7 +37,9 @@ export interface ContactProps {
 
 export interface ContactState {
     editable: boolean,
-    collectionPoint: CollectionPoint
+    collectionPoint: CollectionPoint,
+    compensations: Array<Compensation>,
+    compensationsLoaded: boolean
 }
 
 export default class _Contact extends Component<ContactProps, ContactState> {
@@ -41,6 +53,8 @@ export default class _Contact extends Component<ContactProps, ContactState> {
             this.props.loadContacts()
         }
 
+        this.loadCompensations = this.loadCompensations.bind(this)
+        this.compensationView = this.compensationView.bind(this)
         this.onSave = this.onSave.bind(this)
         this.onAbort = this.onAbort.bind(this)
         this.onSelectChange = this.onSelectChange.bind(this)
@@ -49,7 +63,18 @@ export default class _Contact extends Component<ContactProps, ContactState> {
 
         this.state = {
             editable: false,
-            collectionPoint: new CollectionPoint()
+            collectionPoint: new CollectionPoint(),
+            compensations: [],
+            compensationsLoaded: false
+        }
+    }
+
+    private async loadCompensations() {
+        if (this.props.user && this.props.user.roles.indexOf(AuthRoles.COMPENSATIONS_READ)) {
+            this.setState({
+                compensations: Data.deepParser((await Axios.get<Array<Compensation>>(Config.apiEndpoint + `/api/compensations/${this.props.contact.id}`, { withCredentials: true })).data),
+                compensationsLoaded: true
+            })
         }
     }
 
@@ -58,6 +83,19 @@ export default class _Contact extends Component<ContactProps, ContactState> {
             this.setState({
                 collectionPoint: nextProps.contact.collectionPoint || new CollectionPoint()
             })
+        }
+    }
+
+    public compensationView(event: React.MouseEvent<HTMLButtonElement>) {
+        if (event.currentTarget.parentNode && event.currentTarget.parentNode.parentElement) {
+            let id = event.currentTarget.parentNode.parentElement.getAttribute('data-key')
+
+            // open a new tap when the middle button is pressed (buttonID 1)
+            if (event.button == 1) {
+                window.open((document.location as Location).origin + '/compensation/' + id)
+            } else {
+                this.props.history.push('/compensation/' + id)
+            }
         }
     }
 
@@ -112,6 +150,32 @@ export default class _Contact extends Component<ContactProps, ContactState> {
         return [<Action icon="pencil-alt" onClick={() => { this.setState({ editable: true }) }} />]
     }
 
+    public renderPanelCompensations() {
+        if (!this.state.compensationsLoaded) {
+            this.loadCompensations()
+            return <Loading />
+        }
+
+        return (
+            <Table<Compensation>
+                columns={[
+                    { text: 'Datum', keys: ['date'], sortable: true },
+                    { text: 'Betrag', keys: ['amount'], prefix: 'CHF ', sortable: true },
+                    { text: 'Genehmigt', keys: ['approved'], sortable: true },
+                    { text: 'Ausbezahlt', keys: ['paied'], sortable: true },
+                    {
+                        text: 'Actions', keys: ['_id'], content: <Button variant="success" className="view" onMouseUp={this.compensationView}><FontAwesomeIcon icon="eye" /></Button>
+                    }
+                ]}
+                defaultSort={{
+                    keys: ['date'],
+                    direction: 'desc'
+                }}
+                data={this.state.compensations}
+            />
+        )
+    }
+
     public render() {
         if (this.props.loading || !this.props.contact) {
             return (
@@ -162,6 +226,13 @@ export default class _Contact extends Component<ContactProps, ContactState> {
                         </Panel>
                     </Column>
                 </Row>
+                <Row>
+                    <Column className="col-md-6">
+                        <Panel title="Entschädigungen">
+                            {this.renderPanelCompensations()}
+                        </Panel>
+                    </Column>
+                </Row>
             </Page>
         )
     }
@@ -169,6 +240,7 @@ export default class _Contact extends Component<ContactProps, ContactState> {
 
 const mapStateToProps = (state: State, props: any) => {
     return {
+        user: state.data.user.data,
         contact: state.data.contacts.byId[props.match.params.id] || state.data.members.byId[props.match.params.id],
         loading: state.data.contacts.loading || state.data.members.loading
     }
