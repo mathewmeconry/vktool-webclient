@@ -93,7 +93,7 @@ export default class _Contact extends Component<ContactProps, ContactState> {
 
     private renderCollectionPoint() {
         if (this.state.editable) {
-            return <CollectionPointSelect multi={false} onChange={this.onSelectChange('collectionPoint')} defaultValue={this.state.collectionPoint || undefined} />
+            return <CollectionPointSelect multi={false} onChange={this.onSelectChange('collectionPoint')} defaultValue={[this.state.collectionPoint] || undefined} />
         }
         if (this.state.collectionPoint &&
             this.state.collectionPoint.hasOwnProperty('address') &&
