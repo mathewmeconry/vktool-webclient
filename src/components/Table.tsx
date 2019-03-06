@@ -55,10 +55,6 @@ export default class Table<T> extends Component<TableProps<T>, TableState<T>> {
     private sortClick(event: MouseEvent<HTMLTableHeaderCellElement>) {
         let dataKey = (event.target as HTMLElement).dataset.key as string
         let direction: 'asc' | 'desc' = 'asc';
-        let newState: TableState<T> = Object.assign({}, this.state, {
-            sortDirection: direction,
-            sortKey: dataKey
-        })
 
         if (this.state.sortKey === dataKey) {
             if (this.state.sortDirection === 'asc') {
@@ -67,6 +63,11 @@ export default class Table<T> extends Component<TableProps<T>, TableState<T>> {
                 direction = 'asc'
             }
         }
+
+        let newState: TableState<T> = Object.assign({}, this.state, {
+            sortDirection: direction,
+            sortKey: dataKey
+        })
 
         let keys = [dataKey]
         if (dataKey.indexOf('_') > -1) keys = dataKey.split('_')
@@ -92,13 +93,30 @@ export default class Table<T> extends Component<TableProps<T>, TableState<T>> {
                 let sortValues = []
                 for (let i in finalKeys) {
                     let key = finalKeys[i]
-                    if (key.indexOf('phone') > -1) {
-                        //@ts-ignore
-                        sortValues.push(element[key].replace(' ', ''))
+                    if (key instanceof Array) {
+                        for (let b of key) {
+                            if (b.indexOf('phone') > -1) {
+                                //@ts-ignore
+                                sortValues.push(element[i][b].replace(' ', ''))
+                            } else if (element[key] instanceof Date) {
+                                sortValues.push(element[key].getTime())
+                            } else {
+                                //@ts-ignore
+                                sortValues.push(element[i][b])
+                            }
+                        }
                     } else {
-                        //@ts-ignore
-                        sortValues.push(element[key])
+                        if (key.indexOf('phone') > -1) {
+                            //@ts-ignore
+                            sortValues.push(element[key].replace(' ', ''))
+                        } else if (element[key] instanceof Date) {
+                            sortValues.push(element[key].getTime())
+                        } else {
+                            //@ts-ignore
+                            sortValues.push(element[key])
+                        }
                     }
+
                 }
                 prepared.push({ id: a, value: sortValues.join(' ').toLowerCase() })
             }
@@ -122,7 +140,7 @@ export default class Table<T> extends Component<TableProps<T>, TableState<T>> {
             let sorted = {}
             for (let id of prepared) {
                 //@ts-ignore
-                sorted[id.id] = this.props.data[id.id]
+                sorted[`_${id.id}`] = this.props.data[id.id]
             }
 
             newState.data = sorted

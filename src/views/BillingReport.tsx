@@ -206,7 +206,7 @@ export class _BillingReport extends Component<BillingReportProps, BillingReportS
 
     private addCompensations(data: StringIndexed<any>) {
         let compensationEntries: Array<BillingReportCompensationEntry> = []
-        for(let i in data.vks) {
+        for (let i in data.vks) {
             compensationEntries.push(data.vks[i])
         }
 
@@ -399,12 +399,12 @@ export class _BillingReport extends Component<BillingReportProps, BillingReportS
                         <Panel title="VKs" actions={[<Action icon="plus" onClick={this.showModal} />]}>
                             <Table<OrderCompensation>
                                 columns={[
-                                    { text: 'Name', keys: { 'member': ['firstname', 'lastname'] } },
-                                    { text: 'Von', keys: ['from'], format: 'toLocaleTimeString' },
-                                    { text: 'Bis', keys: ['until'], format: 'toLocaleTimeString' },
-                                    { text: 'Verrechnen', keys: ['charge'] },
-                                    { text: 'Betrag', keys: ['amount'], prefix: 'CHF ' },
-                                    { text: 'Ausbezahlt', keys: ['paied'] },
+                                    { text: 'Name', keys: { 'member': ['firstname', 'lastname'] }, sortable: true },
+                                    { text: 'Von', keys: ['from'], format: 'toLocaleTimeString', sortable: true },
+                                    { text: 'Bis', keys: ['until'], format: 'toLocaleTimeString', sortable: true },
+                                    { text: 'Verrechnen', keys: ['charge'], sortable: true },
+                                    { text: 'Betrag', keys: ['amount'], prefix: 'CHF ', sortable: true },
+                                    { text: 'Ausbezahlt', keys: ['paied'], sortable: true },
                                     {
                                         text: 'Actions', keys: ['_id'], content: <ButtonGroup>{this.getCompensationActions()}</ButtonGroup>
                                     }

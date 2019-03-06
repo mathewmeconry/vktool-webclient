@@ -160,11 +160,11 @@ export default class AddBillingReportStep2 extends Component<Step2Props, { table
                 <div className="row">
                     <Table<BillingReportCompensationEntry>
                         columns={[
-                            { text: 'VK', keys: { 'member': ['firstname', 'lastname'] } },
-                            { text: 'Von', keys: ['from'] },
-                            { text: 'Bis', keys: ['until'] },
-                            { text: 'Anzahl Stunden', keys: ['totalHours'] },
-                            { text: 'Verrechnet', keys: ['charge'] },
+                            { text: 'VK', keys: { 'member': ['firstname', 'lastname'] }, sortable: true },
+                            { text: 'Von', keys: ['from'], sortable: true },
+                            { text: 'Bis', keys: ['until'], sortable: true },
+                            { text: 'Anzahl Stunden', keys: ['totalHours'], sortable: true },
+                            { text: 'Verrechnet', keys: ['charge'], sortable: true },
                             { text: 'Actions', keys: { 'member': ['id'] }, content: <button className="btn btn-danger" onClick={this.removeTableItem}>⨯</button> }
                         ]}
                         defaultSort={{ keys: ['from'], direction: 'asc' }}
