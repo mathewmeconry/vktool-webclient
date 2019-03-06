@@ -50,6 +50,7 @@ export default class _Contact extends Component<ContactProps, ContactState> {
         }
 
         this.onSave = this.onSave.bind(this)
+        this.onAbort = this.onAbort.bind(this)
         this.onSelectChange = this.onSelectChange.bind(this)
         this.renderCollectionPoint = this.renderCollectionPoint.bind(this)
         this.renderPanelActions = this.renderPanelActions.bind(this)
@@ -74,6 +75,13 @@ export default class _Contact extends Component<ContactProps, ContactState> {
         if (this.props.contact.contactGroups.find(group => group.bexioId === 7)) {
             this.props.editMember({ id: this.props.contact.id, collectionPointId: this.state.collectionPoint.id })
         }
+    }
+
+    public onAbort(event: React.MouseEvent<HTMLElement>) {
+        this.setState({
+            editable: false,
+            collectionPoint: this.props.contact.collectionPoint || new CollectionPoint()
+        })
     }
 
     private onSelectChange(state: string): (opts: CollectionPoint) => void {
@@ -103,7 +111,10 @@ export default class _Contact extends Component<ContactProps, ContactState> {
 
     private renderPanelActions() {
         if (this.state.editable) {
-            return [<Action icon="save" onClick={this.onSave} />]
+            return [
+                <Action icon="save" onClick={this.onSave} />,
+                <Action icon="times" onClick={this.onAbort} />
+            ]
         }
 
         return [<Action icon="pencil-alt" onClick={() => { this.setState({ editable: true }) }} />]

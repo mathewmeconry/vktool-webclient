@@ -11,6 +11,7 @@
     color: $default_text_color;
     border-color: $default_text_color;
     font-size: 10px;
+    margin-left: 5px;
 }
 
 @include media-breakpoint-up(sm) {}

@@ -70,6 +70,7 @@ export class _BillingReport extends Component<BillingReportProps, BillingReportS
 
         this.billingReport = this.props.billingReports.byId[parseInt(this.props.match.params.id)]
         this.onInformationEdit = this.onInformationEdit.bind(this)
+        this.onAbort = this.onAbort.bind(this)
         this.onInformationSave = this.onInformationSave.bind(this)
         this.onInputChange = this.onInputChange.bind(this)
 
@@ -126,6 +127,18 @@ export class _BillingReport extends Component<BillingReportProps, BillingReportS
     public onInformationEdit(event: React.MouseEvent<HTMLElement>) {
         this.setState({
             informationEdit: true
+        })
+    }
+
+    public onAbort(event: React.MouseEvent<HTMLElement>) {
+        this.setState({
+            informationEdit: false,
+            order: (this.billingReport.order as Order),
+            date: this.billingReport.date,
+            els: this.billingReport.els,
+            drivers: this.billingReport.drivers,
+            food: this.billingReport.food,
+            remarks: this.billingReport.remarks
         })
     }
 
@@ -293,6 +306,7 @@ export class _BillingReport extends Component<BillingReportProps, BillingReportS
                 panelActions.push(<Action icon="pencil-alt" onClick={this.onInformationEdit} />)
             } else {
                 panelActions.push(<Action icon="save" onClick={this.onInformationSave} />)
+                panelActions.push(<Action icon="times" onClick={this.onAbort} />)
             }
         }
 
