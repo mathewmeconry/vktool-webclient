@@ -67,6 +67,7 @@ export default class Root extends Component<{}, {}> {
                             <Route exact path="/login" component={Login} />
                             <Route exact path="/login?source=:source" component={Login} />
                             <SecureRoute exact path="/dashboard" roles={[AuthRoles.AUTHENTICATED]} component={Dashboard} />
+                            <SecureRoute exact path="/me" roles={[AuthRoles.AUTHENTICATED]} component={User} />
                             <SecureRoute exact path="/members" roles={[AuthRoles.MEMBERS_READ]} component={Members} />
                             <SecureRoute exact path="/mailing-lists" roles={[AuthRoles.MEMBERS_READ]} component={MailingLists} />
                             <SecureRoute exact path="/draft/collection-points" roles={[AuthRoles.DRAFT_READ]} component={CollectionPoints} />

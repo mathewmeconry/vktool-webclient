@@ -65,7 +65,7 @@ export class _User extends Component<UserProps> {
     public render() {
         if (this.props.loading || !this.props.user) {
             return (
-                <Page title={this.props.user.displayName}><Loading /></Page>
+                <Page title="Loading..."><Loading /></Page>
             )
         }
 
@@ -92,6 +92,13 @@ export class _User extends Component<UserProps> {
 }
 
 const mapStateToProps = (state: State, props: any) => {
+    if(props.location.pathname === '/me') {
+        return {
+            user: state.data.user.data,
+            loading: state.data.user.loading
+        }
+    }
+
     return {
         user: state.data.users.byId[props.match.params.id],
         loading: state.data.users.loading
@@ -99,6 +106,14 @@ const mapStateToProps = (state: State, props: any) => {
 }
 
 const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>, props: any) => {
+    if(props.location.pathname === '/me') {
+        return {
+            fetchUsers: () => {
+                dispatch(Data.fetchUser())
+            }
+        }
+    }
+
     return {
         fetchUsers: () => {
             dispatch(Data.fetchUsers())
