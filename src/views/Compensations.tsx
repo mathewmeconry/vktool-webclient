@@ -11,6 +11,7 @@ import Compensation from "../entities/Compensation";
 import { RouteComponentProps } from "react-router-dom";
 import Modal from "../components/Modal";
 import { Button, ButtonGroup } from "react-bootstrap";
+import StringIndexed from "../interfaces/StringIndexed";
 
 interface CompensationsProps extends DataListProps<Compensation> {
     delete: (id: number) => void
@@ -135,7 +136,7 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>
         onSearch: (value: string) => {
             dispatch(UI.searchCompensationEntries(value))
         },
-        onSort: (sortKeys: Array<string>, sortDirection: 'asc' | 'desc') => {
+        onSort: (sortKeys: Array<string> | StringIndexed<any>, sortDirection: 'asc' | 'desc') => {
             dispatch(UI.sortCompensationEntries(sortKeys, sortDirection))
         },
         delete: (id: number) => {
