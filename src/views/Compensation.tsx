@@ -77,7 +77,7 @@ export class _Compensation extends Component<CompensationProps> {
         }
 
         if (this.props.loading || !this.props.compensation) {
-            return (<Page title="Compensation"><Loading /></Page>)
+            return (<Page title="Entschädigung"><Loading /></Page>)
         }
 
         let statusBadgeClass = 'badge-success'
@@ -85,20 +85,18 @@ export class _Compensation extends Component<CompensationProps> {
             statusBadgeClass = 'badge-warning'
         }
 
-
         return (
-            <Page title="Compensation">
+            <Page title="Entschädigung">
                 <Row>
                     <Column className="col-md-6">
                         <Panel title="Informationen">
                             <FormEntry id="member" title="Mitglied">{this.props.compensation.member.firstname} {this.props.compensation.member.lastname}</FormEntry>
                             <FormEntry id="date" title="Datum">{this.props.compensation.date.toLocaleDateString()}</FormEntry>
                             <FormEntry id="amount" title="Betrag">CHF {this.props.compensation.amount}</FormEntry>
-                            {() => {
-                                if (CompensationEntity.default.isCustom(this.props.compensation)) {
-                                    return <FormEntry id="description" title="Beschreibung">{this.props.compensation.description}</FormEntry>
-                                }
-                            }}
+                            {
+                                CompensationEntity.default.isCustom(this.props.compensation) &&
+                                <FormEntry id="description" title="Beschreibung">{this.props.compensation.description}</FormEntry>
+                            }
                             <FormEntry id="state" title="Status"><div className={"badge " + statusBadgeClass}>{(this.props.compensation.approved) ? 'Bewilligt' : 'Ausstehend'}</div></FormEntry>
                             <FormEntry id="creator" title="Ersteller">{this.props.compensation.creator.displayName}</FormEntry>
                         </Panel>
