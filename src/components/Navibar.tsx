@@ -55,6 +55,7 @@ export class _Navibar extends Component<{ open: boolean, user?: User }> {
                             , [AuthRoles.COMPENSATIONS_READ]
                         )}
                         {this.renderElement(<NavibarElement to="/users" text="Benutzer" leftIcon="user" />, [AuthRoles.ADMIN])}
+                        <NavibarElement to="https://vkazu.sharepoint.com/Reglemente" text="Reglemente" leftIcon="external-link-alt"/>
                         <NavibarElement to={`${Config.apiEndpoint}/api/logout`} text="Abmelden" leftIcon="power-off" />
                     </ol>
                 </div>
