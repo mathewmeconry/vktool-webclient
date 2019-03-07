@@ -19,8 +19,8 @@ export default class AddBillingReportStep4 extends Component<{ onNext: () => boo
                 <Table<BillingReportCompensationEntry>
                     columns={[
                         { text: 'VK', keys: { 'member': ['firstname', 'lastname'] } },
-                        { text: 'Von', keys: ['from'] },
-                        { text: 'Bis', keys: ['until'] },
+                        { text: 'Von', keys: ['from'], format: 'toLocaleTimeString' },
+                        { text: 'Bis', keys: ['until'], format: 'toLocaleTimeString' },
                         { text: 'Verrechnet', keys: ['charge'] },
                         { text: 'Anzahl Stunden', keys: ['totalHours'] }
                     ]}

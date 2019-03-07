@@ -22,8 +22,8 @@ export interface EditBillingReport extends BillingReportModificationBase {
 export interface BillingReportCompensationEntry<T = Contact> {
     id: number,
     member: T,
-    from: string,
-    until: string,
+    from: Date,
+    until: Date,
     charge: boolean,
     totalHours: number
 }
