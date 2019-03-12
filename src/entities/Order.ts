@@ -17,7 +17,7 @@ export default class Order extends BexioBase {
 
     
     public validFrom?: Date
-
+    public deliveryAddress: string
     
     
     public contact: Contact

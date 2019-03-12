@@ -215,7 +215,7 @@ export default class Table<T> extends Component<TableProps<T>, TableState<T>> {
                     } else {
                         for (let k in column.keys) {
                             content = content.concat(column.keys[k].map((key) => {
-                                if (dataEntry.hasOwnProperty(k)) {
+                                if (dataEntry.hasOwnProperty(k) && dataEntry[k]) {
                                     //@ts-ignore
                                     if (dataEntry[k][key] instanceof Date) {
                                         if (column.format) {

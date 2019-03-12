@@ -50,14 +50,14 @@ export default class _Order extends Component<OrderProps> {
     public render() {
         if (this.props.loading || !this.props.order) {
             return (
-                <Page title={this.props.order.title}><Loading /></Page>
+                <Page title="Loading..."><Loading /></Page>
             )
         }
 
-        if(this.props.order.execDates instanceof Date) {
+        if (this.props.order.execDates instanceof Date) {
             this.props.order.execDates = [this.props.order.execDates]
         }
-        
+
         return (
             <Page title={this.props.order.title}>
                 <Row>
@@ -65,7 +65,9 @@ export default class _Order extends Component<OrderProps> {
                         <Panel title="Informationen">
                             <div className="container-fluid">
                                 <FormEntry id="title" title="Titel" >{this.props.order.title}</FormEntry>
+                                <FormEntry id="customer" title="Kunde">{`${this.props.order.contact.firstname} ${this.props.order.contact.lastname}`}</FormEntry>
                                 <FormEntry id="documentNr" title="Auftragsnummer" >{this.props.order.documentNr}</FormEntry>
+                                <FormEntry id="deliveryAddress" title="Lieferadresse">{this.props.order.deliveryAddress}</FormEntry>
                                 <FormEntry id="executionDates" title="Auftragsdaten">
                                     {(this.props.order.execDates) ? this.props.order.execDates.map((date: Date) => {
                                         return <span className="badge badge-secondary">{date.toLocaleDateString()}</span>
@@ -88,7 +90,7 @@ export default class _Order extends Component<OrderProps> {
                                     </Column>
                                     <Column className="col-2">
                                         CHF {this.props.order.total}
-                                     </Column>
+                                    </Column>
                                 </Row>
                             </div>
                         </Panel>

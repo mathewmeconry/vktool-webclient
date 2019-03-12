@@ -28,7 +28,10 @@ export default class AddBillingReportStep1 extends Component<Step1Props, { order
         let options = [<option key="none" value="">Bitte Wählen</option>]
         for (let i of this.props.openOrders.ids) {
             let order = this.props.openOrders.byId[i]
-            options.push(<option key={order.documentNr} value={order.id}>{order.title}</option>)
+            // only show the contact if the contact is not a privat person (identified that companies doesn't have any firstname)
+            if (!order.contact.firstname) {
+                options.push(<option key={order.documentNr} value={order.id}>{`${order.title} (${order.contact.lastname})`}</option>)
+            }
         }
 
         return options
