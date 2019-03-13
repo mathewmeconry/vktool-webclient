@@ -63,7 +63,7 @@ export default class _Contact extends Component<ContactProps, ContactState> {
 
         this.state = {
             editable: false,
-            collectionPoint: new CollectionPoint(),
+            collectionPoint: (this.props.contact || { collectionPoint: new CollectionPoint() }).collectionPoint || new CollectionPoint(),
             compensations: [],
             compensationsLoaded: false
         }

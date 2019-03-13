@@ -26,10 +26,12 @@ export class _CollectionPointSelect extends Component<CollectionPointSelectProps
         if (this.props.defaultValue instanceof Array) {
             let valueProps = []
             for (let collectionPoint of this.props.defaultValue) {
-                valueProps.push({
-                    value: collectionPoint.id.toString(),
-                    label: `(${collectionPoint.name}) ${collectionPoint.address}, ${collectionPoint.postcode} ${collectionPoint.city}`,
-                })
+                if (Object.keys(collectionPoint).length > 0) {
+                    valueProps.push({
+                        value: collectionPoint.id.toString(),
+                        label: `(${collectionPoint.name}) ${collectionPoint.address}, ${collectionPoint.postcode} ${collectionPoint.city}`,
+                    })
+                }
             }
 
             this.state = {
@@ -44,10 +46,12 @@ export class _CollectionPointSelect extends Component<CollectionPointSelectProps
         if (nextProps.defaultValue instanceof Array) {
             let valueProps = []
             for (let collectionPoint of nextProps.defaultValue) {
-                valueProps.push({
-                    value: collectionPoint.id.toString(),
-                    label: `(${collectionPoint.name}) ${collectionPoint.address}, ${collectionPoint.postcode} ${collectionPoint.city}`,
-                })
+                if (Object.keys(collectionPoint).length > 0) {
+                    valueProps.push({
+                        value: collectionPoint.id.toString(),
+                        label: `(${collectionPoint.name}) ${collectionPoint.address}, ${collectionPoint.postcode} ${collectionPoint.city}`,
+                    })
+                }
             }
 
             this.setState({
