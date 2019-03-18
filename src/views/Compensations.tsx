@@ -106,6 +106,7 @@ export class _Compensations extends Component<CompensationsProps & RouteComponen
                     { text: 'Mitglied', keys: { 'member': ['firstname', 'lastname'] }, sortable: true },
                     { text: 'Datum', keys: ['date'], sortable: true },
                     { text: 'Betrag', keys: ['amount'], sortable: true, prefix: 'CHF ' },
+                    { text: 'Beschreibung', keys: ['description'], sortable: false },
                     { text: 'Ersteller', keys: { 'creator': ['displayName'] }, sortable: true },
                     { text: 'Genehmigt', keys: ['approved'], sortable: true },
                     { text: 'Ausbezahlt', keys: ['paied'], sortable: true }

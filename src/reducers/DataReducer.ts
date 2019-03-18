@@ -258,6 +258,17 @@ function CompensationEntries(state: DataInterface<Compensation> = { loading: fal
             for (let entry of action.payload) {
                 byId[entry.id] = entry
                 ids.push(entry.id)
+
+                if (!entry.hasOwnProperty('description')) {
+                    if (entry.hasOwnProperty('billingReport') && entry.billingReport.hasOwnProperty('order')) {
+                        // only show the contact if the contact is not a privat person (identified that companies doesn't have any firstname)
+                        if (entry.billingReport.order.hasOwnProperty('contact') && !entry.billingReport.order.contact.hasOwnProperty('firstname')) {
+                            byId[entry.id] = Object.assign(byId[entry.id], { description: `${entry.billingReport.order.title} (${entry.billingReport.order.contact.lastname})` })
+                        } else {
+                            byId[entry.id] = Object.assign(byId[entry.id], { description: `${entry.billingReport.order.title}` })
+                        }
+                    }
+                }
             }
 
             ids = search(Object.assign({}, state, { loading: false, byId: byId, ids: ids }), searchFields, Object.assign({}, action, { payload: '' }))
