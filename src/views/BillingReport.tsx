@@ -261,9 +261,10 @@ export class _BillingReport extends Component<BillingReportProps, BillingReportS
             actions.push(
                 <button id="approve" className="btn btn-block btn-outline-success" onClick={this.approve}>Genehmigen</button>
             )
-            actions.push(
+            //TODO: Disabled because of workflow missing for declined reports
+            /* actions.push(
                 <button id="decline" className="btn btn-block btn-outline-danger" onClick={this.decline}>Ablehnen</button>
-            )
+            ) */
         }
 
         return actions
