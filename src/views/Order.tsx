@@ -76,6 +76,11 @@ export default class _Order extends Component<OrderProps> {
                             </div>
                         </Panel>
                     </Column>
+                    <Column className="col-md-6">
+                        <Panel title="Actions">
+                            <a target="_blank" href={`https://office.bexio.com/index.php/kb_order/show/id/${this.props.order.bexioId}`} className="btn btn-block btn-outline-primary">In Bexio anschauen</a>
+                        </Panel>
+                    </Column>
                 </Row>
                 <Row>
                     <Column className="col">
