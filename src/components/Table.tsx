@@ -20,7 +20,8 @@ interface TableProps<T> {
     data: StringIndexed<T> | Array<T>,
     onSort?: (event: MouseEvent<HTMLTableHeaderCellElement>, clickedKeys: Array<string> | StringIndexed<any>, sortDirection: 'asc' | 'desc') => void,
     defaultSort?: { keys: Array<string> | StringIndexed<any>, direction: 'asc' | 'desc' },
-    searchString?: string
+    searchString?: string,
+    ref?: Function
 }
 
 interface TableState<T> {
@@ -34,6 +35,8 @@ export default class Table<T extends { id: string | number }> extends Component<
         super(props)
         this.sortClick = this.sortClick.bind(this)
         this.search = this.search.bind(this)
+        this.ref = this.ref.bind(this)
+
         if (this.props.defaultSort) {
             this.state = {
                 sortKey: this.props.defaultSort.keys.join('-'),
@@ -55,6 +58,10 @@ export default class Table<T extends { id: string | number }> extends Component<
                 searchableKeys: this.genSearchKeys(nextProps.columns)
             })
         }
+    }
+
+    private ref(table: HTMLTableElement) {
+        if (this.props.ref) this.props.ref(table)
     }
 
     private sort(sortKey: string, direction: 'asc' | 'desc', data?: StringIndexed<T> | Array<T>): StringIndexed<T> | Array<T> {
@@ -326,7 +333,7 @@ export default class Table<T extends { id: string | number }> extends Component<
     public render() {
         return (
             <div className="table-responsive">
-                <table className="table table-striped">
+                <table className="table table-striped" ref={this.ref}>
                     <thead key="table-head">
                         <tr>
                             {this.props.columns.map((column) => {
