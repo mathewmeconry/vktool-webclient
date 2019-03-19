@@ -5,7 +5,6 @@ import { UI } from "../actions/UIActions";
 import { ThunkDispatch } from "redux-thunk";
 import { AnyAction } from "redux";
 import { DataList } from "../components/DataList";
-import StringIndexed from "../interfaces/StringIndexed";
 
 
 const mapStateToProps = (state: State) => {
@@ -30,9 +29,6 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>
         },
         onSearch: (value: string) => {
             dispatch(UI.searchBillingReports(value))
-        },
-        onSort: (sortKeys: Array<string> | StringIndexed<any>, sortDirection: 'asc' | 'desc') => {
-            dispatch(UI.sortBillingReports(sortKeys, sortDirection))
         }
     }
 }

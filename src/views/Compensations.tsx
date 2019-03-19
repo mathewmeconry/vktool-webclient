@@ -114,7 +114,6 @@ export class _Compensations extends Component<CompensationsProps & RouteComponen
                 data={this.props.data}
                 fetchData={this.props.fetchData}
                 onSearch={this.props.onSearch}
-                onSort={this.props.onSort}
                 history={this.props.history}
             >
                 {this.renderModal()}
@@ -136,9 +135,6 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>
         },
         onSearch: (value: string) => {
             dispatch(UI.searchCompensationEntries(value))
-        },
-        onSort: (sortKeys: Array<string> | StringIndexed<any>, sortDirection: 'asc' | 'desc') => {
-            dispatch(UI.sortCompensationEntries(sortKeys, sortDirection))
         },
         delete: (id: number) => {
             dispatch(Data.deleteCompensationEntry(id))

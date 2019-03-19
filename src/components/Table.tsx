@@ -23,59 +23,49 @@ interface TableProps<T> {
 
 interface TableState<T> {
     sortKey: string,
-    sortDirection: 'asc' | 'desc',
-    data: StringIndexed<T> | Array<T>
+    sortDirection: 'asc' | 'desc'
 }
 
-export default class Table<T> extends Component<TableProps<T>, TableState<T>> {
+export default class Table<T extends { id: string | number }> extends Component<TableProps<T>, TableState<T>> {
     constructor(props: TableProps<T>) {
         super(props)
         this.sortClick = this.sortClick.bind(this)
         if (this.props.defaultSort) {
-            let data = this.props.data
-            if (!this.props.sortClick) {
-                data = this.sort(this.props.defaultSort.keys, this.props.defaultSort.direction)
-            }
-
             this.state = {
                 sortKey: this.props.defaultSort.keys.join('-'),
-                sortDirection: this.props.defaultSort.direction,
-                data: data
+                sortDirection: this.props.defaultSort.direction
             }
         } else {
             this.state = {
                 sortKey: '',
-                sortDirection: 'asc',
-                data: this.props.data
+                sortDirection: 'asc'
             }
         }
     }
 
-    public componentWillReceiveProps(props: TableProps<T>) {
-        this.setState({
-            data: props.data
-        })
-    }
-
-    private sort(keys: StringIndexed<any> | Array<string>, direction: 'asc' | 'desc') {
+    private sort(sortKey: string, direction: 'asc' | 'desc', data?: StringIndexed<T> | Array<T>) {
+        let keys = this.genSortKeys(sortKey)
         let prepared = []
-        for (let a in this.props.data) {
+        data = data || this.props.data
+        for (let a in data) {
             //@ts-ignore
-            let element = this.props.data[a]
+            let element = data[a]
             let sortValues = []
             for (let i in keys) {
                 //@ts-ignore
                 let key = keys[i]
                 if (key instanceof Array) {
                     for (let b of key) {
-                        if (b.indexOf('phone') > -1) {
-                            //@ts-ignore
-                            sortValues.push(element[i][b].replace(' ', ''))
-                        } else if (element[key] instanceof Date) {
-                            sortValues.push(element[key].getTime())
-                        } else {
-                            //@ts-ignore
-                            sortValues.push(element[i][b])
+                        if (element[i]) {
+                            if (b.indexOf('phone') > -1) {
+                                //@ts-ignore
+                                sortValues.push(element[i][b].replace(' ', ''))
+                            } else if (element[key] instanceof Date) {
+                                sortValues.push(element[key].getTime())
+                            } else {
+                                //@ts-ignore
+                                sortValues.push(element[i][b])
+                            }
                         }
                     }
                 } else {
@@ -119,25 +109,9 @@ export default class Table<T> extends Component<TableProps<T>, TableState<T>> {
         return sorted
     }
 
-    private sortClick(event: MouseEvent<HTMLTableHeaderCellElement>) {
-        let dataKey = (event.target as HTMLElement).dataset.key as string
-        let direction: 'asc' | 'desc' = 'asc';
-
-        if (this.state.sortKey === dataKey) {
-            if (this.state.sortDirection === 'asc') {
-                direction = 'desc'
-            } else {
-                direction = 'asc'
-            }
-        }
-
-        let newState: TableState<T> = Object.assign({}, this.state, {
-            sortDirection: direction,
-            sortKey: dataKey
-        })
-
-        let keys = [dataKey]
-        if (dataKey.indexOf('_') > -1) keys = dataKey.split('_')
+    private genSortKeys(key: string): Array<string> | StringIndexed<any> {
+        let keys = [key]
+        if (key.indexOf('_') > -1) keys = key.split('_')
 
         let finalKeys: StringIndexed<any> | Array<string> = {}
         for (let key of keys) {
@@ -150,20 +124,35 @@ export default class Table<T> extends Component<TableProps<T>, TableState<T>> {
             }
         }
 
-        if (this.props.sortClick) {
-            this.props.sortClick(event, finalKeys, direction)
-        } else {
-            newState.data = this.sort(finalKeys, direction)
+        return finalKeys
+    }
+
+    private sortClick(event: MouseEvent<HTMLTableHeaderCellElement>) {
+        let dataKey = (event.target as HTMLElement).dataset.key as string
+        let direction: 'asc' | 'desc' = 'asc';
+
+        if (this.state.sortKey === dataKey) {
+            if (this.state.sortDirection === 'asc') {
+                direction = 'desc'
+            } else {
+                direction = 'asc'
+            }
         }
 
-        this.setState(newState)
+        this.setState({
+            sortDirection: direction,
+            sortKey: dataKey
+        })
     }
 
     private renderRows() {
         let rows = []
-        for (let id in this.state.data) {
+        let data = this.props.data
+        data = this.sort(this.state.sortKey, this.state.sortDirection, data)
+
+        for (let id in data) {
             //@ts-ignore
-            let dataEntry = this.state.data[id]
+            let dataEntry = data[id]
             let row = []
 
             for (let column of this.props.columns) {
@@ -189,6 +178,7 @@ export default class Table<T> extends Component<TableProps<T>, TableState<T>> {
                                     return '✓'
                                 }
                                 return '⨯'
+                                //@ts-ignore
                             } else if (dataEntry[key] instanceof Array) {
                                 //@ts-ignore
                                 return dataEntry[key].map((entry: any) => {
@@ -215,6 +205,7 @@ export default class Table<T> extends Component<TableProps<T>, TableState<T>> {
                     } else {
                         for (let k in column.keys) {
                             content = content.concat(column.keys[k].map((key) => {
+                                //@ts-ignore
                                 if (dataEntry.hasOwnProperty(k) && dataEntry[k]) {
                                     //@ts-ignore
                                     if (dataEntry[k][key] instanceof Date) {

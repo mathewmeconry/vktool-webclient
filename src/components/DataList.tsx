@@ -14,7 +14,6 @@ export interface DataListProps<T> {
     data: DataInterface<T>,
     fetchData: Function,
     onSearch: Function,
-    onSort: (sortKeys: Array<string> | StringIndexed<any>, sortDirection: 'asc' | 'desc') => void,
     title: string,
     viewLocation: string,
     tableColumns: Array<TableColumn>
@@ -23,7 +22,7 @@ export interface DataListProps<T> {
     rowActions?: Array<any>
 }
 
-export class DataList<T> extends Component<DataListProps<T>> {
+export class DataList<T extends { id: string | number }> extends Component<DataListProps<T>> {
     constructor(props: DataListProps<T>) {
         super(props)
 
@@ -32,7 +31,6 @@ export class DataList<T> extends Component<DataListProps<T>> {
         }
 
         this.elementView = this.elementView.bind(this)
-        this.sortClick = this.sortClick.bind(this)
     }
 
     public elementView(event: React.MouseEvent<HTMLButtonElement>) {
@@ -46,15 +44,6 @@ export class DataList<T> extends Component<DataListProps<T>> {
                 this.props.history.push(this.props.viewLocation + id)
             }
         }
-    }
-
-    private sortClick(): undefined | ((event: React.MouseEvent<HTMLTableHeaderCellElement>, sortKeys: Array<string> | StringIndexed<any>, sortDirection: 'asc' | 'desc') => void) {
-        if (this.props.onSort) {
-            return (event: React.MouseEvent<HTMLTableHeaderCellElement>, sortKeys: Array<string> | StringIndexed<any>, sortDirection: 'asc' | 'desc') => {
-                this.props.onSort(sortKeys, sortDirection)
-            }
-        }
-        return undefined
     }
 
     private textSearch(event: React.ChangeEvent<HTMLInputElement>) {
@@ -85,7 +74,6 @@ export class DataList<T> extends Component<DataListProps<T>> {
                     }
                 ])}
                 data={dataById}
-                sortClick={this.sortClick()}
                 defaultSort={{ keys: this.props.data.sort.keys, direction: this.props.data.sort.direction }}
             />
         )

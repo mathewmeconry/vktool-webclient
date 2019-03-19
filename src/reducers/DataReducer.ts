@@ -70,13 +70,10 @@ function Users(state: DataInterface<User> = { loading: false, byId: {}, ids: [],
             }
 
             ids = search(Object.assign({}, state, { loading: false, byId: byId, ids: ids }), searchFields, Object.assign({}, action, { payload: '' }))
-            ids = sort(Object.assign({}, state, { loading: false, byId: byId, ids: ids }), Object.assign({}, action, { payload: '' }))
             return Object.assign({}, state, { loading: false, byId: byId, ids: ids })
         case UIActions.SEARCH_USERS:
             ids = search(state, searchFields, action)
-            return Object.assign({}, state, { ids: sort(Object.assign({}, state, { ids: ids }), Object.assign({}, action, { payload: '' })) })
-        case UIActions.SORT_USERS:
-            return Object.assign({}, state, { ids: sort(state, action), sort: { keys: action.payload.keys, direction: action.payload.direction } })
+            return Object.assign({}, state, { ids: ids })
         default:
             return state
     }
@@ -142,13 +139,10 @@ function Members(state: DataInterface<Contact> = { loading: false, byId: {}, ids
             }
 
             ids = search(Object.assign({}, state, { loading: false, byId: byId, ids: ids }), searchFields, Object.assign({}, action, { payload: '' }))
-            ids = sort(Object.assign({}, state, { loading: false, byId: byId, ids: ids }), Object.assign({}, action, { payload: '' }))
             return Object.assign({}, state, { loading: false, byId: byId, ids: ids })
         case UIActions.SEARCH_MEMBERS:
             ids = search(state, searchFields, action)
-            return Object.assign({}, state, { ids: sort(Object.assign({}, state, { ids: ids }), Object.assign({}, action, { payload: '' })) })
-        case UIActions.SORT_MEMBERS:
-            return Object.assign({}, state, { ids: sort(state, action), sort: { keys: action.payload.keys, direction: action.payload.direction } })
+            return Object.assign({}, state, { ids: ids })
         default:
             return state
     }
@@ -172,13 +166,10 @@ function Orders(state: DataInterface<Order> = { loading: false, byId: {}, ids: [
             }
 
             ids = search(Object.assign({}, state, { loading: false, byId: byId, ids: ids }), searchFields, Object.assign({}, action, { payload: '' }))
-            ids = sort(Object.assign({}, state, { loading: false, byId: byId, ids: ids }), Object.assign({}, action, { payload: '' }))
             return Object.assign({}, state, { loading: false, byId: byId, ids: ids })
         case UIActions.SEARCH_ORDERS:
             ids = search(state, searchFields, action)
-            return Object.assign({}, state, { ids: sort(Object.assign({}, state, { ids: ids }), Object.assign({}, action, { payload: '' })) })
-        case UIActions.SORT_ORDERS:
-            return Object.assign({}, state, { ids: sort(state, action), sort: { keys: action.payload.keys, direction: action.payload.direction } })
+            return Object.assign({}, state, { ids: ids })
         default:
             return state
     }
@@ -202,7 +193,6 @@ function OpenOrders(state: DataInterface<Order> = { loading: false, byId: {}, id
             }
 
             ids = search(Object.assign({}, state, { loading: false, byId: byId, ids: ids }), searchFields, Object.assign({}, action, { payload: '' }))
-            ids = sort(Object.assign({}, state, { loading: false, byId: byId, ids: ids }), Object.assign({}, action, { payload: '' }))
             return Object.assign({}, state, { loading: false, byId: byId, ids: ids })
         default:
             return state
@@ -228,13 +218,10 @@ function BillingReports(state: DataInterface<BillingReport> = { loading: false, 
             }
 
             ids = search(Object.assign({}, state, { loading: false, byId: byId, ids: ids }), searchFields, Object.assign({}, action, { payload: '' }))
-            ids = sort(Object.assign({}, state, { loading: false, byId: byId, ids: ids }), Object.assign({}, action, { payload: '' }))
             return Object.assign({}, state, { loading: false, byId: byId, ids: ids })
         case UIActions.SEARCH_BILLING_REPORTS:
             ids = search(state, searchFields, action)
-            return Object.assign({}, state, { ids: sort(Object.assign({}, state, { ids: ids }), Object.assign({}, action, { payload: '' })) })
-        case UIActions.SORT_BILLING_REPORTS:
-            return Object.assign({}, state, { ids: sort(state, action), sort: { keys: action.payload.keys, direction: action.payload.direction } })
+            return Object.assign({}, state, { ids: ids })
         case DataActions.APPROVE_BILLING_REPORT:
             byId = Object.assign({}, state.byId, Object.assign({}, state.byId[action.payload], { status: 'approved' }))
             return Object.assign({}, state, { byId: byId })
@@ -272,13 +259,10 @@ function CompensationEntries(state: DataInterface<Compensation> = { loading: fal
             }
 
             ids = search(Object.assign({}, state, { loading: false, byId: byId, ids: ids }), searchFields, Object.assign({}, action, { payload: '' }))
-            ids = sort(Object.assign({}, state, { loading: false, byId: byId, ids: ids }), Object.assign({}, action, { payload: '' }))
             return Object.assign({}, state, { loading: false, byId: byId, ids: ids })
         case UIActions.SEARCH_COMPENSATION_ENTRIES:
             ids = search(state, searchFields, action)
-            return Object.assign({}, state, { ids: sort(Object.assign({}, state, { ids: ids }), Object.assign({}, action, { payload: '' })) })
-        case UIActions.SORT_COMPENSATION_ENTRIES:
-            return Object.assign({}, state, { ids: sort(state, action), sort: { keys: action.payload.keys, direction: action.payload.direction } })
+            return Object.assign({}, state, { ids: ids })
         case DataActions.APPROVE_COMPENSATION_ENTRY:
             byId = Object.assign({}, state.byId, Object.assign({}, state.byId[action.payload], { status: 'approved' }))
             return Object.assign({}, state, { byId: byId })
@@ -303,7 +287,6 @@ function CollectionPoints(state: DataInterface<Compensation> = { loading: false,
                 ids.push(entry.id)
             }
 
-            ids = sort(Object.assign({}, state, { loading: false, byId: byId, ids: ids }), Object.assign({}, action, { payload: '' }))
             return Object.assign({}, state, { loading: false, byId: byId, ids: ids })
         default:
             return state
@@ -426,59 +409,4 @@ const search = function <T>(state: DataInterface<T>, searchFields: Array<string>
         }
     }
     return ids
-}
-
-const sort = function <T>(state: DataInterface<T>, action: AnyAction): Array<number> {
-    let sortKeys = action.payload.keys || state.sort.keys
-    let sortDirection = action.payload.direction || state.sort.direction
-    let prepared: Array<{ id: number, value: string }> = []
-
-    for (let id of state.ids) {
-        let element = state.byId[id]
-        let sortValues = []
-        for (let i in sortKeys) {
-            //@ts-ignore
-            let key = sortKeys[i]
-            if (!key) key = i
-
-            if (key instanceof Array) {
-                for (let k of key) {
-                    if (key.indexOf('phone') > -1) {
-                        //@ts-ignore
-                        sortValues.push(element[i][k].replace(' ', ''))
-                    } else {
-                        //@ts-ignore
-                        sortValues.push(element[i][k])
-                    }
-                }
-            } else {
-                if (key.indexOf('phone') > -1) {
-                    //@ts-ignore
-                    sortValues.push(element[key].replace(' ', ''))
-                } else {
-                    //@ts-ignore
-                    sortValues.push(element[key])
-                }
-            }
-        }
-        prepared.push({ id: id, value: sortValues.join(' ').toLowerCase() })
-    }
-
-    prepared.sort((a, b) => {
-        let aValue, bValue
-        aValue = parseFloat(a.value)
-        bValue = parseFloat(b.value)
-        if (isNaN(aValue) || isNaN(bValue)) {
-            aValue = a.value
-            bValue = b.value
-        }
-
-        if (aValue < bValue)
-            return (sortDirection === 'asc') ? -1 : 1;
-        if (aValue > bValue)
-            return (sortDirection === 'asc') ? 1 : -1;
-        return 0;
-    })
-
-    return prepared.map(el => el.id)
 }

@@ -9,7 +9,6 @@ import Action from "../components/Action";
 import React, { Component } from "react";
 import Contact from "../entities/Contact";
 import Xlsx from 'xlsx'
-import StringIndexed from "../interfaces/StringIndexed";
 
 interface MembersProps extends DataListProps<Contact> {
 }
@@ -84,9 +83,6 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>
         },
         onSearch: (value: string) => {
             dispatch(UI.searchMembers(value))
-        },
-        onSort: (sortKeys: Array<string> | StringIndexed<any>, sortDirection: 'asc' | 'desc') => {
-            dispatch(UI.sortMembers(sortKeys, sortDirection))
         }
     }
 }

@@ -7,7 +7,6 @@ import { UI } from "../actions/UIActions";
 
 
 import { DataList } from '../components/DataList'
-import StringIndexed from "../interfaces/StringIndexed";
 
 const mapStateToProps = (state: State) => {
     return {
@@ -31,9 +30,6 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>
         },
         onSearch: (value: string) => {
             dispatch(UI.searchOrders(value))
-        },
-        onSort: (sortKeys: Array<string> | StringIndexed<any>, sortDirection: 'asc' | 'desc') => {
-            dispatch(UI.sortOrders(sortKeys, sortDirection))
         }
     }
 }

@@ -46,14 +46,14 @@ export class _User extends Component<UserProps> {
     }
 
     public renderRolePart() {
-        let roles: Array<{ role: string }> = []
+        let roles: Array<{ role: string, id: string }> = []
 
-        for (let role of this.props.user.roles) {
-            roles.push({ role: role })
+        for (let i in this.props.user.roles) {
+            roles.push({ role: this.props.user.roles[i], id: i })
         }
 
         return (
-            <Table<{ role: string }>
+            <Table<{ role: string, id: string }>
                 columns={[
                     { text: 'Role', keys: ['role'] }
                 ]}
@@ -92,7 +92,7 @@ export class _User extends Component<UserProps> {
 }
 
 const mapStateToProps = (state: State, props: any) => {
-    if(props.location.pathname === '/me') {
+    if (props.location.pathname === '/me') {
         return {
             user: state.data.user.data,
             loading: state.data.user.loading
@@ -106,7 +106,7 @@ const mapStateToProps = (state: State, props: any) => {
 }
 
 const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>, props: any) => {
-    if(props.location.pathname === '/me') {
+    if (props.location.pathname === '/me') {
         return {
             fetchUsers: () => {
                 dispatch(Data.fetchUser())
