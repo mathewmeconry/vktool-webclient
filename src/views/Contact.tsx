@@ -163,6 +163,7 @@ export default class _Contact extends Component<ContactProps, ContactState> {
                 <Table<Compensation>
                     columns={[
                         { text: 'Datum', keys: ['date'], sortable: true },
+                        { text: 'Beschreibung', keys: ['description'], sortable: true },
                         { text: 'Betrag', keys: ['amount'], prefix: 'CHF ', sortable: true },
                         { text: 'Genehmigt', keys: ['approved'], sortable: true },
                         { text: 'Ausbezahlt', keys: ['paied'], sortable: true },
