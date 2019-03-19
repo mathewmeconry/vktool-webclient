@@ -71,8 +71,21 @@ export default class _Contact extends Component<ContactProps, ContactState> {
 
     private async loadCompensations() {
         if (this.props.user && this.props.user.roles.indexOf(AuthRoles.COMPENSATIONS_READ)) {
+            let data = []
+            for (let rec of Data.deepParser((await Axios.get<Array<Compensation>>(Config.apiEndpoint + `/api/compensations/${this.props.contact.id}`, { withCredentials: true })).data)) {
+                if (rec.hasOwnProperty('billingReport') && rec.billingReport.hasOwnProperty('order')) {
+                    // only show the contact if the contact is not a privat person (identified that companies doesn't have any firstname)
+                    if (rec.billingReport.order.hasOwnProperty('contact') && !rec.billingReport.order.contact.hasOwnProperty('firstname')) {
+                        rec.description = `${rec.billingReport.order.title} (${rec.billingReport.order.contact.lastname})`
+                    } else {
+                        rec.description = `${rec.billingReport.order.title}`
+                    }
+                }
+                data.push(rec)
+            }
+
             this.setState({
-                compensations: Data.deepParser((await Axios.get<Array<Compensation>>(Config.apiEndpoint + `/api/compensations/${this.props.contact.id}`, { withCredentials: true })).data),
+                compensations: data,
                 compensationsLoaded: true
             })
         }
