@@ -14,9 +14,9 @@ const mapStateToProps = (state: State) => {
         viewLocation: '/billing-report/',
         tableColumns: [
             { text: 'Datum', keys: ['date'], sortable: true },
-            { text: 'Auftrag Nr', keys: { 'order': ['documentNr'] }, sortable: true },
-            { text: 'Auftrag Titel', keys: { 'order': ['title'] }, sortable: true },
-            { text: 'Ersteller', keys: { 'creator': ['displayName'] }, sortable: true },
+            { text: 'Auftrag Nr', keys: { 'order': ['documentNr'] }, sortable: true, searchable: true },
+            { text: 'Auftrag Titel', keys: { 'order': ['title'] }, sortable: true, searchable: true },
+            { text: 'Ersteller', keys: { 'creator': ['displayName'] }, sortable: true, searchable: true },
             { text: 'Status', keys: ['state'], sortable: true }
         ]
     }
@@ -26,9 +26,6 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>
     return {
         fetchData: () => {
             dispatch(Data.fetchBillingReports())
-        },
-        onSearch: (value: string) => {
-            dispatch(UI.searchBillingReports(value))
         }
     }
 }

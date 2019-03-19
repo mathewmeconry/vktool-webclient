@@ -33,7 +33,6 @@ export interface DataInterface<T> {
     loading: boolean,
     byId: StringIndexed<T>,
     ids: Array<number>,
-    filter: string,
     sort: { keys: Array<string>, direction: 'asc' | 'desc' }
 }
 
@@ -52,10 +51,10 @@ function UserReducer(state: SingleDataInterface<User> = { loading: false, data: 
     }
 }
 
-function Users(state: DataInterface<User> = { loading: false, byId: {}, ids: [], filter: '', sort: { keys: ['displayName'], direction: 'asc' } }, action: AnyAction): DataInterface<User> {
+function Users(state: DataInterface<User> = { loading: false, byId: {}, ids: [], sort: { keys: ['displayName'], direction: 'asc' } }, action: AnyAction): DataInterface<User> {
     let byId: StringIndexed<User> = {}
     let ids: Array<number> = []
-    let searchFields = ['displayName']
+
     switch (action.type) {
         case DataActions.FETCH_USERS:
             if (state.ids.length === 0) {
@@ -69,17 +68,13 @@ function Users(state: DataInterface<User> = { loading: false, byId: {}, ids: [],
                 ids.push(contact.id)
             }
 
-            ids = search(Object.assign({}, state, { loading: false, byId: byId, ids: ids }), searchFields, Object.assign({}, action, { payload: '' }))
             return Object.assign({}, state, { loading: false, byId: byId, ids: ids })
-        case UIActions.SEARCH_USERS:
-            ids = search(state, searchFields, action)
-            return Object.assign({}, state, { ids: ids })
         default:
             return state
     }
 }
 
-function Ranks(state: DataInterface<ContactGroup> = { loading: false, byId: {}, ids: [], filter: '', sort: { keys: ['name'], direction: 'asc' } }, action: AnyAction): DataInterface<ContactGroup> {
+function Ranks(state: DataInterface<ContactGroup> = { loading: false, byId: {}, ids: [], sort: { keys: ['name'], direction: 'asc' } }, action: AnyAction): DataInterface<ContactGroup> {
     let byId: StringIndexed<ContactGroup> = {}
     let ids = []
     switch (action.type) {
@@ -100,7 +95,7 @@ function Ranks(state: DataInterface<ContactGroup> = { loading: false, byId: {}, 
     }
 }
 
-function Contacts(state: DataInterface<Contact> = { loading: false, byId: {}, ids: [], filter: '', sort: { keys: ['firstname'], direction: 'asc' } }, action: AnyAction): DataInterface<Contact> {
+function Contacts(state: DataInterface<Contact> = { loading: false, byId: {}, ids: [], sort: { keys: ['firstname'], direction: 'asc' } }, action: AnyAction): DataInterface<Contact> {
     let byId: StringIndexed<Contact> = {}
     let ids = []
     switch (action.type) {
@@ -121,10 +116,10 @@ function Contacts(state: DataInterface<Contact> = { loading: false, byId: {}, id
     }
 }
 
-function Members(state: DataInterface<Contact> = { loading: false, byId: {}, ids: [], filter: '', sort: { keys: ['firstname'], direction: 'asc' } }, action: AnyAction): DataInterface<Contact> {
+function Members(state: DataInterface<Contact> = { loading: false, byId: {}, ids: [], sort: { keys: ['firstname'], direction: 'asc' } }, action: AnyAction): DataInterface<Contact> {
     let byId: StringIndexed<Contact> = {}
     let ids: Array<number> = []
-    let searchFields = ['firstname', 'lastname', 'address', 'postcode', 'city', 'mail', 'mailSecond', 'phoneFixed', 'phoneFixedSecond', 'phoneMobile']
+
     switch (action.type) {
         case DataActions.FETCH_MEMBERS:
             if (state.ids.length === 0) {
@@ -138,20 +133,16 @@ function Members(state: DataInterface<Contact> = { loading: false, byId: {}, ids
                 ids.push(contact.id)
             }
 
-            ids = search(Object.assign({}, state, { loading: false, byId: byId, ids: ids }), searchFields, Object.assign({}, action, { payload: '' }))
             return Object.assign({}, state, { loading: false, byId: byId, ids: ids })
-        case UIActions.SEARCH_MEMBERS:
-            ids = search(state, searchFields, action)
-            return Object.assign({}, state, { ids: ids })
         default:
             return state
     }
 }
 
-function Orders(state: DataInterface<Order> = { loading: false, byId: {}, ids: [], filter: '', sort: { keys: ['documentNr'], direction: 'desc' } }, action: AnyAction): DataInterface<Order> {
+function Orders(state: DataInterface<Order> = { loading: false, byId: {}, ids: [], sort: { keys: ['documentNr'], direction: 'desc' } }, action: AnyAction): DataInterface<Order> {
     let byId: StringIndexed<Order> = {}
     let ids: Array<number> = []
-    let searchFields = ['documentNr', 'title']
+
     switch (action.type) {
         case DataActions.FETCH_ORDERS:
             if (state.ids.length === 0) {
@@ -165,20 +156,16 @@ function Orders(state: DataInterface<Order> = { loading: false, byId: {}, ids: [
                 ids.push(order.id)
             }
 
-            ids = search(Object.assign({}, state, { loading: false, byId: byId, ids: ids }), searchFields, Object.assign({}, action, { payload: '' }))
             return Object.assign({}, state, { loading: false, byId: byId, ids: ids })
-        case UIActions.SEARCH_ORDERS:
-            ids = search(state, searchFields, action)
-            return Object.assign({}, state, { ids: ids })
         default:
             return state
     }
 }
 
-function OpenOrders(state: DataInterface<Order> = { loading: false, byId: {}, ids: [], filter: '', sort: { keys: ['title'], direction: 'desc' } }, action: AnyAction): DataInterface<Order> {
+function OpenOrders(state: DataInterface<Order> = { loading: false, byId: {}, ids: [], sort: { keys: ['title'], direction: 'desc' } }, action: AnyAction): DataInterface<Order> {
     let byId: StringIndexed<Order> = {}
     let ids: Array<number> = []
-    let searchFields = ['documentNr', 'title']
+
     switch (action.type) {
         case DataActions.FETCH_OPEN_ORDERS:
             if (state.ids.length === 0) {
@@ -192,7 +179,6 @@ function OpenOrders(state: DataInterface<Order> = { loading: false, byId: {}, id
                 ids.push(order.id)
             }
 
-            ids = search(Object.assign({}, state, { loading: false, byId: byId, ids: ids }), searchFields, Object.assign({}, action, { payload: '' }))
             return Object.assign({}, state, { loading: false, byId: byId, ids: ids })
         default:
             return state
@@ -200,10 +186,10 @@ function OpenOrders(state: DataInterface<Order> = { loading: false, byId: {}, id
 }
 
 
-function BillingReports(state: DataInterface<BillingReport> = { loading: false, byId: {}, ids: [], filter: '', sort: { keys: ['orderDate'], direction: 'desc' } }, action: AnyAction): DataInterface<BillingReport> {
+function BillingReports(state: DataInterface<BillingReport> = { loading: false, byId: {}, ids: [], sort: { keys: ['orderDate'], direction: 'desc' } }, action: AnyAction): DataInterface<BillingReport> {
     let byId: StringIndexed<BillingReport> = {}
     let ids: Array<number> = []
-    let searchFields = { 'order': ['documentNr', 'title'] }
+
     switch (action.type) {
         case DataActions.FETCH_BILLING_REPORTS:
             if (state.ids.length === 0) {
@@ -217,11 +203,7 @@ function BillingReports(state: DataInterface<BillingReport> = { loading: false, 
                 ids.push(report.id)
             }
 
-            ids = search(Object.assign({}, state, { loading: false, byId: byId, ids: ids }), searchFields, Object.assign({}, action, { payload: '' }))
             return Object.assign({}, state, { loading: false, byId: byId, ids: ids })
-        case UIActions.SEARCH_BILLING_REPORTS:
-            ids = search(state, searchFields, action)
-            return Object.assign({}, state, { ids: ids })
         case DataActions.APPROVE_BILLING_REPORT:
             byId = Object.assign({}, state.byId, Object.assign({}, state.byId[action.payload], { status: 'approved' }))
             return Object.assign({}, state, { byId: byId })
@@ -230,10 +212,10 @@ function BillingReports(state: DataInterface<BillingReport> = { loading: false, 
     }
 }
 
-function CompensationEntries(state: DataInterface<Compensation> = { loading: false, byId: {}, ids: [], filter: '', sort: { keys: ['date'], direction: 'desc' } }, action: AnyAction): DataInterface<Compensation> {
+function CompensationEntries(state: DataInterface<Compensation> = { loading: false, byId: {}, ids: [], sort: { keys: ['date'], direction: 'desc' } }, action: AnyAction): DataInterface<Compensation> {
     let byId: StringIndexed<Compensation> = {}
     let ids: Array<number> = []
-    let searchFields = { 'member': ['firstname', 'lastname'], 'amount': '', 'creator': ['displayName'] }
+
     switch (action.type) {
         case DataActions.FETCH_COMPENSATION_ENTRIES:
             if (state.ids.length === 0) {
@@ -258,11 +240,7 @@ function CompensationEntries(state: DataInterface<Compensation> = { loading: fal
                 }
             }
 
-            ids = search(Object.assign({}, state, { loading: false, byId: byId, ids: ids }), searchFields, Object.assign({}, action, { payload: '' }))
             return Object.assign({}, state, { loading: false, byId: byId, ids: ids })
-        case UIActions.SEARCH_COMPENSATION_ENTRIES:
-            ids = search(state, searchFields, action)
-            return Object.assign({}, state, { ids: ids })
         case DataActions.APPROVE_COMPENSATION_ENTRY:
             byId = Object.assign({}, state.byId, Object.assign({}, state.byId[action.payload], { status: 'approved' }))
             return Object.assign({}, state, { byId: byId })
@@ -271,7 +249,7 @@ function CompensationEntries(state: DataInterface<Compensation> = { loading: fal
     }
 }
 
-function CollectionPoints(state: DataInterface<Compensation> = { loading: false, byId: {}, ids: [], filter: '', sort: { keys: ['city'], direction: 'desc' } }, action: AnyAction): DataInterface<Compensation> {
+function CollectionPoints(state: DataInterface<Compensation> = { loading: false, byId: {}, ids: [], sort: { keys: ['city'], direction: 'desc' } }, action: AnyAction): DataInterface<Compensation> {
     let byId: StringIndexed<Compensation> = {}
     let ids: Array<number> = []
     switch (action.type) {
@@ -358,55 +336,3 @@ function MailingLists(state: StringIndexed<Array<string>> = {}, action: AnyActio
 }
 
 export default combineReducers({ collectionPoints: CollectionPoints, user: UserReducer, users: Users, contacts: Contacts, members: Members, ranks: Ranks, orders: Orders, openOrders: OpenOrders, billingReports: BillingReports, compensationEntries: CompensationEntries, mailingLists: MailingLists })
-
-
-
-const search = function <T>(state: DataInterface<T>, searchFields: Array<string> | { [index: string]: any }, action: AnyAction): Array<number> {
-    let ids: Array<number> = []
-    let filter = action.payload || state.filter
-
-    // override if the action type includes search
-    if (action.type.indexOf('search') > -1) {
-        filter = action.payload
-    }
-
-    if (filter) {
-        for (let i in state.byId) {
-            let contact = state.byId[i]
-            let searchString = ''
-            for (let i in searchFields) {
-                //@ts-ignore
-                let field = searchFields[i]
-                if (!field) field = i
-
-                if (field instanceof Array) {
-                    for (let f of field) {
-                        if (f.indexOf('phone') > -1) {
-                            //@ts-ignore
-                            searchString += contact[i][f].toString().replace(' ', '') + ' '
-                        }
-                        //@ts-ignore
-                        searchString += contact[i][f].toString() + ' '
-                    }
-                } else {
-                    if (field.indexOf('phone') > -1) {
-                        //@ts-ignore
-                        searchString += contact[field].toString().replace(' ', '') + ' '
-                    }
-                    //@ts-ignore
-                    searchString += contact[field].toString() + ' '
-                }
-            }
-
-            if (searchString.toLowerCase().indexOf(filter.toLowerCase()) > -1) {
-                //@ts-ignore
-                ids.push(contact.id)
-            }
-        }
-    } else {
-        for (let i in state.byId) {
-            ids.push(parseInt(i))
-        }
-    }
-    return ids
-}

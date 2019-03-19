@@ -13,7 +13,7 @@ import StringIndexed from "../interfaces/StringIndexed";
 export interface DataListProps<T> {
     data: DataInterface<T>,
     fetchData: Function,
-    onSearch: Function,
+    onSearch?: Function,
     title: string,
     viewLocation: string,
     tableColumns: Array<TableColumn>
@@ -22,7 +22,7 @@ export interface DataListProps<T> {
     rowActions?: Array<any>
 }
 
-export class DataList<T extends { id: string | number }> extends Component<DataListProps<T>> {
+export class DataList<T extends { id: string | number }> extends Component<DataListProps<T>, { searchString: string }> {
     constructor(props: DataListProps<T>) {
         super(props)
 
@@ -31,6 +31,9 @@ export class DataList<T extends { id: string | number }> extends Component<DataL
         }
 
         this.elementView = this.elementView.bind(this)
+        this.textSearch = this.textSearch.bind(this)
+
+        this.state = { searchString: '' }
     }
 
     public elementView(event: React.MouseEvent<HTMLButtonElement>) {
@@ -47,7 +50,10 @@ export class DataList<T extends { id: string | number }> extends Component<DataL
     }
 
     private textSearch(event: React.ChangeEvent<HTMLInputElement>) {
-        this.props.onSearch(event.target.value)
+        if (this.props.onSearch) this.props.onSearch(event.target.value)
+        this.setState({
+            searchString: event.target.value
+        })
     }
 
     private renderTable() {
@@ -75,6 +81,7 @@ export class DataList<T extends { id: string | number }> extends Component<DataL
                 ])}
                 data={dataById}
                 defaultSort={{ keys: this.props.data.sort.keys, direction: this.props.data.sort.direction }}
+                searchString={this.state.searchString}
             />
         )
     }
@@ -87,7 +94,7 @@ export class DataList<T extends { id: string | number }> extends Component<DataL
                         <Panel
                             actions={(this.props.panelActions || [])}
                             title={
-                                <input id="search" defaultValue={this.props.data.filter} placeholder="Search..." className="float-right form-control form-control-sm" onChange={(event) => this.textSearch(event)} />
+                                <input id="search" value={this.state.searchString} placeholder="Search..." className="float-right form-control form-control-sm" onChange={(event) => this.textSearch(event)} />
                             }>
                             {this.renderTable()}
                         </Panel>

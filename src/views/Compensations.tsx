@@ -103,17 +103,16 @@ export class _Compensations extends Component<CompensationsProps & RouteComponen
                     <button className="btn btn-danger delete" onMouseUp={this.deleteCompensation}><FontAwesomeIcon icon="trash" /></button>
                 ]}
                 tableColumns={[
-                    { text: 'Mitglied', keys: { 'member': ['firstname', 'lastname'] }, sortable: true },
+                    { text: 'Mitglied', keys: { 'member': ['firstname', 'lastname'] }, sortable: true, searchable: true },
                     { text: 'Datum', keys: ['date'], sortable: true },
                     { text: 'Betrag', keys: ['amount'], sortable: true, prefix: 'CHF ' },
-                    { text: 'Beschreibung', keys: ['description'], sortable: false },
+                    { text: 'Beschreibung', keys: ['description'], sortable: false, searchable: true },
                     { text: 'Ersteller', keys: { 'creator': ['displayName'] }, sortable: true },
                     { text: 'Genehmigt', keys: ['approved'], sortable: true },
                     { text: 'Ausbezahlt', keys: ['paied'], sortable: true }
                 ]}
                 data={this.props.data}
                 fetchData={this.props.fetchData}
-                onSearch={this.props.onSearch}
                 history={this.props.history}
             >
                 {this.renderModal()}
@@ -132,9 +131,6 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>
     return {
         fetchData: () => {
             dispatch(Data.fetchCompensationEntries())
-        },
-        onSearch: (value: string) => {
-            dispatch(UI.searchCompensationEntries(value))
         },
         delete: (id: number) => {
             dispatch(Data.deleteCompensationEntry(id))

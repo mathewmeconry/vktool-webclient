@@ -9,6 +9,7 @@ export interface TableColumn {
     link?: boolean
     linkPrefix?: string,
     sortable?: boolean,
+    searchable?: boolean,
     prefix?: string
     suffix?: string
     format?: string
@@ -18,32 +19,45 @@ interface TableProps<T> {
     columns: Array<TableColumn>,
     data: StringIndexed<T> | Array<T>,
     onSort?: (event: MouseEvent<HTMLTableHeaderCellElement>, clickedKeys: Array<string> | StringIndexed<any>, sortDirection: 'asc' | 'desc') => void,
-    defaultSort?: { keys: Array<string> | StringIndexed<any>, direction: 'asc' | 'desc' }
+    defaultSort?: { keys: Array<string> | StringIndexed<any>, direction: 'asc' | 'desc' },
+    searchString?: string
 }
 
 interface TableState<T> {
     sortKey: string,
-    sortDirection: 'asc' | 'desc'
+    sortDirection: 'asc' | 'desc',
+    searchableKeys: Array<string | { [index: string]: Array<string> }>
 }
 
 export default class Table<T extends { id: string | number }> extends Component<TableProps<T>, TableState<T>> {
     constructor(props: TableProps<T>) {
         super(props)
         this.sortClick = this.sortClick.bind(this)
+        this.search = this.search.bind(this)
         if (this.props.defaultSort) {
             this.state = {
                 sortKey: this.props.defaultSort.keys.join('-'),
-                sortDirection: this.props.defaultSort.direction
+                sortDirection: this.props.defaultSort.direction,
+                searchableKeys: this.genSearchKeys(this.props.columns)
             }
         } else {
             this.state = {
                 sortKey: '',
-                sortDirection: 'asc'
+                sortDirection: 'asc',
+                searchableKeys: this.genSearchKeys(this.props.columns)
             }
         }
     }
 
-    private sort(sortKey: string, direction: 'asc' | 'desc', data?: StringIndexed<T> | Array<T>) {
+    public componentWillReceiveProps(nextProps: TableProps<T>) {
+        if (nextProps !== this.props) {
+            this.setState({
+                searchableKeys: this.genSearchKeys(nextProps.columns)
+            })
+        }
+    }
+
+    private sort(sortKey: string, direction: 'asc' | 'desc', data?: StringIndexed<T> | Array<T>): StringIndexed<T> | Array<T> {
         let keys = this.genSortKeys(sortKey)
         let prepared = []
         data = data || this.props.data
@@ -147,10 +161,72 @@ export default class Table<T extends { id: string | number }> extends Component<
         })
     }
 
+    private genSearchKeys(columns: Array<TableColumn>): Array<string | { [index: string]: Array<string> }> {
+        let searchKeys: Array<string | { [index: string]: Array<string> }> = []
+        for (let column of columns) {
+            if (column.searchable) {
+                if (column.keys instanceof Array) {
+                    searchKeys = searchKeys.concat(column.keys)
+                } else {
+                    searchKeys.push(column.keys)
+                }
+            }
+        }
+
+        return searchKeys
+    }
+
+    private search(searchString: string, data?: StringIndexed<T> | Array<T>): StringIndexed<T> | Array<T> {
+        let result: StringIndexed<T> | Array<T> = {}
+        data = data || this.props.data
+
+        if (searchString && this.state.searchableKeys.length > 0) {
+            for (let a in data) {
+                //@ts-ignore
+                let record = data[a]
+                let searchableString = ''
+                for (let key of this.state.searchableKeys) {
+
+                    if (key instanceof Object) {
+                        for (let f in key) {
+                            for (let k of key[f]) {
+                                if (record[f] && record[f][k]) {
+                                    if (k.indexOf('phone') > -1) {
+                                        //@ts-ignore
+                                        searchableString += record[f][k].toString().replace(' ', '') + ' '
+                                    }
+                                    //@ts-ignore
+                                    searchableString += record[f][k].toString() + ' '
+                                }
+                            }
+                        }
+                    } else if (typeof key === 'string') {
+                        if (key.indexOf('phone') > -1) {
+                            //@ts-ignore
+                            searchableString += record[key].toString().replace(' ', '') + ' '
+                        }
+                        //@ts-ignore
+                        searchableString += record[key].toString() + ' '
+                    }
+                }
+
+                if (searchableString.toLowerCase().indexOf(searchString.toLowerCase()) > -1) {
+                    //@ts-ignore
+                    result[a] = record
+                }
+            }
+
+            return result
+        }
+
+        return data
+    }
+
     private renderRows() {
         let rows = []
         let data = this.props.data
         data = this.sort(this.state.sortKey, this.state.sortDirection, data)
+        data = this.search(this.props.searchString || '', data)
 
         for (let id in data) {
             //@ts-ignore

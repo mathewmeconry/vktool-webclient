@@ -14,11 +14,11 @@ const mapStateToProps = (state: State) => {
         viewLocation: '/order/',
         title: 'Aufträge',
         tableColumns: [
-            { text: 'Auftragsnummer', keys: ['documentNr'], sortable: true },
-            { text: 'Titel', keys: ['title'], sortable: true },
-            { text: 'Kunde', keys: { 'contact': ['firstname', 'lastname'] }, sortable: true },
-            { text: 'Total', keys: ['total'], sortable: true, prefix: 'CHF ' },
-            { text: 'Auftragsdaten', keys: ['execDates'], sortable: true }
+            { text: 'Auftragsnummer', keys: ['documentNr'], sortable: true, searchable: true },
+            { text: 'Titel', keys: ['title'], sortable: true, searchable: true },
+            { text: 'Kunde', keys: { 'contact': ['firstname', 'lastname'] }, sortable: true, searchable: true },
+            { text: 'Total', keys: ['total'], sortable: true, prefix: 'CHF ', searchable: true },
+            { text: 'Auftragsdaten', keys: ['execDates']}
         ]
     }
 }
@@ -27,9 +27,6 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>
     return {
         fetchData: () => {
             dispatch(Data.fetchOrders())
-        },
-        onSearch: (value: string) => {
-            dispatch(UI.searchOrders(value))
         }
     }
 }

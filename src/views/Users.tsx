@@ -14,8 +14,8 @@ const mapStateToProps = (state: State) => {
         viewLocation: '/user/',
         title: 'Benutzer',
         tableColumns: [
-            { text: 'Name', keys: ['displayName'], sortable: true },
-            { text: 'Rechte', keys: ['roles'], sortable: true }
+            { text: 'Name', keys: ['displayName'], sortable: true, searchable: true },
+            { text: 'Rechte', keys: ['roles'], sortable: true, searchable: true }
         ]
     }
 }
@@ -24,9 +24,6 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>
     return {
         fetchData: () => {
             dispatch(Data.fetchUsers())
-        },
-        onSearch: (value: string) => {
-            dispatch(UI.searchUsers(value))
         }
     }
 }

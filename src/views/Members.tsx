@@ -64,14 +64,14 @@ const mapStateToProps = (state: State) => {
         title: 'Mitglieder',
         viewLocation: '/contact/',
         tableColumns: [
-            { text: 'Name', keys: ['firstname', 'lastname'], sortable: true },
-            { text: 'Addresse', keys: ['address', 'postcode', 'city'], link: true, linkPrefix: 'https://www.google.com/maps/search/', sortable: true },
-            { text: 'Abholpunkt', keys: { collectionPoint: ['address', 'postcode', 'city'] }, link: true, linkPrefix: 'https://www.google.com/maps/search/', sortable: true },
-            { text: 'Festnetz', keys: ['phoneFixed'], link: true, linkPrefix: 'tel:', sortable: true },
-            { text: 'Festnetz 2', keys: ['phoneFixedSecond'], link: true, linkPrefix: 'tel:', sortable: true },
-            { text: 'Mobile', keys: ['phoneMobile'], link: true, linkPrefix: 'tel:', sortable: true },
-            { text: 'E-Mail', keys: ['mail'], link: true, linkPrefix: 'mailto:', sortable: true },
-            { text: 'E-Mail 2', keys: ['mailSecond'], link: true, linkPrefix: 'mailto:', sortable: true },
+            { text: 'Name', keys: ['firstname', 'lastname'], sortable: true, searchable: true },
+            { text: 'Addresse', keys: ['address', 'postcode', 'city'], link: true, linkPrefix: 'https://www.google.com/maps/search/', sortable: true, searchable: true },
+            { text: 'Abholpunkt', keys: { collectionPoint: ['address', 'postcode', 'city'] }, link: true, linkPrefix: 'https://www.google.com/maps/search/', sortable: true, searchable: true },
+            { text: 'Festnetz', keys: ['phoneFixed'], link: true, linkPrefix: 'tel:', sortable: true, searchable: true },
+            { text: 'Festnetz 2', keys: ['phoneFixedSecond'], link: true, linkPrefix: 'tel:', sortable: true, searchable: true },
+            { text: 'Mobile', keys: ['phoneMobile'], link: true, linkPrefix: 'tel:', sortable: true, searchable: true },
+            { text: 'E-Mail', keys: ['mail'], link: true, linkPrefix: 'mailto:', sortable: true, searchable: true },
+            { text: 'E-Mail 2', keys: ['mailSecond'], link: true, linkPrefix: 'mailto:', sortable: true, searchable: true },
         ]
     }
 }
@@ -80,9 +80,6 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>
     return {
         fetchData: () => {
             dispatch(Data.fetchMembers())
-        },
-        onSearch: (value: string) => {
-            dispatch(UI.searchMembers(value))
         }
     }
 }
