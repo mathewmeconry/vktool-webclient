@@ -20,10 +20,12 @@
         padding: 5px 10px 0 0;
     }
     .panel-body {
-        //max-height: calc(100vh - #{$header_height_mobile} - #{$page_padding_top_mobile} - #{$panel_header_min_height_mobile} - 70px);
         overflow: auto;
         padding: $panel_content_padding_mobile;
         clear: both;
+    }
+    .panel-body-scrollable {
+        height: 50vh;
     }
 }
 

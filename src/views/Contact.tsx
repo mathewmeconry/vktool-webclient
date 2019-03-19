@@ -172,7 +172,7 @@ export default class _Contact extends Component<ContactProps, ContactState> {
         }
 
         return (
-            <Panel title="Entschädigungen">
+            <Panel title="Entschädigungen" scrollable={true}>
                 <Table<Compensation>
                     columns={[
                         { text: 'Datum', keys: ['date'], sortable: true },

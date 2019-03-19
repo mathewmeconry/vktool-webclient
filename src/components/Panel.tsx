@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 
-export default class Panel extends Component<{ title?: string | React.ReactNode, actions?: Array<any>, className?: string }> {
+export default class Panel extends Component<{ title?: string | React.ReactNode, actions?: Array<any>, className?: string, scrollable?: boolean }> {
     public render() {
         let header;
         let actions = this.props.actions || []
@@ -22,7 +22,7 @@ export default class Panel extends Component<{ title?: string | React.ReactNode,
         return (
             <div className={"panel " + (this.props.className || '')}>
                 {header}
-                <div className="panel-body">
+                <div className={`panel-body ${(this.props.scrollable) ? 'panel-body-scrollable' : ''}`}>
                     {this.props.children}
                 </div>
             </div>
