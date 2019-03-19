@@ -12,7 +12,6 @@ import Panel from '../components/Panel';
 import FormEntry from '../components/FormEntry';
 import { Link } from 'react-router-dom';
 import Table from '../components/Table';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as UserEntity from '../entities/User';
 import Contact from '../entities/Contact';
 
