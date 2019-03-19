@@ -17,7 +17,7 @@ export interface TableColumn {
 interface TableProps<T> {
     columns: Array<TableColumn>,
     data: StringIndexed<T> | Array<T>,
-    sortClick?: (event: MouseEvent<HTMLTableHeaderCellElement>, clickedKeys: Array<string> | StringIndexed<any>, sortDirection: 'asc' | 'desc') => void,
+    onSort?: (event: MouseEvent<HTMLTableHeaderCellElement>, clickedKeys: Array<string> | StringIndexed<any>, sortDirection: 'asc' | 'desc') => void,
     defaultSort?: { keys: Array<string> | StringIndexed<any>, direction: 'asc' | 'desc' }
 }
 
@@ -138,6 +138,8 @@ export default class Table<T extends { id: string | number }> extends Component<
                 direction = 'asc'
             }
         }
+
+        if (this.props.onSort) this.props.onSort(event, this.genSortKeys(dataKey), direction)
 
         this.setState({
             sortDirection: direction,
