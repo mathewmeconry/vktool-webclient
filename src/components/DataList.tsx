@@ -9,6 +9,7 @@ import { History } from "history";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Loading from "./Loading";
 import StringIndexed from "../interfaces/StringIndexed";
+import Action from "./Action";
 
 export interface DataListProps<T> {
     data: DataInterface<T>,
@@ -19,10 +20,19 @@ export interface DataListProps<T> {
     tableColumns: Array<TableColumn>
     history: History
     panelActions?: Array<any>
-    rowActions?: Array<any>
+    rowActions?: Array<any>,
+    pdfExport?: string,
 }
 
-export class DataList<T extends { id: string | number }> extends Component<DataListProps<T>, { searchString: string }> {
+export interface DataListState {
+    searchString: string,
+    sort: {
+        keys: Array<string> | StringIndexed<string>,
+        direction: 'asc' | 'desc'
+    }
+}
+
+export class DataList<T extends { id: string | number }> extends Component<DataListProps<T>, DataListState> {
     constructor(props: DataListProps<T>) {
         super(props)
 
@@ -32,8 +42,15 @@ export class DataList<T extends { id: string | number }> extends Component<DataL
 
         this.elementView = this.elementView.bind(this)
         this.textSearch = this.textSearch.bind(this)
+        this.onSort = this.onSort.bind(this)
 
-        this.state = { searchString: '' }
+        this.state = {
+            searchString: '',
+            sort: {
+                keys: this.props.data.sort.keys,
+                direction: this.props.data.sort.direction
+            }
+        }
     }
 
     public elementView(event: React.MouseEvent<HTMLButtonElement>) {
@@ -47,6 +64,23 @@ export class DataList<T extends { id: string | number }> extends Component<DataL
                 this.props.history.push(this.props.viewLocation + id)
             }
         }
+    }
+
+    public shouldComponentUpdate(nextProps: DataListProps<T>, nextState: DataListState): boolean {
+        if (this.props !== nextProps) return true
+        if (this.state.searchString !== nextState.searchString) return true
+
+        // don't rerender on sort change, because this is just to keep track of the state below
+        return false
+    }
+
+    private onSort(event: React.MouseEvent<HTMLTableHeaderCellElement>, keys: Array<string> | StringIndexed<string>, direction: 'asc' | 'desc'): void {
+        this.setState({
+            sort: {
+                keys: keys,
+                direction: direction
+            }
+        })
     }
 
     private textSearch(event: React.ChangeEvent<HTMLInputElement>) {
@@ -80,19 +114,24 @@ export class DataList<T extends { id: string | number }> extends Component<DataL
                     }
                 ])}
                 data={dataById}
-                defaultSort={{ keys: this.props.data.sort.keys, direction: this.props.data.sort.direction }}
+                defaultSort={this.state.sort}
                 searchString={this.state.searchString}
+                onSort={this.onSort}
             />
         )
     }
 
     public render() {
+        let actions = []
+        if (this.props.pdfExport) actions.push(<Action to={this.props.pdfExport} state={this.state} icon='file-pdf' />)
+        actions = actions.concat(this.props.panelActions || [])
+
         return (
             <Page title={this.props.title}>
                 <Row>
                     <Column>
                         <Panel
-                            actions={(this.props.panelActions || [])}
+                            actions={actions}
                             title={
                                 <input id="search" value={this.state.searchString} placeholder="Search..." className="float-right form-control form-control-sm" onChange={(event) => this.textSearch(event)} />
                             }>

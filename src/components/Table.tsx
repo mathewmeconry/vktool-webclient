@@ -21,7 +21,8 @@ interface TableProps<T> {
     onSort?: (event: MouseEvent<HTMLTableHeaderCellElement>, clickedKeys: Array<string> | StringIndexed<any>, sortDirection: 'asc' | 'desc') => void,
     defaultSort?: { keys: Array<string> | StringIndexed<any>, direction: 'asc' | 'desc' },
     searchString?: string,
-    ref?: Function
+    ref?: Function,
+    className?: string
 }
 
 interface TableState<T> {
@@ -333,7 +334,7 @@ export default class Table<T extends { id: string | number }> extends Component<
     public render() {
         return (
             <div className="table-responsive">
-                <table className="table table-striped" ref={this.ref}>
+                <table className={`table table-striped ${this.props.className || ''}`} ref={this.ref}>
                     <thead key="table-head">
                         <tr>
                             {this.props.columns.map((column) => {

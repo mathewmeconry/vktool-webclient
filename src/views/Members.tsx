@@ -52,9 +52,9 @@ export class _Members extends Component<MembersProps> {
         return (
             <DataList<Contact>
                 {...this.props}
+                pdfExport='/members/pdf'
                 panelActions={[
-                    <Action icon="file-excel" onClick={this.excelExport} />,
-                    <Action icon="file-pdf" to="/members/pdf" />
+                    <Action icon="file-excel" onClick={this.excelExport} />
                 ]}
             />
         )
