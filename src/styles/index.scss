@@ -15,6 +15,10 @@
 @import 'action';
 @import 'colors';
 @import 'form_entry';
+
+// pdfs
+@import './Pdfs/index';
+
 * {
     /* So 100% means 100% */
     box-sizing: border-box;
