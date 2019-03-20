@@ -13,6 +13,7 @@ export interface TableColumn {
     prefix?: string
     suffix?: string
     format?: string
+    className?: string
 }
 
 interface TableProps<T> {
@@ -20,7 +21,9 @@ interface TableProps<T> {
     data: StringIndexed<T> | Array<T>,
     onSort?: (event: MouseEvent<HTMLTableHeaderCellElement>, clickedKeys: Array<string> | StringIndexed<any>, sortDirection: 'asc' | 'desc') => void,
     defaultSort?: { keys: Array<string> | StringIndexed<any>, direction: 'asc' | 'desc' },
-    searchString?: string
+    searchString?: string,
+    ref?: Function,
+    className?: string
 }
 
 interface TableState<T> {
@@ -34,6 +37,8 @@ export default class Table<T extends { id: string | number }> extends Component<
         super(props)
         this.sortClick = this.sortClick.bind(this)
         this.search = this.search.bind(this)
+        this.ref = this.ref.bind(this)
+
         if (this.props.defaultSort) {
             this.state = {
                 sortKey: this.props.defaultSort.keys.join('-'),
@@ -55,6 +60,10 @@ export default class Table<T extends { id: string | number }> extends Component<
                 searchableKeys: this.genSearchKeys(nextProps.columns)
             })
         }
+    }
+
+    private ref(table: HTMLTableElement) {
+        if (this.props.ref) this.props.ref(table)
     }
 
     private sort(sortKey: string, direction: 'asc' | 'desc', data?: StringIndexed<T> | Array<T>): StringIndexed<T> | Array<T> {
@@ -263,20 +272,21 @@ export default class Table<T extends { id: string | number }> extends Component<
                                     if (entry instanceof Date) {
                                         if (column.format) {
                                             //@ts-ignore
-                                            return entry[column.format]() + '\n\r'
+                                            return entry[column.format]()
                                         } else {
-                                            return entry.toLocaleDateString() + '\n\r'
+                                            return entry.toLocaleDateString()
                                         }
                                     } else if (typeof entry === 'boolean') {
                                         if (entry) {
-                                            return '✓' + '\n\r'
+                                            return '✓'
                                         }
-                                        return '⨯' + '\n\r'
+                                        return '⨯'
                                     }
 
-                                    return entry + '\n\r'
+                                    return entry
                                 })
                             }
+
                             //@ts-ignore
                             return dataEntry[key]
                         })
@@ -311,9 +321,9 @@ export default class Table<T extends { id: string | number }> extends Component<
                     }
 
                     if (column.link) {
-                        row.push(<td key={dataEntry.id + (content.join(' ') || Math.random().toString())}><a key={dataEntry.id + [...(content || [Math.random().toString()]), 'a'].join(' ')} href={((column.linkPrefix) ? column.linkPrefix : '') + content.join(' ')} target="_blank">{((column.prefix) ? column.prefix : '') + content.join(' ') + ((column.suffix) ? column.suffix : '')}</a></td>)
+                        row.push(<td className={column.className || ''} key={dataEntry.id + (content.join(' ') || Math.random().toString())}><a key={dataEntry.id + [...(content || [Math.random().toString()]), 'a'].join(' ')} href={((column.linkPrefix) ? column.linkPrefix : '') + content.join(' ')} target="_blank">{((column.prefix) ? column.prefix : '') + content.join(' ') + ((column.suffix) ? column.suffix : '')}</a></td>)
                     } else {
-                        row.push(<td key={dataEntry.id + (content.join(' ') || Math.random().toString())}>{((column.prefix) ? column.prefix : '') + content.join(' ') + ((column.suffix) ? column.suffix : '')}</td>)
+                        row.push(<td className={column.className || ''} key={dataEntry.id + (content.join(' ') || Math.random().toString())}>{((column.prefix) ? column.prefix : '') + content.join(' ') + ((column.suffix) ? column.suffix : '')}</td>)
                     }
                 }
             }
@@ -326,7 +336,7 @@ export default class Table<T extends { id: string | number }> extends Component<
     public render() {
         return (
             <div className="table-responsive">
-                <table className="table table-striped">
+                <table className={`table table-striped ${this.props.className || ''}`} ref={this.ref}>
                     <thead key="table-head">
                         <tr>
                             {this.props.columns.map((column) => {

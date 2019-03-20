@@ -52,7 +52,10 @@ export class _Members extends Component<MembersProps> {
         return (
             <DataList<Contact>
                 {...this.props}
-                panelActions={[<Action icon="file-excel" onClick={this.excelExport} />]}
+                pdfExport='/members/pdf'
+                panelActions={[
+                    <Action icon="file-excel" onClick={this.excelExport} />
+                ]}
             />
         )
     }
@@ -65,6 +68,8 @@ const mapStateToProps = (state: State) => {
         viewLocation: '/contact/',
         tableColumns: [
             { text: 'Name', keys: ['firstname', 'lastname'], sortable: true, searchable: true },
+            { text: 'Grad', keys: ['rank'], sortable: true, searchable: true },
+            { text: 'Funktionen', keys: ['functions'], sortable: true, searchable: true },
             { text: 'Addresse', keys: ['address', 'postcode', 'city'], link: true, linkPrefix: 'https://www.google.com/maps/search/', sortable: true, searchable: true },
             { text: 'Abholpunkt', keys: { collectionPoint: ['address', 'postcode', 'city'] }, link: true, linkPrefix: 'https://www.google.com/maps/search/', sortable: true, searchable: true },
             { text: 'Festnetz', keys: ['phoneFixed'], link: true, linkPrefix: 'tel:', sortable: true, searchable: true },

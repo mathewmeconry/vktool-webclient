@@ -95,7 +95,7 @@ function Ranks(state: DataInterface<ContactGroup> = { loading: false, byId: {}, 
     }
 }
 
-function Contacts(state: DataInterface<Contact> = { loading: false, byId: {}, ids: [], sort: { keys: ['firstname'], direction: 'asc' } }, action: AnyAction): DataInterface<Contact> {
+function Contacts(state: DataInterface<Contact> = { loading: false, byId: {}, ids: [], sort: { keys: ['firstname', 'lastname'], direction: 'asc' } }, action: AnyAction): DataInterface<Contact> {
     let byId: StringIndexed<Contact> = {}
     let ids = []
     switch (action.type) {
@@ -116,7 +116,7 @@ function Contacts(state: DataInterface<Contact> = { loading: false, byId: {}, id
     }
 }
 
-function Members(state: DataInterface<Contact> = { loading: false, byId: {}, ids: [], sort: { keys: ['firstname'], direction: 'asc' } }, action: AnyAction): DataInterface<Contact> {
+function Members(state: DataInterface<Contact> = { loading: false, byId: {}, ids: [], sort: { keys: ['firstname', 'lastname'], direction: 'asc' } }, action: AnyAction): DataInterface<Contact> {
     let byId: StringIndexed<Contact> = {}
     let ids: Array<number> = []
 

@@ -10,6 +10,7 @@ export default class Loading extends Component<{ fullscreen?: boolean }> {
                     <div className="sk-cube4 sk-cube"></div>
                     <div className="sk-cube3 sk-cube"></div>
                 </div>
+                {this.props.children}
             </div>
         )
     }

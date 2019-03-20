@@ -33,7 +33,7 @@ import { Error404 } from "./components/Errors/404";
 import { MailingLists } from "./views/MailingLists";
 import { CollectionPoints } from "./views/CollectionPoints";
 import { AddCollectionPoint } from "./views/AddCollectionPoint";
-
+import { Memberlist } from "./views/Pdfs/Memberlist";
 
 export default class Root extends Component<{}, {}> {
     private store: Store<any, AnyAction>
@@ -48,20 +48,18 @@ export default class Root extends Component<{}, {}> {
     render() {
         return (
             <Provider store={this.store}>
-                <BrowserRouter>
-                    <div className="body">
-                        <ToastContainer
-                            position="top-center"
-                            autoClose={5000}
-                            hideProgressBar={false}
-                            newestOnTop={true}
-                            closeOnClick
-                            rtl={false}
-                            draggable={true}
-                            pauseOnHover={true}
-                        />
-                        <Header />
-                        <Navibar />
+                <div className="body">
+                    <ToastContainer
+                        position="top-center"
+                        autoClose={5000}
+                        hideProgressBar={false}
+                        newestOnTop={true}
+                        closeOnClick
+                        rtl={false}
+                        draggable={true}
+                        pauseOnHover={true}
+                    />
+                    <BrowserRouter>
                         <Switch>
                             <Route exact path="/" component={() => { return (<Redirect to="/login" />) }} />
                             <Route exact path="/login" component={Login} />
@@ -69,6 +67,7 @@ export default class Root extends Component<{}, {}> {
                             <SecureRoute exact path="/dashboard" roles={[AuthRoles.AUTHENTICATED]} component={Dashboard} />
                             <SecureRoute exact path="/me" roles={[AuthRoles.AUTHENTICATED]} component={User} />
                             <SecureRoute exact path="/members" roles={[AuthRoles.MEMBERS_READ]} component={Members} />
+                            <SecureRoute exact path="/members/pdf" roles={[AuthRoles.MEMBERS_READ]} component={Memberlist} />
                             <SecureRoute exact path="/mailing-lists" roles={[AuthRoles.MEMBERS_READ]} component={MailingLists} />
                             <SecureRoute exact path="/draft/collection-points" roles={[AuthRoles.DRAFT_READ]} component={CollectionPoints} />
                             <SecureRoute exact path="/draft/collection-points/add" roles={[AuthRoles.DRAFT_EDIT, AuthRoles.DRAFT_CREATE]} component={AddCollectionPoint} />
@@ -85,8 +84,8 @@ export default class Root extends Component<{}, {}> {
                             <SecureRoute exact path="/user/:id" roles={[AuthRoles.ADMIN]} component={User} />
                             <Route path="/*" component={Error404} />
                         </Switch>
-                    </div>
-                </BrowserRouter>
+                    </BrowserRouter>
+                </div>
             </Provider>
         )
     }
