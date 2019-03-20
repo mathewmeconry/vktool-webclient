@@ -13,6 +13,7 @@ export interface TableColumn {
     prefix?: string
     suffix?: string
     format?: string
+    className?: string
 }
 
 interface TableProps<T> {
@@ -271,20 +272,21 @@ export default class Table<T extends { id: string | number }> extends Component<
                                     if (entry instanceof Date) {
                                         if (column.format) {
                                             //@ts-ignore
-                                            return entry[column.format]() + '\n\r'
+                                            return entry[column.format]()
                                         } else {
-                                            return entry.toLocaleDateString() + '\n\r'
+                                            return entry.toLocaleDateString()
                                         }
                                     } else if (typeof entry === 'boolean') {
                                         if (entry) {
-                                            return '✓' + '\n\r'
+                                            return '✓'
                                         }
-                                        return '⨯' + '\n\r'
+                                        return '⨯'
                                     }
 
-                                    return entry + '\n\r'
+                                    return entry
                                 })
                             }
+
                             //@ts-ignore
                             return dataEntry[key]
                         })
@@ -319,9 +321,9 @@ export default class Table<T extends { id: string | number }> extends Component<
                     }
 
                     if (column.link) {
-                        row.push(<td key={dataEntry.id + (content.join(' ') || Math.random().toString())}><a key={dataEntry.id + [...(content || [Math.random().toString()]), 'a'].join(' ')} href={((column.linkPrefix) ? column.linkPrefix : '') + content.join(' ')} target="_blank">{((column.prefix) ? column.prefix : '') + content.join(' ') + ((column.suffix) ? column.suffix : '')}</a></td>)
+                        row.push(<td className={column.className || ''} key={dataEntry.id + (content.join(' ') || Math.random().toString())}><a key={dataEntry.id + [...(content || [Math.random().toString()]), 'a'].join(' ')} href={((column.linkPrefix) ? column.linkPrefix : '') + content.join(' ')} target="_blank">{((column.prefix) ? column.prefix : '') + content.join(' ') + ((column.suffix) ? column.suffix : '')}</a></td>)
                     } else {
-                        row.push(<td key={dataEntry.id + (content.join(' ') || Math.random().toString())}>{((column.prefix) ? column.prefix : '') + content.join(' ') + ((column.suffix) ? column.suffix : '')}</td>)
+                        row.push(<td className={column.className || ''} key={dataEntry.id + (content.join(' ') || Math.random().toString())}>{((column.prefix) ? column.prefix : '') + content.join(' ') + ((column.suffix) ? column.suffix : '')}</td>)
                     }
                 }
             }
