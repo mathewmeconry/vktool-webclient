@@ -7,8 +7,8 @@ import { Link } from "react-router-dom";
 export interface ActionProps {
     icon: IconProp,
     to?: string,
-    child?: JSX.Element,
-    onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void
+    onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void,
+    state?: any
 }
 
 export default class Action extends Component<ActionProps> {
@@ -26,17 +26,14 @@ export default class Action extends Component<ActionProps> {
     public render() {
         if (this.props.to) {
             return (
-                <Link to={this.props.to} className="action-button btn btn-outline-dark">
+                <Link to={{
+                    pathname: this.props.to,
+                    state: this.props.state || {}
+                }}
+                    className="action-button btn btn-outline-dark"
+                >
                     <FontAwesomeIcon icon={this.props.icon} />
                 </Link>
-            )
-        }
-
-        if (this.props.child) {
-            return (
-                <FontAwesomeIcon icon={this.props.icon}>
-                    {this.props.child}
-                </FontAwesomeIcon>
             )
         }
 
