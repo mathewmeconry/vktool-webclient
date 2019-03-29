@@ -43,8 +43,8 @@ export default class AddBillingReportStep2 extends Component<Step2Props, { table
             }
 
             if (valid) {
-                let from = new Date("1970-01-01 " + this.state.from)
-                let until = new Date("1970-01-01 " + this.state.until)
+                let from = new Date("01/01/1970 " + this.state.from)
+                let until = new Date("01/01/1970 " + this.state.until)
                 let totalHours = (until.getTime() - from.getTime()) / 1000 / 60 / 60
 
                 if (totalHours < 0) totalHours = totalHours + 24
