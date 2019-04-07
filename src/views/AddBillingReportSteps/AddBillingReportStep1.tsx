@@ -31,6 +31,8 @@ export default class AddBillingReportStep1 extends Component<Step1Props, { order
             // only show the contact if the contact is not a privat person (identified that companies doesn't have any firstname)
             if (!order.contact.firstname) {
                 options.push(<option key={order.documentNr} value={order.id}>{`${order.title} (${order.contact.lastname})`}</option>)
+            } else {
+                options.push(<option key={order.documentNr} value={order.id}>{`${order.title}`}</option>)
             }
         }
 
