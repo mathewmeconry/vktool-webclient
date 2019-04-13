@@ -9,7 +9,6 @@ import Row from "../components/Row";
 import Column from "../components/Column";
 import Panel from "../components/Panel";
 import FormEntry from "../components/FormEntry";
-import { DataInterface } from "../reducers/DataReducer";
 import Loading from "../components/Loading";
 import * as ContactEntity from "../entities/Contact";
 import ContactGroup from "../entities/ContactGroup";
@@ -38,7 +37,13 @@ export interface ContactProps extends RouteComponentProps<{ id: string }> {
 export interface ContactState {
     editable: boolean,
     collectionPoint: CollectionPoint,
+    entryDate?: string,
+    exitDate?: string,
+    bankName?: string,
+    iban?: string,
+    accountHolder?: string,
     compensations: Array<Compensation>,
+    openCompensationsSum: number,
     compensationsLoaded: boolean
 }
 
@@ -55,22 +60,43 @@ export default class _Contact extends Component<ContactProps, ContactState> {
 
         this.loadCompensations = this.loadCompensations.bind(this)
         this.compensationView = this.compensationView.bind(this)
+        this.onInputChange = this.onInputChange.bind(this)
         this.onSave = this.onSave.bind(this)
         this.onAbort = this.onAbort.bind(this)
         this.onSelectChange = this.onSelectChange.bind(this)
         this.renderCollectionPoint = this.renderCollectionPoint.bind(this)
         this.renderPanelActions = this.renderPanelActions.bind(this)
 
+        const contact = this.props.contact || {}
+
         this.state = {
             editable: false,
-            collectionPoint: (this.props.contact || { collectionPoint: new CollectionPoint() }).collectionPoint || new CollectionPoint(),
+            collectionPoint: contact.collectionPoint || new CollectionPoint(),
+            entryDate: (contact.entryDate) ? contact.entryDate.toLocaleDateString() : '',
+            exitDate: (contact.exitDate) ? contact.exitDate.toLocaleDateString() : '',
+            bankName: contact.bankName || '',
+            iban: contact.iban || '',
+            accountHolder: contact.accountHolder || '',
             compensations: [],
+            openCompensationsSum: 0,
             compensationsLoaded: false
         }
     }
 
+    private onInputChange(event: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) {
+        const target = event.target;
+        const value = target.value;
+        const name = target.name;
+
+        //@ts-ignore
+        this.setState({
+            [name]: value
+        });
+    }
+
     private async loadCompensations() {
         if (this.props.user && this.props.user.roles.indexOf(AuthRoles.COMPENSATIONS_READ)) {
+            let openCompensationsSum = 0
             let data = []
             for (let rec of Data.deepParser((await Axios.get<Array<Compensation>>(Config.apiEndpoint + `/api/compensations/${this.props.contact.id}`, { withCredentials: true })).data)) {
                 if (rec.hasOwnProperty('billingReport') && rec.billingReport.hasOwnProperty('order')) {
@@ -82,10 +108,13 @@ export default class _Contact extends Component<ContactProps, ContactState> {
                     }
                 }
                 data.push(rec)
+
+                if (!rec.paied) openCompensationsSum += parseFloat(rec.amount)
             }
 
             this.setState({
                 compensations: data,
+                openCompensationsSum: openCompensationsSum,
                 compensationsLoaded: true
             })
         }
@@ -94,7 +123,12 @@ export default class _Contact extends Component<ContactProps, ContactState> {
     public componentWillReceiveProps(nextProps: ContactProps) {
         if (nextProps.contact) {
             this.setState({
-                collectionPoint: nextProps.contact.collectionPoint || new CollectionPoint()
+                collectionPoint: nextProps.contact.collectionPoint || new CollectionPoint(),
+                entryDate: (nextProps.contact.entryDate) ? nextProps.contact.entryDate.toLocaleDateString() : '',
+                exitDate: (nextProps.contact.exitDate) ? nextProps.contact.exitDate.toLocaleDateString() : '',
+                bankName: nextProps.contact.bankName || '',
+                iban: nextProps.contact.iban || '',
+                accountHolder: nextProps.contact.accountHolder || '',
             })
         }
     }
@@ -116,14 +150,27 @@ export default class _Contact extends Component<ContactProps, ContactState> {
         this.setState({ editable: false })
 
         if (this.props.contact.contactGroups.find(group => group.bexioId === 7)) {
-            this.props.editMember({ id: this.props.contact.id, collectionPointId: this.state.collectionPoint.id })
+            this.props.editMember({
+                id: this.props.contact.id,
+                collectionPointId: this.state.collectionPoint.id,
+                entryDate: (this.state.entryDate) ? new Date(this.state.entryDate) : undefined,
+                exitDate: (this.state.exitDate) ? new Date(this.state.exitDate) : undefined,
+                bankName: this.state.bankName,
+                iban: this.state.iban,
+                accountHolder: this.state.accountHolder
+            })
         }
     }
 
     public onAbort(event: React.MouseEvent<HTMLElement>) {
         this.setState({
             editable: false,
-            collectionPoint: this.props.contact.collectionPoint || new CollectionPoint()
+            collectionPoint: this.props.contact.collectionPoint || new CollectionPoint(),
+            entryDate: (this.props.contact.entryDate) ? this.props.contact.entryDate.toLocaleDateString() : '',
+            exitDate: (this.props.contact.exitDate) ? this.props.contact.exitDate.toLocaleDateString() : '',
+            bankName: this.props.contact.bankName || '',
+            iban: this.props.contact.iban || '',
+            accountHolder: this.props.contact.accountHolder || ''
         })
     }
 
@@ -172,7 +219,7 @@ export default class _Contact extends Component<ContactProps, ContactState> {
         }
 
         return (
-            <Panel title="Entschädigungen" scrollable={true}>
+            <Panel title={`Entschädigungen (Offen: ${this.state.openCompensationsSum}.-)`} scrollable={true}>
                 <Table<Compensation>
                     columns={[
                         { text: 'Datum', keys: ['date'], sortable: true },
@@ -226,18 +273,25 @@ export default class _Contact extends Component<ContactProps, ContactState> {
                                 <FormEntry id="phoneMobile" title="Mobile"><a href={'tel:' + this.props.contact.phoneMobile}>{this.props.contact.phoneMobile}</a></FormEntry>
                                 <FormEntry id="mail" title="E-Mail"><a href={'mailto:' + this.props.contact.mail}>{this.props.contact.mail}</a></FormEntry>
                                 <FormEntry id="mailSecond" title="E-Mail 2"><a href={'mailto:' + this.props.contact.mailSecond}>{this.props.contact.mailSecond}</a></FormEntry>
-                                <FormEntry id="entryDate" title="Eintrittsdatum">{(this.props.contact.entryDate) ? new Date(this.props.contact.entryDate).toLocaleDateString() : ''}</FormEntry>
-                                <FormEntry id="exitDate" title="Austrittsdatum">{(this.props.contact.exitDate) ? new Date(this.props.contact.exitDate).toLocaleDateString() : ''}</FormEntry>
                                 <FormEntry id="groups" title="Gruppen">
                                     {(this.groups) ? this.groups.map((group: ContactGroup) => {
                                         return <span className="badge badge-primary">{group.name}</span>
                                     }) : ''}
                                 </FormEntry>
+                                <FormEntry id="entryDate" title="Eintrittsdatum" type="date" editable={this.state.editable} value={this.state.entryDate} onChange={this.onInputChange} />
+                                <FormEntry id="exitDate" title="Austrittsdatum" type="date" editable={this.state.editable} value={this.state.exitDate} onChange={this.onInputChange} />
                                 <FormEntry id="remarks" title="Bemerkungen" >{this.props.contact.remarks}</FormEntry>
                             </div>
                         </Panel>
                     </Column>
                     <Column className="col-md-6">
+                        <Panel title="Finanzen">
+                            <div className="container-fluid">
+                                <FormEntry id="bankName" title="Bank" value={this.state.bankName} editable={this.state.editable} onChange={this.onInputChange} />
+                                <FormEntry id="iban" title="IBAN" value={this.state.iban} editable={this.state.editable} onChange={this.onInputChange} />
+                                <FormEntry id="accountHolder" title="Kontoinhaber" value={this.state.accountHolder} editable={this.state.editable} onChange={this.onInputChange} />
+                            </div>
+                        </Panel>
                         <Panel title="Actions">
                             <a target="_blank" href={"https://office.bexio.com/index.php/kontakt/show/id/" + this.props.contact.bexioId} className="btn btn-block btn-outline-primary">In Bexio anschauen</a>
                             <a target="_blank" href={"https://vkazu.sharepoint.com/leitung/Personalakten?viewpath=/leitung/Personalakten&id=/leitung/Personalakten/" + this.props.contact.firstname + " " + this.props.contact.lastname} className="btn btn-block btn-outline-primary">Personalakte öffnen</a>

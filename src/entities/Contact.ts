@@ -72,4 +72,7 @@ export default class Contact extends BexioBase {
     public collectionPoint?: CollectionPoint
     public entryDate?: Date
     public exitDate?: Date
+    public bankName?: string
+    public iban?: string
+    public accountHolder?: string
 }
