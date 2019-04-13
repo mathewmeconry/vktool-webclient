@@ -109,7 +109,7 @@ export default class _Contact extends Component<ContactProps, ContactState> {
                 }
                 data.push(rec)
 
-                if (!rec.paied) openCompensationsSum += rec.amount
+                if (!rec.paied) openCompensationsSum += parseFloat(rec.amount)
             }
 
             this.setState({
@@ -219,7 +219,7 @@ export default class _Contact extends Component<ContactProps, ContactState> {
         }
 
         return (
-            <Panel title="Entschädigungen" scrollable={true}>
+            <Panel title={`Entschädigungen (Offen: ${this.state.openCompensationsSum}.-)`} scrollable={true}>
                 <Table<Compensation>
                     columns={[
                         { text: 'Datum', keys: ['date'], sortable: true },
@@ -290,11 +290,6 @@ export default class _Contact extends Component<ContactProps, ContactState> {
                                 <FormEntry id="bankName" title="Bank" value={this.state.bankName} editable={this.state.editable} onChange={this.onInputChange} />
                                 <FormEntry id="iban" title="IBAN" value={this.state.iban} editable={this.state.editable} onChange={this.onInputChange} />
                                 <FormEntry id="accountHolder" title="Kontoinhaber" value={this.state.accountHolder} editable={this.state.editable} onChange={this.onInputChange} />
-                                {() => {
-                                    if (this.props.user && this.props.user.roles.indexOf(AuthRoles.COMPENSATIONS_READ)) {
-                                        return <FormEntry id="openCompensations" title="Offene Entschädiungen in CHF" value={this.state.openCompensationsSum} editable={false} />
-                                    }
-                                }}
                             </div>
                         </Panel>
                         <Panel title="Actions">
