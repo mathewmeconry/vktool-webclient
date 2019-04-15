@@ -17,7 +17,7 @@ const mapStateToProps = (state: State) => {
             { text: 'Auftrag Nr', keys: { 'order': ['documentNr'] }, sortable: true, searchable: true },
             { text: 'Auftrag Titel', keys: { 'order': ['title'] }, sortable: true, searchable: true },
             { text: 'Ersteller', keys: { 'creator': ['displayName'] }, sortable: true, searchable: true },
-            { text: 'Status', keys: ['state'], sortable: true }
+            { text: 'Status', keys: ['state'], sortable: true, searchable: true }
         ]
     }
 }
