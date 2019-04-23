@@ -15,6 +15,7 @@
 @import 'action';
 @import 'colors';
 @import 'form_entry';
+@import 'fonts';
 
 // pdfs
 @import './Pdfs/index';
@@ -34,7 +35,7 @@ body,
     font-size: $font_size_mobile;
     color: $default_text_color;
     background-color: #d9d9d9;
-    font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
+    font-family: Calibri, "Open Sans", sans-serif;
 }
 
 .edit {
