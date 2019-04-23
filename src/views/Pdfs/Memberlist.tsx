@@ -68,7 +68,7 @@ export class _Memberlist extends Component<{ data: DataInterface<Contact>, fetch
                         data={dataById}
                         columns={
                             [
-                                { text: 'Name', keys: ['firstname', 'lastname'], searchable: true },
+                                { text: 'Name', keys: ['lastname', 'firstname'], searchable: true },
                                 { text: 'Grad', keys: ['rank'], sortable: true, searchable: true },
                                 { text: 'Funktionen', keys: ['functions'], sortable: true, searchable: true },
                                 { text: 'Addresse', keys: ['address', 'postcode', 'city'], link: true, linkPrefix: 'https://www.google.com/maps/search/', searchable: true },

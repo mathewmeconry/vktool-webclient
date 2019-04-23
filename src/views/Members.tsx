@@ -25,8 +25,8 @@ export class _Members extends Component<MembersProps> {
         for (let i in this.props.data.byId) {
             let member = this.props.data.byId[i]
             let germanizedMember = {
-                Vorname: member.firstname,
                 Nachname: member.lastname,
+                Vorname: member.firstname,
                 Rang: (member.rank || ''),
                 Funktionen: (member.functions || []).join(','),
                 Geburtstag: member.birthday,
@@ -67,7 +67,7 @@ const mapStateToProps = (state: State) => {
         title: 'Mitglieder',
         viewLocation: '/contact/',
         tableColumns: [
-            { text: 'Name', keys: ['firstname', 'lastname'], sortable: true, searchable: true },
+            { text: 'Name', keys: ['lastname', 'firstname'], sortable: true, searchable: true },
             { text: 'Grad', keys: ['rank'], sortable: true, searchable: true },
             { text: 'Funktionen', keys: ['functions'], sortable: true, searchable: true },
             { text: 'Addresse', keys: ['address', 'postcode', 'city'], link: true, linkPrefix: 'https://www.google.com/maps/search/', sortable: true, searchable: true },
