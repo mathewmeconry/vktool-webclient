@@ -15,7 +15,7 @@ import StringIndexed from '../interfaces/StringIndexed';
 import { History } from 'history'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { DataInterface } from '../reducers/DataReducer';
-import { RouteComponentProps } from 'react-router-dom';
+import { RouteComponentProps, Link } from 'react-router-dom';
 import * as BillingReportEntity from '../entities/BillingReport';
 import OrderCompensation from '../entities/OrderCompensation';
 import Order from '../entities/Order';
@@ -255,6 +255,7 @@ export class _BillingReport extends Component<BillingReportProps, BillingReportS
 
     public renderActions() {
         let actions = []
+
         if (this.billingReport.state === 'pending' && (
             this.props.user.roles.includes(AuthRoles.BILLINGREPORTS_APPROVE) ||
             this.props.user.roles.includes(AuthRoles.ADMIN))) {
@@ -266,6 +267,8 @@ export class _BillingReport extends Component<BillingReportProps, BillingReportS
                 <button id="decline" className="btn btn-block btn-outline-danger" onClick={this.decline}>Ablehnen</button>
             ) */
         }
+
+        actions.push(<Link to={`/order/${this.billingReport.order.id}`} className="btn btn-block btn-outline-primary">Auftrag öffnen</Link>)
 
         return actions
     }
