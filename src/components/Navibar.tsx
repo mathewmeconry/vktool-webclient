@@ -44,6 +44,7 @@ export class _Navibar extends Component<{ open: boolean, user?: User }> {
                             <NavibarLevelHeader text="Verrechnungsrapporte" leftIcon="file-signature" id="billingreports" level={1}>
                                 {this.renderElement(<NavibarElement to="/billing-reports/add" leftIcon="plus" text="Erstellen" />, [AuthRoles.BILLINGREPORTS_CREATE])}
                                 <NavibarElement to="/billing-reports" leftIcon="list" text="Alle" />
+                                <NavibarElement to="https://vkazu.sharepoint.com/:w:/r/Vorlagen/Verrechungsrapport.docx?d=w66977fb79dfd4ab3832ca05fd6d9b8d2&csf=1&e=Spme13" text="Word Vorlage" leftIcon="file-word" />
                             </NavibarLevelHeader>
                             , [AuthRoles.BILLINGREPORTS_READ, AuthRoles.BILLINGREPORTS_CREATE]
                         )}

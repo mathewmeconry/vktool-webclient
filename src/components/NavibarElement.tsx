@@ -41,7 +41,7 @@ export class _NavibarElement extends Component<NavibarElementProps> {
     private renderLinkElement(to: string, content: Array<JSX.Element>, onMouseUp: (event: React.MouseEvent<HTMLElement>) => void) {
         if (to.match(/^(http|https):\/\//)) {
             return (
-                <a href={to} className="navibar-element" onMouseUp={onMouseUp} >
+                <a href={to} className="navibar-element" onMouseUp={onMouseUp} target="_blank">
                     {content}
                 </a>
             )
