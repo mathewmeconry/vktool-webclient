@@ -209,7 +209,7 @@ export default class Table<T extends { id: string | number }> extends Component<
                                 }
                             }
                         }
-                    } else if (typeof key === 'string' && record[key]) {
+                    } else if (typeof key === 'string' && record.hasOwnProperty(key)) {
                         if (key.indexOf('phone') > -1) {
                             //@ts-ignore
                             searchableString += record[key].toString().replace(' ', '') + ' '
@@ -219,12 +219,11 @@ export default class Table<T extends { id: string | number }> extends Component<
                     }
                 }
 
-                if (searchableString.toLowerCase().indexOf(searchString.toLowerCase()) > -1 && result[a]) {
+                if (searchableString.toLowerCase().indexOf(searchString.toLowerCase()) > -1 && !result.hasOwnProperty(a)) {
                     //@ts-ignore
                     result[a] = record
                 }
             }
-
             return result
         }
 
