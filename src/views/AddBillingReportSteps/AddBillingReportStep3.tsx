@@ -62,10 +62,9 @@ export default class AddBillingReportStep3 extends Component<AddBillingReportSte
     }
 
     private onNext(): boolean {
-        if (this.elSelect && this.driversSelect) {
+        if (this.elSelect) {
             let valid = true
             if (this.state.els.length <= 0) valid = false
-            if (this.state.drivers.length <= 0) valid = false
 
             if (valid) {
                 this.props.onNext(this.state)
@@ -85,6 +84,7 @@ export default class AddBillingReportStep3 extends Component<AddBillingReportSte
                         ref={(select: any) => this.elSelect = select}
                         onChange={this.onELChange}
                         isMulti={true}
+                        required={true}
                     />
                     <br></br>
                     <h5>Fahrer</h5>
@@ -92,6 +92,7 @@ export default class AddBillingReportStep3 extends Component<AddBillingReportSte
                         ref={(select: any) => this.driversSelect = select}
                         onChange={this.onDriversChange}
                         isMulti={true}
+                        required={false}
                     />
                     <br></br>
                     <h5>Diverses</h5>
