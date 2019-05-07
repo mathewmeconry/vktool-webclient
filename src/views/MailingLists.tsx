@@ -40,7 +40,6 @@ export class _MailingLists extends Component<{ fetchMembers: Function, mailingLi
     }
 
     private addCopy(data: string) {
-        if (document.queryCommandSupported('copy')) {
             return (
                 <div className="input-group-prepend">
                     <button className="btn btn-outline-secondary" id="btnGroupAddon" onClick={this.copy.bind(this, data)}>
@@ -48,9 +47,6 @@ export class _MailingLists extends Component<{ fetchMembers: Function, mailingLi
                     </button>
                 </div>
             )
-        } else {
-            return
-        }
     }
 
     public render() {
