@@ -74,9 +74,7 @@ export class _MailingLists extends Component<{ fetchMembers: Function, mailingLi
                         <Panel title="VKs (ohne Fahrer und Condor)">
                             <div className="input-group">
                                 <input className="form-control" readOnly value={this.props.mailingLists.vks.join(';')}></input>
-                                {/* <div className="input-group-prepend">
-                                    <div className="input-group-text" id="btnGroupAddon"><FontAwesomeIcon icon="clipboard" /></div>
-                                </div> */}
+                                {this.addCopyButton(this.props.mailingLists.vks.join(';'))}
                             </div>
                         </Panel>
                     </Column>
@@ -85,9 +83,7 @@ export class _MailingLists extends Component<{ fetchMembers: Function, mailingLi
                         <Panel title="Kader">
                             <div className="input-group">
                                 <input className="form-control" readOnly value={this.props.mailingLists.squad.join(';')}></input>
-                                {/* <div className="input-group-prepend">
-                                    <div className="input-group-text" id="btnGroupAddon"><FontAwesomeIcon icon="clipboard" /></div>
-                                </div> */}
+                                {this.addCopyButton(this.props.mailingLists.squad.join(';'))}
                             </div>
                         </Panel>
                     </Column>
@@ -97,9 +93,7 @@ export class _MailingLists extends Component<{ fetchMembers: Function, mailingLi
                         <Panel title="Fahrer">
                             <div className="input-group">
                                 <input className="form-control" readOnly value={this.props.mailingLists.drivers.join(';')}></input>
-                                {/* <div className="input-group-prepend">
-                                    <div className="input-group-text" id="btnGroupAddon"><FontAwesomeIcon icon="clipboard" /></div>
-                                </div> */}
+                                {this.addCopyButton(this.props.mailingLists.drivers.join(';'))}
                             </div>
                         </Panel>
                     </Column>
@@ -108,9 +102,7 @@ export class _MailingLists extends Component<{ fetchMembers: Function, mailingLi
                         <Panel title="Vorstand">
                             <div className="input-group">
                                 <input className="form-control" readOnly value={this.props.mailingLists.vst.join(';')}></input>
-                                {/* <div className="input-group-prepend">
-                                    <div className="input-group-text" id="btnGroupAddon"><FontAwesomeIcon icon="clipboard" /></div>
-                                </div> */}
+                                {this.addCopyButton(this.props.mailingLists.vst.join(';'))}
                             </div>
                         </Panel>
                     </Column>
@@ -119,9 +111,7 @@ export class _MailingLists extends Component<{ fetchMembers: Function, mailingLi
                         <Panel title="Condor">
                             <div className="input-group">
                                 <input className="form-control" readOnly value={this.props.mailingLists.con.join(';')}></input>
-                                {/* <div className="input-group-prepend">
-                                    <div className="input-group-text" id="btnGroupAddon"><FontAwesomeIcon icon="clipboard" /></div>
-                                </div> */}
+                                {this.addCopyButton(this.props.mailingLists.con.join(';'))}
                             </div>
                         </Panel>
                     </Column>
