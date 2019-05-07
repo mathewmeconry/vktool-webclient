@@ -7,6 +7,8 @@ export enum AuthRoles {
     MEMBERS_READ = 'members_read',
     MEMBERS_EDIT = 'members_edit',
 
+    MAILING_LISTS = 'mailing_lists',
+
     RANKS_READ = 'ranks_read',
     RANKS_EDIT = 'ranks_edit',
 

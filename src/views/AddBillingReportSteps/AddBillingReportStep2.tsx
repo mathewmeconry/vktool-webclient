@@ -50,7 +50,8 @@ export default class AddBillingReportStep2 extends Component<Step2Props, { table
                 if (totalHours < 0) totalHours = totalHours + 24
 
                 for (let i of this.state.vks) {
-                    selection[i.id] = {
+                    let id = Math.round(Math.random() * 100000)
+                    selection[id] = {
                         id: i.id,
                         member: i,
                         from: from,
@@ -165,7 +166,7 @@ export default class AddBillingReportStep2 extends Component<Step2Props, { table
                             { text: 'Bis', keys: ['until'], format: 'toLocaleTimeString', sortable: true },
                             { text: 'Anzahl Stunden', keys: ['totalHours'], sortable: true },
                             { text: 'Verrechnet', keys: ['charge'], sortable: true },
-                            { text: 'Actions', keys: { 'member': ['id'] }, content: <button className="btn btn-danger" onClick={this.removeTableItem}>⨯</button> }
+                            { text: 'Actions', keys: ['id'], content: <button className="btn btn-danger" onClick={this.removeTableItem}>⨯</button> }
                         ]}
                         defaultSort={{ keys: ['from'], direction: 'asc' }}
                         data={this.state.tableEntries}
