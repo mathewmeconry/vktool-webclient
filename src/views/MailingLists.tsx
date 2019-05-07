@@ -39,7 +39,7 @@ export class _MailingLists extends Component<{ fetchMembers: Function, mailingLi
         })
     }
 
-    private addCopyButton(data: string) {
+    private addCopy(data: string) {
         if (document.queryCommandSupported('copy')) {
             return (
                 <div className="input-group-prepend">
@@ -65,7 +65,7 @@ export class _MailingLists extends Component<{ fetchMembers: Function, mailingLi
                         <Panel title="Mitglieder">
                             <div className="input-group">
                                 <input className="form-control" readOnly value={this.props.mailingLists.all.join(';')}></input>
-                                {this.addCopyButton(this.props.mailingLists.all.join(';'))}
+                                {this.addCopy(this.props.mailingLists.all.join(';'))}
                             </div>
                         </Panel>
                     </Column>
@@ -74,7 +74,7 @@ export class _MailingLists extends Component<{ fetchMembers: Function, mailingLi
                         <Panel title="VKs (ohne Fahrer und Condor)">
                             <div className="input-group">
                                 <input className="form-control" readOnly value={this.props.mailingLists.vks.join(';')}></input>
-                                {this.addCopyButton(this.props.mailingLists.vks.join(';'))}
+                                {this.addCopy(this.props.mailingLists.vks.join(';'))}
                             </div>
                         </Panel>
                     </Column>
@@ -83,7 +83,7 @@ export class _MailingLists extends Component<{ fetchMembers: Function, mailingLi
                         <Panel title="Kader">
                             <div className="input-group">
                                 <input className="form-control" readOnly value={this.props.mailingLists.squad.join(';')}></input>
-                                {this.addCopyButton(this.props.mailingLists.squad.join(';'))}
+                                {this.addCopy(this.props.mailingLists.squad.join(';'))}
                             </div>
                         </Panel>
                     </Column>
@@ -93,7 +93,7 @@ export class _MailingLists extends Component<{ fetchMembers: Function, mailingLi
                         <Panel title="Fahrer">
                             <div className="input-group">
                                 <input className="form-control" readOnly value={this.props.mailingLists.drivers.join(';')}></input>
-                                {this.addCopyButton(this.props.mailingLists.drivers.join(';'))}
+                                {this.addCopy(this.props.mailingLists.drivers.join(';'))}
                             </div>
                         </Panel>
                     </Column>
@@ -102,7 +102,7 @@ export class _MailingLists extends Component<{ fetchMembers: Function, mailingLi
                         <Panel title="Vorstand">
                             <div className="input-group">
                                 <input className="form-control" readOnly value={this.props.mailingLists.vst.join(';')}></input>
-                                {this.addCopyButton(this.props.mailingLists.vst.join(';'))}
+                                {this.addCopy(this.props.mailingLists.vst.join(';'))}
                             </div>
                         </Panel>
                     </Column>
@@ -111,7 +111,7 @@ export class _MailingLists extends Component<{ fetchMembers: Function, mailingLi
                         <Panel title="Condor">
                             <div className="input-group">
                                 <input className="form-control" readOnly value={this.props.mailingLists.con.join(';')}></input>
-                                {this.addCopyButton(this.props.mailingLists.con.join(';'))}
+                                {this.addCopy(this.props.mailingLists.con.join(';'))}
                             </div>
                         </Panel>
                     </Column>
