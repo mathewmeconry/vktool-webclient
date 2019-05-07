@@ -11,13 +11,46 @@ import { AnyAction } from "redux";
 import { Data } from "../actions/DataActions";
 import StringIndexed from "../interfaces/StringIndexed";
 import Loading from "../components/Loading";
+import { UI } from "../actions/UIActions";
 
-export class _MailingLists extends Component<{ fetchMembers: Function, mailingLists: StringIndexed<Array<string>> }> {
-
-    constructor(props: { fetchMembers: Function, mailingLists: StringIndexed<Array<string>> }) {
+export class _MailingLists extends Component<{ fetchMembers: Function, mailingLists: StringIndexed<Array<string>>, showError: (message: string) => void, showSuccess: (message: string) => void }, { copyData: string }> {
+    constructor(props: { fetchMembers: Function, mailingLists: StringIndexed<Array<string>>, showError: (message: string) => void, showSuccess: (message: string) => void  }) {
         super(props)
 
         this.props.fetchMembers()
+
+    }
+
+    private copy(data: string) {
+        (navigator as any).permissions.query({ name: "clipboard-write" }).then((result: { state: string }) => {
+            if (result.state == "granted" || result.state == "prompt") {
+                (navigator as any).clipboard.writeText(data).then(() => {
+                    this.props.showSuccess('Kopiert!')
+                }).catch((err: Error) => {
+                    console.error(err)
+                    this.props.showError('Ooops... Etwas ging schief...')
+                })
+            } else {
+                this.props.showError('Ich darf nichts kopieren....')
+            }
+        }).catch((err: Error) => {
+            console.error(err)
+            this.props.showError('Ooops... Etwas ging schief...')
+        })
+    }
+
+    private addCopyButton(data: string) {
+        if (document.queryCommandSupported('copy')) {
+            return (
+                <div className="input-group-prepend">
+                    <button className="btn btn-outline-secondary" id="btnGroupAddon" onClick={this.copy.bind(this, data)}>
+                        <FontAwesomeIcon icon="clipboard" />
+                    </button>
+                </div>
+            )
+        } else {
+            return
+        }
     }
 
     public render() {
@@ -32,9 +65,7 @@ export class _MailingLists extends Component<{ fetchMembers: Function, mailingLi
                         <Panel title="Mitglieder">
                             <div className="input-group">
                                 <input className="form-control" readOnly value={this.props.mailingLists.all.join(';')}></input>
-                                {/* <div className="input-group-prepend">
-                                    <div className="input-group-text" id="btnGroupAddon"><FontAwesomeIcon icon="clipboard" /></div>
-                                </div> */}
+                                {this.addCopyButton(this.props.mailingLists.all.join(';'))}
                             </div>
                         </Panel>
                     </Column>
@@ -54,7 +85,7 @@ export class _MailingLists extends Component<{ fetchMembers: Function, mailingLi
                         <Panel title="Kader">
                             <div className="input-group">
                                 <input className="form-control" readOnly value={this.props.mailingLists.squad.join(';')}></input>
-                              {/* <div className="input-group-prepend">
+                                {/* <div className="input-group-prepend">
                                     <div className="input-group-text" id="btnGroupAddon"><FontAwesomeIcon icon="clipboard" /></div>
                                 </div> */}
                             </div>
@@ -66,7 +97,7 @@ export class _MailingLists extends Component<{ fetchMembers: Function, mailingLi
                         <Panel title="Fahrer">
                             <div className="input-group">
                                 <input className="form-control" readOnly value={this.props.mailingLists.drivers.join(';')}></input>
-                             {/* <div className="input-group-prepend">
+                                {/* <div className="input-group-prepend">
                                     <div className="input-group-text" id="btnGroupAddon"><FontAwesomeIcon icon="clipboard" /></div>
                                 </div> */}
                             </div>
@@ -77,7 +108,7 @@ export class _MailingLists extends Component<{ fetchMembers: Function, mailingLi
                         <Panel title="Vorstand">
                             <div className="input-group">
                                 <input className="form-control" readOnly value={this.props.mailingLists.vst.join(';')}></input>
-                               {/* <div className="input-group-prepend">
+                                {/* <div className="input-group-prepend">
                                     <div className="input-group-text" id="btnGroupAddon"><FontAwesomeIcon icon="clipboard" /></div>
                                 </div> */}
                             </div>
@@ -88,7 +119,7 @@ export class _MailingLists extends Component<{ fetchMembers: Function, mailingLi
                         <Panel title="Condor">
                             <div className="input-group">
                                 <input className="form-control" readOnly value={this.props.mailingLists.con.join(';')}></input>
-                               {/* <div className="input-group-prepend">
+                                {/* <div className="input-group-prepend">
                                     <div className="input-group-text" id="btnGroupAddon"><FontAwesomeIcon icon="clipboard" /></div>
                                 </div> */}
                             </div>
@@ -110,6 +141,12 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>
     return {
         fetchMembers: () => {
             dispatch(Data.fetchMembers())
+        },
+        showError: (message: string) => {
+            dispatch(UI.showError(message))
+        },
+        showSuccess: (message: string) => {
+            dispatch(UI.showSuccess(message))
         }
     }
 }
