@@ -1,4 +1,4 @@
-import { UIActions } from "./UIActions";
+import { UI } from "./UIActions";
 import { CreateBillingReport, EditBillingReport, BillingReportCompensationEntry } from "./../interfaces/BillingReport";
 import { Dispatch, AnyAction } from "redux";
 import { ThunkAction, ThunkDispatch } from "redux-thunk";
@@ -99,11 +99,8 @@ export class Data {
             })
 
             return Data.sendToApi('put', Config.apiEndpoint + '/api/billing-reports', data, dispatch, () => {
-                dispatch({
-                    type: UIActions.NOTIFICATION_SUCCESS,
-                    payload: 'Gespeichert!'
-                })
-                dispatch(this.fetchBillingReports())
+                dispatch(UI.showSuccess('Gespeichert!'))
+                dispatch(Data.fetchBillingReports())
             })
         }
     }
@@ -158,11 +155,7 @@ export class Data {
 
             return Data.sendToApi('put', Config.apiEndpoint + '/api/compensations/bulk', data, dispatch, () => {
                 dispatch(Data.fetchCompensationEntries())
-
-                dispatch({
-                    type: UIActions.NOTIFICATION_SUCCESS,
-                    payload: 'Gespeichert!'
-                })
+                dispatch(UI.showSuccess('Gespeichert!'))
             })
         }
     }
@@ -187,12 +180,8 @@ export class Data {
             })
 
             return Data.sendToApi('post', Config.apiEndpoint + '/api/compensations/approve', { 'id': id }, dispatch, () => {
-                dispatch({
-                    type: UIActions.NOTIFICATION_SUCCESS,
-                    payload: 'Genehmigt!'
-                })
-
                 dispatch(Data.fetchCompensationEntries())
+                dispatch(UI.showSuccess('Genehmigt!'))
             })
         }
     }
@@ -205,12 +194,8 @@ export class Data {
             })
 
             return Data.sendToApi('delete', Config.apiEndpoint + '/api/compensations', { 'id': id }, dispatch, () => {
-                dispatch({
-                    type: UIActions.NOTIFICATION_SUCCESS,
-                    payload: 'Gelöscht!'
-                })
-
                 dispatch(Data.fetchCompensationEntries())
+                dispatch(UI.showSuccess('Gelöscht!'))
             })
         }
     }
@@ -230,23 +215,19 @@ export class Data {
                     type: DataActions.ADD_COLLECTION_POINT
                 })
 
-                Data.sendToApi('put', Config.apiEndpoint + '/api/collection-points', data, dispatch)
-                    .then(() => {
-                        dispatch({
-                            type: UIActions.NOTIFICATION_SUCCESS,
-                            payload: 'Gespeichert!'
-                        })
-                        dispatch(this.fetchCollectionPoints())
-                        resolve()
-                    }).catch(err => {
-                        reject(err)
-                    })
+                Data.sendToApi('put', Config.apiEndpoint + '/api/collection-points', data, dispatch).then(() => {
+                    dispatch(Data.fetchCollectionPoints())
+                    dispatch(UI.showSuccess('Gespeichert!'))
+                    resolve()
+                }).catch(err => {
+                    reject(err)
+                })
             })
         }
     }
 
     private static fetchFromApi(route: string, fetchAction: string, gotAction: string): ThunkAction<Promise<AnyAction>, State, void, AnyAction> {
-        return async (dispatch: Dispatch) => {
+        return async (dispatch: ThunkDispatch<State, undefined, AnyAction>) => {
             return new Promise<AnyAction>((resolve, reject) => {
                 dispatch({
                     type: fetchAction
@@ -261,31 +242,21 @@ export class Data {
                     }))
                 }).catch((error: AxiosError) => {
                     if (error.response && (error.response as AxiosResponse).status === 403) {
-                        dispatch({
-                            type: UIActions.NOTIFICATION_ERROR,
-                            payload: 'Permission denied!'
-                        })
-                        reject(error)
+                        dispatch(UI.showError('Zugriff verweigert!'))
                     } else if (error.response && (error.response as AxiosResponse).status === 401) {
-                        reject(error)
+                        dispatch(UI.logout())
                     } else {
-                        dispatch({
-                            type: UIActions.NOTIFICATION_ERROR,
-                            payload: 'Ooopss....! Versuche es später erneut'
-                        })
-                    }
+                        dispatch(UI.showError('Ooops... Da ist ein Fehler passiert!'))
 
-                    resolve(dispatch({
-                        type: gotAction,
-                        payload: {}
-                    }))
+                    }
+                    reject(error)
                 })
             })
 
         }
     }
 
-    private static sendToApi(method: 'post' | 'put' | 'delete', route: string, data: any, dispatch: Dispatch, callback?: () => void): Promise<void> {
+    private static sendToApi(method: 'post' | 'put' | 'delete', route: string, data: any, dispatch: ThunkDispatch<State, undefined, AnyAction>, callback?: () => void): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             axios({
                 method: method,
@@ -299,19 +270,13 @@ export class Data {
                 resolve()
             }).catch((error: AxiosError) => {
                 if (error.response && (error.response as AxiosResponse).status === 403) {
-                    dispatch({
-                        type: UIActions.NOTIFICATION_ERROR,
-                        payload: 'Permission denied!'
-                    })
-                    reject(error)
+                    dispatch(UI.showError('Zugriff verweigert!'))
                 } else if (error.response && (error.response as AxiosResponse).status === 401) {
-                    reject(error)
+                    dispatch(UI.logout())
                 } else {
-                    dispatch({
-                        type: UIActions.NOTIFICATION_ERROR,
-                        payload: 'Ooopss....! Versuche es später erneut'
-                    })
+                    dispatch(UI.showError('Ooops... Da ist ein Fehler passiert!'))
                 }
+                reject(error)
             })
         })
     }
