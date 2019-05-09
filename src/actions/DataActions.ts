@@ -92,20 +92,18 @@ export class Data {
         return Data.fetchFromApi(Config.apiEndpoint + '/api/billing-reports', DataActions.FETCH_BILLING_REPORTS, DataActions.GOT_BILLING_REPORTS)
     }
 
-    public static addBillingReport(data: CreateBillingReport): ThunkAction<Promise<AnyAction>, State, void, AnyAction> {
+    public static addBillingReport(data: CreateBillingReport): ThunkAction<Promise<void>, State, void, AnyAction> {
         return async (dispatch: ThunkDispatch<State, undefined, AnyAction>) => {
-            return new Promise<AnyAction>((resolve, reject) => {
-                dispatch({
-                    type: DataActions.ADD_BILLING_REPORT
-                })
+            dispatch({
+                type: DataActions.ADD_BILLING_REPORT
+            })
 
-                Data.sendToApi('put', Config.apiEndpoint + '/api/billing-reports', data, dispatch, () => {
-                    dispatch({
-                        type: UIActions.NOTIFICATION_SUCCESS,
-                        payload: 'Gespeichert!'
-                    })
-                    dispatch(this.fetchBillingReports())
+            return Data.sendToApi('put', Config.apiEndpoint + '/api/billing-reports', data, dispatch, () => {
+                dispatch({
+                    type: UIActions.NOTIFICATION_SUCCESS,
+                    payload: 'Gespeichert!'
                 })
+                dispatch(this.fetchBillingReports())
             })
         }
     }
@@ -142,7 +140,7 @@ export class Data {
                 type: DataActions.EDIT_BILLING_REPORT
             })
 
-            Data.sendToApi('post', Config.apiEndpoint + '/api/billing-reports', data, dispatch, () => {
+            return Data.sendToApi('post', Config.apiEndpoint + '/api/billing-reports', data, dispatch, () => {
                 dispatch(Data.fetchBillingReports())
             })
         }
@@ -232,18 +230,17 @@ export class Data {
                     type: DataActions.ADD_COLLECTION_POINT
                 })
 
-                axios.put(Config.apiEndpoint + '/api/collection-points', data, { withCredentials: true }).then((response) => {
-                    dispatch({
-                        type: UIActions.NOTIFICATION_SUCCESS,
-                        payload: 'Gespeichert!'
+                Data.sendToApi('put', Config.apiEndpoint + '/api/collection-points', data, dispatch)
+                    .then(() => {
+                        dispatch({
+                            type: UIActions.NOTIFICATION_SUCCESS,
+                            payload: 'Gespeichert!'
+                        })
+                        dispatch(this.fetchCollectionPoints())
+                        resolve()
+                    }).catch(err => {
+                        reject(err)
                     })
-                    dispatch(this.fetchCollectionPoints())
-                }).catch((error) => {
-                    dispatch({
-                        type: UIActions.NOTIFICATION_ERROR,
-                        payload: 'Ooopss....! Versuche es später erneut'
-                    })
-                })
             })
         }
     }
@@ -263,11 +260,14 @@ export class Data {
                         payload: data
                     }))
                 }).catch((error: AxiosError) => {
-                    if (error.response && (error.response as AxiosResponse).status === 401) {
+                    if (error.response && (error.response as AxiosResponse).status === 403) {
                         dispatch({
                             type: UIActions.NOTIFICATION_ERROR,
                             payload: 'Permission denied!'
                         })
+                        reject(error)
+                    } else if (error.response && (error.response as AxiosResponse).status === 401) {
+                        reject(error)
                     } else {
                         dispatch({
                             type: UIActions.NOTIFICATION_ERROR,
@@ -285,7 +285,7 @@ export class Data {
         }
     }
 
-    private static sendToApi(method: 'post' | 'put' | 'delete', route: string, data: any, dispatch: Dispatch, callback: () => void): Promise<void> {
+    private static sendToApi(method: 'post' | 'put' | 'delete', route: string, data: any, dispatch: Dispatch, callback?: () => void): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             axios({
                 method: method,
@@ -295,15 +295,17 @@ export class Data {
             }).then(response => {
                 let data = Data.deepParser(response.data)
 
-                callback()
+                if (callback) callback()
                 resolve()
             }).catch((error: AxiosError) => {
-                console.log(error)
-                if (error.response && (error.response as AxiosResponse).status === 401) {
+                if (error.response && (error.response as AxiosResponse).status === 403) {
                     dispatch({
                         type: UIActions.NOTIFICATION_ERROR,
                         payload: 'Permission denied!'
                     })
+                    reject(error)
+                } else if (error.response && (error.response as AxiosResponse).status === 401) {
+                    reject(error)
                 } else {
                     dispatch({
                         type: UIActions.NOTIFICATION_ERROR,
