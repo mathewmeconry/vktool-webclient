@@ -1,4 +1,4 @@
-import { UIActions } from "./UIActions";
+import { UI } from "./UIActions";
 import { CreateBillingReport, EditBillingReport, BillingReportCompensationEntry } from "./../interfaces/BillingReport";
 import { Dispatch, AnyAction } from "redux";
 import { ThunkAction, ThunkDispatch } from "redux-thunk";
@@ -92,20 +92,15 @@ export class Data {
         return Data.fetchFromApi(Config.apiEndpoint + '/api/billing-reports', DataActions.FETCH_BILLING_REPORTS, DataActions.GOT_BILLING_REPORTS)
     }
 
-    public static addBillingReport(data: CreateBillingReport): ThunkAction<Promise<AnyAction>, State, void, AnyAction> {
+    public static addBillingReport(data: CreateBillingReport): ThunkAction<Promise<void>, State, void, AnyAction> {
         return async (dispatch: ThunkDispatch<State, undefined, AnyAction>) => {
-            return new Promise<AnyAction>((resolve, reject) => {
-                dispatch({
-                    type: DataActions.ADD_BILLING_REPORT
-                })
+            dispatch({
+                type: DataActions.ADD_BILLING_REPORT
+            })
 
-                Data.sendToApi('put', Config.apiEndpoint + '/api/billing-reports', data, dispatch, () => {
-                    dispatch({
-                        type: UIActions.NOTIFICATION_SUCCESS,
-                        payload: 'Gespeichert!'
-                    })
-                    dispatch(this.fetchBillingReports())
-                })
+            return Data.sendToApi('put', Config.apiEndpoint + '/api/billing-reports', data, dispatch, () => {
+                dispatch(UI.showSuccess('Gespeichert!'))
+                dispatch(Data.fetchBillingReports())
             })
         }
     }
@@ -142,7 +137,7 @@ export class Data {
                 type: DataActions.EDIT_BILLING_REPORT
             })
 
-            Data.sendToApi('post', Config.apiEndpoint + '/api/billing-reports', data, dispatch, () => {
+            return Data.sendToApi('post', Config.apiEndpoint + '/api/billing-reports', data, dispatch, () => {
                 dispatch(Data.fetchBillingReports())
             })
         }
@@ -160,11 +155,7 @@ export class Data {
 
             return Data.sendToApi('put', Config.apiEndpoint + '/api/compensations/bulk', data, dispatch, () => {
                 dispatch(Data.fetchCompensationEntries())
-
-                dispatch({
-                    type: UIActions.NOTIFICATION_SUCCESS,
-                    payload: 'Gespeichert!'
-                })
+                dispatch(UI.showSuccess('Gespeichert!'))
             })
         }
     }
@@ -189,12 +180,8 @@ export class Data {
             })
 
             return Data.sendToApi('post', Config.apiEndpoint + '/api/compensations/approve', { 'id': id }, dispatch, () => {
-                dispatch({
-                    type: UIActions.NOTIFICATION_SUCCESS,
-                    payload: 'Genehmigt!'
-                })
-
                 dispatch(Data.fetchCompensationEntries())
+                dispatch(UI.showSuccess('Genehmigt!'))
             })
         }
     }
@@ -207,12 +194,8 @@ export class Data {
             })
 
             return Data.sendToApi('delete', Config.apiEndpoint + '/api/compensations', { 'id': id }, dispatch, () => {
-                dispatch({
-                    type: UIActions.NOTIFICATION_SUCCESS,
-                    payload: 'Gelöscht!'
-                })
-
                 dispatch(Data.fetchCompensationEntries())
+                dispatch(UI.showSuccess('Gelöscht!'))
             })
         }
     }
@@ -232,24 +215,19 @@ export class Data {
                     type: DataActions.ADD_COLLECTION_POINT
                 })
 
-                axios.put(Config.apiEndpoint + '/api/collection-points', data, { withCredentials: true }).then((response) => {
-                    dispatch({
-                        type: UIActions.NOTIFICATION_SUCCESS,
-                        payload: 'Gespeichert!'
-                    })
-                    dispatch(this.fetchCollectionPoints())
-                }).catch((error) => {
-                    dispatch({
-                        type: UIActions.NOTIFICATION_ERROR,
-                        payload: 'Ooopss....! Versuche es später erneut'
-                    })
+                Data.sendToApi('put', Config.apiEndpoint + '/api/collection-points', data, dispatch).then(() => {
+                    dispatch(Data.fetchCollectionPoints())
+                    dispatch(UI.showSuccess('Gespeichert!'))
+                    resolve()
+                }).catch(err => {
+                    reject(err)
                 })
             })
         }
     }
 
     private static fetchFromApi(route: string, fetchAction: string, gotAction: string): ThunkAction<Promise<AnyAction>, State, void, AnyAction> {
-        return async (dispatch: Dispatch) => {
+        return async (dispatch: ThunkDispatch<State, undefined, AnyAction>) => {
             return new Promise<AnyAction>((resolve, reject) => {
                 dispatch({
                     type: fetchAction
@@ -263,29 +241,22 @@ export class Data {
                         payload: data
                     }))
                 }).catch((error: AxiosError) => {
-                    if (error.response && (error.response as AxiosResponse).status === 401) {
-                        dispatch({
-                            type: UIActions.NOTIFICATION_ERROR,
-                            payload: 'Permission denied!'
-                        })
+                    if (error.response && (error.response as AxiosResponse).status === 403) {
+                        dispatch(UI.showError('Zugriff verweigert!'))
+                    } else if (error.response && (error.response as AxiosResponse).status === 401) {
+                        dispatch(UI.logout())
                     } else {
-                        dispatch({
-                            type: UIActions.NOTIFICATION_ERROR,
-                            payload: 'Ooopss....! Versuche es später erneut'
-                        })
-                    }
+                        dispatch(UI.showError('Ooops... Da ist ein Fehler passiert!'))
 
-                    resolve(dispatch({
-                        type: gotAction,
-                        payload: {}
-                    }))
+                    }
+                    reject(error)
                 })
             })
 
         }
     }
 
-    private static sendToApi(method: 'post' | 'put' | 'delete', route: string, data: any, dispatch: Dispatch, callback: () => void): Promise<void> {
+    private static sendToApi(method: 'post' | 'put' | 'delete', route: string, data: any, dispatch: ThunkDispatch<State, undefined, AnyAction>, callback?: () => void): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             axios({
                 method: method,
@@ -295,21 +266,17 @@ export class Data {
             }).then(response => {
                 let data = Data.deepParser(response.data)
 
-                callback()
+                if (callback) callback()
                 resolve()
             }).catch((error: AxiosError) => {
-                console.log(error)
-                if (error.response && (error.response as AxiosResponse).status === 401) {
-                    dispatch({
-                        type: UIActions.NOTIFICATION_ERROR,
-                        payload: 'Permission denied!'
-                    })
+                if (error.response && (error.response as AxiosResponse).status === 403) {
+                    dispatch(UI.showError('Zugriff verweigert!'))
+                } else if (error.response && (error.response as AxiosResponse).status === 401) {
+                    dispatch(UI.logout())
                 } else {
-                    dispatch({
-                        type: UIActions.NOTIFICATION_ERROR,
-                        payload: 'Ooopss....! Versuche es später erneut'
-                    })
+                    dispatch(UI.showError('Ooops... Da ist ein Fehler passiert!'))
                 }
+                reject(error)
             })
         })
     }

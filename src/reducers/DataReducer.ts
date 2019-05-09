@@ -46,6 +46,8 @@ function UserReducer(state: SingleDataInterface<User> = { loading: false, data: 
             } else {
                 return { loading: false, data: undefined }
             }
+        case UIActions.LOGOUT:
+            return { loading: false, data: undefined }
         default:
             return state
     }

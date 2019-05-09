@@ -1,4 +1,3 @@
-import { combineReducers, Reducer } from "redux";
 import UIReducer, { UI } from "./UIReducer";
 import DataReducer, { Data } from "./DataReducer";
 
@@ -7,4 +6,4 @@ export interface State {
     data: Data
 }
 
-export default combineReducers({ ui: UIReducer, data: DataReducer })
+export default { ui: UIReducer, data: DataReducer }

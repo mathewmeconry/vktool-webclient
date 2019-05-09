@@ -1,4 +1,7 @@
-import StringIndexed from "../interfaces/StringIndexed";
+import { ThunkAction } from "redux-thunk";
+import { State } from "../reducers/IndexReducer";
+import { AnyAction, Dispatch } from "redux";
+import { push } from "connected-react-router";
 
 export const UIActions = {
     NAVIBAR_TOGGLE: 'navibar_toggle',
@@ -8,7 +11,9 @@ export const UIActions = {
     NAVIBAR_LEVEL_COLLAPSE: 'navibar_level_collapse',
 
     NOTIFICATION_SUCCESS: 'notification_success',
-    NOTIFICATION_ERROR: 'notification_error'
+    NOTIFICATION_ERROR: 'notification_error',
+
+    LOGOUT: 'logout'
 }
 
 export class UI {
@@ -54,6 +59,13 @@ export class UI {
         return {
             type: UIActions.NOTIFICATION_SUCCESS,
             payload: message
+        }
+    }
+
+    public static logout(): ThunkAction<Promise<AnyAction>, State, void, AnyAction> {
+        return async (dispatch: Dispatch) => {
+            dispatch(push('/login'))
+            return { type: UIActions.LOGOUT }
         }
     }
 }

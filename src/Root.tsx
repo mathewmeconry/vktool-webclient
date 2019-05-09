@@ -3,12 +3,12 @@ import { Provider } from "react-redux";
 import configureStore from "./Store";
 import { Store, AnyAction } from "redux";
 import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
-import { Header } from "./components/Header";
-import { Navibar } from "./components/Navibar";
 import { ToastContainer } from 'react-toastify';
 import { AuthRoles } from "./interfaces/AuthRoles";
 import { SecureRoute } from "./components/SecureRoute";
 import Config from './Config'
+import { ConnectedRouter } from "connected-react-router";
+import { createBrowserHistory, History } from "history";
 
 // styles
 import './styles/index.scss'
@@ -37,11 +37,13 @@ import { Memberlist } from "./views/Pdfs/Memberlist";
 
 export default class Root extends Component<{}, {}> {
     private store: Store<any, AnyAction>
+    private history: History
 
     constructor(props: {}, state: {}) {
         super(props, state)
         Config.loadConfig()
-        this.store = configureStore()
+        this.history = createBrowserHistory()
+        this.store = configureStore(this.history)
         this.store.getState()
     }
 
@@ -59,7 +61,7 @@ export default class Root extends Component<{}, {}> {
                         draggable={true}
                         pauseOnHover={true}
                     />
-                    <BrowserRouter>
+                    <ConnectedRouter history={this.history}>
                         <Switch>
                             <Route exact path="/" component={() => { return (<Redirect to="/login" />) }} />
                             <Route exact path="/login" component={Login} />
@@ -84,7 +86,7 @@ export default class Root extends Component<{}, {}> {
                             <SecureRoute exact path="/user/:id" roles={[AuthRoles.ADMIN]} component={User} />
                             <Route path="/*" component={Error404} />
                         </Switch>
-                    </BrowserRouter>
+                    </ConnectedRouter>
                 </div>
             </Provider>
         )
