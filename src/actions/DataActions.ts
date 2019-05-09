@@ -99,17 +99,12 @@ export class Data {
                     type: DataActions.ADD_BILLING_REPORT
                 })
 
-                axios.put(Config.apiEndpoint + '/api/billing-reports', data, { withCredentials: true }).then((response) => {
+                Data.sendToApi('put', Config.apiEndpoint + '/api/billing-reports', data, dispatch, () => {
                     dispatch({
                         type: UIActions.NOTIFICATION_SUCCESS,
                         payload: 'Gespeichert!'
                     })
                     dispatch(this.fetchBillingReports())
-                }).catch((error) => {
-                    dispatch({
-                        type: UIActions.NOTIFICATION_ERROR,
-                        payload: 'Ooopss....! Versuche es später erneut'
-                    })
                 })
             })
         }
@@ -268,7 +263,6 @@ export class Data {
                         payload: data
                     }))
                 }).catch((error: AxiosError) => {
-                    console.log(error)
                     if (error.response && (error.response as AxiosResponse).status === 401) {
                         dispatch({
                             type: UIActions.NOTIFICATION_ERROR,
