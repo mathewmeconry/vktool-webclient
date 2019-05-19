@@ -39,7 +39,7 @@ export class _Login extends Component<LoginProps, { loaded: boolean }> {
     public render() {
         if (this.props.user.data) {
             this.props.showSuccess('Willkommen zurück')
-            console.log(this.props.location)
+
             if (this.props.location.state && this.props.location.state.prevLocation) {
                 this.props.history.push(this.props.location.state.prevLocation)
             } else {
