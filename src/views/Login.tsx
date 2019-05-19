@@ -57,15 +57,9 @@ export class _Login extends Component<LoginProps, { loaded: boolean }> {
             return (
                 <div id="login">
                     <h2>Login</h2>
-                    <div className="form-group">
-                        <input type="text" name="username" placeholder="Username" className="form-control" />
-                        <input type="password" name="password" placeholder="Password" className="form-control" />
-                        <button className="btn btn-primary btn-block">Login</button>
-                    </div>
-                    oder
-                < div className="form-group" >
-                        <a className="btn btn-secondary btn-block" href={Config.apiEndpoint + "/api/auth/outlook"}>
-                            <FontAwesomeIcon icon={['fab', 'microsoft']} style={{ marginRight: '5px' }}></FontAwesomeIcon>
+                    < div className="form-group" >
+                        <a className="btn btn-secondary btn-block" href={Config.apiEndpoint + "/api/auth/azure"}>
+                            <FontAwesomeIcon icon={['fab', 'microsoft']} className="icon"></FontAwesomeIcon>
                             VK-Login
                         </a>
                     </div >
