@@ -48,7 +48,10 @@ export const DataActions = {
 
     FETCH_COLLECTION_POINTS: 'fetch_collection_points',
     GOT_COLLECTION_POINTS: 'got_collection_points',
-    ADD_COLLECTION_POINT: 'add_collection_point'
+    ADD_COLLECTION_POINT: 'add_collection_point',
+
+    FETCH_PAYOUTS: 'fetch_payouts',
+    GOT_PAYOUTS: 'got_payouts',
 }
 
 export class Data {
@@ -224,6 +227,10 @@ export class Data {
                 })
             })
         }
+    }
+
+    public static fetchPayouts(): ThunkAction<Promise<AnyAction>, State, void, AnyAction> {
+        return Data.fetchFromApi(Config.apiEndpoint + '/api/payouts', DataActions.FETCH_PAYOUTS, DataActions.GOT_PAYOUTS)
     }
 
     private static fetchFromApi(route: string, fetchAction: string, gotAction: string): ThunkAction<Promise<AnyAction>, State, void, AnyAction> {

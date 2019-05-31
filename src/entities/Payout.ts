@@ -5,14 +5,14 @@ import User from "./User";
 
 
 export default class Payout extends Base {
-    
-    public date: Date
 
+    public from: Date
 
-    
+    public until: Date
+
     public compensations: Array<Compensation>
 
-    
-    
+
+
     public updatedBy: User
 }
