@@ -354,6 +354,25 @@ function Payouts(state: DataInterface<Payout> = { loading: false, byId: {}, ids:
             if (Object.keys(action.payload).length < 1) return state
 
             for (let entry of action.payload as Array<Payout>) {
+                let byMember: StringIndexed<Array<Compensation>> = {}
+                for (let i in entry.compensations) {
+                    let compensation = entry.compensations[i]
+                    if (!compensation.hasOwnProperty('description')) {
+                        if (compensation.hasOwnProperty('billingReport') && (compensation as OrderCompensation).billingReport.hasOwnProperty('order')) {
+                            // only show the contact if the contact is not a privat person (identified that companies doesn't have any firstname)
+                            if ((compensation as OrderCompensation).billingReport.order.hasOwnProperty('contact') && !(compensation as OrderCompensation).billingReport.order.contact.hasOwnProperty('firstname')) {
+                                compensation = Object.assign(compensation, { description: `${(compensation as OrderCompensation).billingReport.order.title} (${(compensation as OrderCompensation).billingReport.order.contact.lastname})` })
+                            } else {
+                                compensation = Object.assign(compensation, { description: `${(compensation as OrderCompensation).billingReport.order.title}` })
+                            }
+                        }
+                    }
+
+                    entry.compensations[i] = compensation
+                    if (!byMember.hasOwnProperty(compensation.member.id)) byMember[compensation.member.id] = []
+                    byMember[compensation.member.id].push(compensation)
+                }
+                entry.compensationsByMember = byMember
                 byId[entry.id] = entry
                 ids.push(entry.id)
             }

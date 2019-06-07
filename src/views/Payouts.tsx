@@ -14,7 +14,8 @@ const mapStateToProps = (state: State) => {
         title: 'Auszahlungen',
         tableColumns: [
             { text: 'Von', keys: ['from'], sortable: true },
-            { text: 'Bis', keys: ['until'], sortable: true }
+            { text: 'Bis', keys: ['until'], sortable: true },
+            { text: 'Total', keys: ['total'], sortable: true, prefix: 'CHF ' }
         ]
     }
 }

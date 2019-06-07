@@ -2,6 +2,7 @@ import Base from "./Base";
 
 import Compensation from "./Compensation";
 import User from "./User";
+import StringIndexed from "../interfaces/StringIndexed";
 
 
 export default class Payout extends Base {
@@ -12,7 +13,10 @@ export default class Payout extends Base {
 
     public compensations: Array<Compensation>
 
-
+    public total: Number = 0
 
     public updatedBy: User
+
+    // only on client side (introduced by reducer)
+    public compensationsByMember: StringIndexed<Array<Compensation>>
 }
