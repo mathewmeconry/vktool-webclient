@@ -358,7 +358,7 @@ function Payouts(state: DataInterface<Payout> = { loading: false, byId: {}, ids:
                 for (let i in entry.compensations) {
                     let compensation = entry.compensations[i]
                     if (!compensation.hasOwnProperty('description')) {
-                        if (compensation.hasOwnProperty('billingReport') && (compensation as OrderCompensation).billingReport.hasOwnProperty('order')) {
+                        if (compensation.hasOwnProperty('billingReport') && (compensation as OrderCompensation).billingReport && (compensation as OrderCompensation).billingReport.hasOwnProperty('order')) {
                             // only show the contact if the contact is not a privat person (identified that companies doesn't have any firstname)
                             if ((compensation as OrderCompensation).billingReport.order.hasOwnProperty('contact') && !(compensation as OrderCompensation).billingReport.order.contact.hasOwnProperty('firstname')) {
                                 compensation = Object.assign(compensation, { description: `${(compensation as OrderCompensation).billingReport.order.title} (${(compensation as OrderCompensation).billingReport.order.contact.lastname})` })

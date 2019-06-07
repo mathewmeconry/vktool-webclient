@@ -68,8 +68,8 @@ export class _Payout extends Component<PayoutProps> {
                         <Panel title="Entschädiungen">
                             <Table<{ id: number, member: Contact, total: number }>
                                 columns={[
-                                    { text: 'Mitglied', keys: { member: ['lastname', 'firstname'] } },
-                                    { text: 'Betrag', keys: ['total'], prefix: 'CHF ' },
+                                    { text: 'Mitglied', keys: { member: ['lastname', 'firstname'] }, sortable: true },
+                                    { text: 'Betrag', keys: ['total'], prefix: 'CHF ', sortable: true },
                                     {
                                         text: 'Actions', keys: ['id'], content:
                                             <div className="btn-group">
