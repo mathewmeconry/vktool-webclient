@@ -16,6 +16,7 @@ import Panel from "../components/Panel";
 import FormEntry from "../components/FormEntry";
 import { Link } from "react-router-dom";
 import { Error404 } from "../components/Errors/404";
+import Payout from "../entities/Payout";
 
 interface CompensationProps extends RouteComponentProps<{ id: string }> {
     compensation: CompensationEntity.default,
@@ -113,11 +114,7 @@ export class _Compensation extends Component<CompensationProps> {
                         <Panel title="Auszahlung">
                             <FormEntry id="paied" title="Ausbezahlt">{(this.props.compensation.paied) ? '✓' : '⨯'}</FormEntry>
                             <FormEntry id="valutaDate" title="Valuta Datum">{(this.props.compensation.valutaDate) ? this.props.compensation.valutaDate.toLocaleDateString() : ''}</FormEntry>
-                            {() => {
-                                if (this.props.compensation.payout) {
-                                    return <Link to={"/payout/" + this.props.compensation.payout.id} className="btn btn-outline-primary btn-block">Auszahlung</Link>
-                                }
-                            }}
+                            {(this.props.compensation.payout) ? (<Link to={"/payout/" + (this.props.compensation.payout as Payout).id + '/' + this.props.compensation.member.id} className="btn btn-outline-primary btn-block">Auszahlung</Link>) : (<p></p>)}
                         </Panel>
                     </Column>
                 </Row>
