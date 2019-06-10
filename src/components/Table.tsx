@@ -243,7 +243,7 @@ export default class Table<T extends { id: string | number }> extends Component<
 
             for (let column of this.props.columns) {
                 if (column.content) {
-                    row.push(<td key={(column.keys instanceof Array) ? column.keys.join('-') : Object.keys(column.keys).map((el: string) => ((column.keys as StringIndexed<Array<string>>)[el].join('-')).join('-')}>{column.content || ''}</td>)
+                    row.push(<td key={(column.keys instanceof Array) ? column.keys.join('-') : Object.keys(column.keys).map((el: string) => ((column.keys as StringIndexed<Array<string>>)[el].join('-'))).join('-')}>{column.content || ''}</td>)
                 } else {
                     let content: Array<string> = []
                     if (column.keys instanceof Array) {
