@@ -54,7 +54,7 @@ export class _Members extends Component<MembersProps> {
                 {...this.props}
                 pdfExport='/members/pdf'
                 panelActions={[
-                    <Action icon="file-excel" onClick={this.excelExport} />
+                    <Action key="excel-export" icon="file-excel" onClick={this.excelExport} />
                 ]}
             />
         )

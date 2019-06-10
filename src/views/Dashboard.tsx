@@ -19,9 +19,9 @@ export class _Dashboard extends Component<{ user: User, loading: boolean, fetchU
     }
 
     public renderShortcuts() {
-        let shortcuts = [<Link to="/billing-reports/add/" className="btn btn-block btn-outline-primary">Verrechnungsrapport erstellen</Link>]
+        let shortcuts = [<Link key="billingreport" to="/billing-reports/add/" className="btn btn-block btn-outline-primary">Verrechnungsrapport erstellen</Link>]
         if (this.props.user.bexioContact) {
-            shortcuts.push(<Link to="/me" className="btn btn-block btn-outline-primary">Mein Profil</Link>)
+            shortcuts.push(<Link key="profile" to="/me" className="btn btn-block btn-outline-primary">Mein Profil</Link>)
         }
         return shortcuts
     }

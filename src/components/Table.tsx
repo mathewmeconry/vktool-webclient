@@ -243,7 +243,7 @@ export default class Table<T extends { id: string | number }> extends Component<
 
             for (let column of this.props.columns) {
                 if (column.content) {
-                    row.push(<td>{column.content || ''}</td>)
+                    row.push(<td key={(column.keys instanceof Array) ? column.keys.join('-') : Object.keys(column.keys).map((el: string) => ((column.keys as StringIndexed<Array<string>>)[el].join('-')).join('-')}>{column.content || ''}</td>)
                 } else {
                     let content: Array<string> = []
                     if (column.keys instanceof Array) {
@@ -335,9 +335,9 @@ export default class Table<T extends { id: string | number }> extends Component<
     public render() {
         return (
             <div className="table-responsive">
-                <table className={`table table-striped ${this.props.className || ''}`} ref={this.ref}>
+                <table className={`table table - striped ${ this.props.className || '' }`} ref={this.ref}>
                     <thead key="table-head">
-                        <tr>
+                        <tr key="table-head-row">
                             {this.props.columns.map((column) => {
                                 let columnKey = ''
                                 if (column.keys instanceof Array) {
