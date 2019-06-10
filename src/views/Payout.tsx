@@ -14,6 +14,7 @@ import Table from "../components/Table";
 import Contact from "../entities/Contact";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { History } from "history";
+import FormEntry from "../components/FormEntry";
 
 interface PayoutProps {
     payout: PayoutEntity.default,
@@ -64,6 +65,15 @@ export class _Payout extends Component<PayoutProps> {
         return (
             <Page title={`Auszahlung ${this.props.payout.from.toLocaleDateString()} - ${this.props.payout.until.toLocaleDateString()}`}>
                 <Row>
+                    <Column className="col-md-6">
+                        <Panel title="Informationen">
+                            <FormEntry id="from" title="Von" value={this.props.payout.from.toDateString()} type="date"></FormEntry>
+                            <FormEntry id="until" title="Bis" value={this.props.payout.until} type="date"></FormEntry>
+                            <FormEntry id="countCompensations" title="Anzahl Entschädiungen" value={this.props.payout.compensations.length} editable={false}></FormEntry>
+                        </Panel>
+                    </Column>
+                </Row>
+                <Row>
                     <Column>
                         <Panel title="Entschädiungen">
                             <Table<{ id: number, member: Contact, total: number }>
@@ -77,6 +87,7 @@ export class _Payout extends Component<PayoutProps> {
                                             </div>
                                     }
                                 ]}
+                                defaultSort={{ keys: ['_member.lastname', 'firstname'], direction: 'asc' }}
                                 data={data}
                             ></Table>
                         </Panel>
