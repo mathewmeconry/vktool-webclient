@@ -17,6 +17,7 @@ import Table from '../components/Table';
 import Button from 'react-bootstrap/Button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { History } from "history";
+import Config from '../Config';
 
 export interface PayoutMemberProps {
     payout: Payout,
@@ -72,7 +73,7 @@ export class _PayoutMember extends Component<PayoutMemberProps> {
                     </Column>
                     <Column className="col-md-6">
                         <Panel title="Actions">
-
+                            <a target="_blank" className="btn btn-block btn-outline-primary" href={`${Config.apiEndpoint}/api/payouts/${this.props.payout.id}/${this.props.member.id}/pdf`}>PDF</a>
                         </Panel>
                     </Column>
                 </Row>
