@@ -261,11 +261,11 @@ export class _BillingReport extends Component<BillingReportProps, BillingReportS
             this.props.user.roles.includes(AuthRoles.BILLINGREPORTS_APPROVE) ||
             this.props.user.roles.includes(AuthRoles.ADMIN))) {
             actions.push(
-                <Button id="approve" variant="outline-success" onClick={this.approve}>Genehmigen</Button>
+                <Button id="approve" block={true} variant="outline-success" onClick={this.approve}>Genehmigen</Button>
             )
             //TODO: Disabled because of workflow missing for declined reports
             /* actions.push(
-                <button id="decline" variant="outline-danger" onClick={this.decline}>Ablehnen</button>
+                <button id="decline" block={true} variant="outline-danger" onClick={this.decline}>Ablehnen</button>
             ) */
         }
 

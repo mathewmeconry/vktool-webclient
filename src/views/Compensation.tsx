@@ -4,9 +4,8 @@ import { State } from "../reducers/IndexReducer";
 import { ThunkDispatch } from "redux-thunk";
 import { AnyAction } from "redux";
 import { Data } from "../actions/DataActions";
-import { DataInterface } from "../reducers/DataReducer";
 import * as CompensationEntity from "../entities/Compensation";
-import { RouteComponentProps, RouteProps } from "react-router";
+import { RouteComponentProps } from "react-router";
 import * as React from "react";
 import { Page } from "../components/Page";
 import Loading from "../components/Loading";
@@ -17,13 +16,14 @@ import FormEntry from "../components/FormEntry";
 import { Link } from "react-router-dom";
 import { Error404 } from "../components/Errors/404";
 import Payout from "../entities/Payout";
+import Button from "../components/Button";
 
 interface CompensationProps extends RouteComponentProps<{ id: string }> {
     compensation: CompensationEntity.default,
     compensationIds: Array<number>,
     loading: boolean,
-    fetchCompensations: Function,
-    approve: Function
+    fetchCompensations: () => Promise<AnyAction>,
+    approve: (id: number) => Promise<void>
 }
 
 export class _Compensation extends Component<CompensationProps> {
@@ -38,13 +38,13 @@ export class _Compensation extends Component<CompensationProps> {
         this.props.fetchCompensations()
     }
 
-    private approve() {
-        this.props.approve(this.props.compensation.id)
+    private approve(): Promise<void> {
+        return this.props.approve(this.props.compensation.id)
     }
 
     private renderActions() {
         if (!this.props.compensation.approved) {
-            return <button id="approve" className="btn btn-block btn-outline-success" onClick={this.approve}>Genehmigen</button>
+            return <Button id="approve" block={true} variant="outline-success" onClick={this.approve}>Genehmigen</Button>
         }
     }
 
@@ -134,10 +134,10 @@ const mapStateToProps = (state: State, props: RouteComponentProps<{ id: string }
 const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>) => {
     return {
         fetchCompensations: () => {
-            dispatch(Data.fetchCompensationEntries())
+            return dispatch(Data.fetchCompensationEntries())
         },
         approve: (id: number) => {
-            dispatch(Data.approveCompensationEntry(id))
+            return dispatch(Data.approveCompensationEntry(id))
         },
     }
 }
