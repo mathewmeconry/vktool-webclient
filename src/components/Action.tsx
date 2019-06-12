@@ -39,7 +39,7 @@ export default class Action extends Component<ActionProps> {
         }
 
         return (
-            <Button onClick={this.onClick} className="action-button btn btn-outline-dark">
+            <Button onClick={this.onClick} variant="outline-dark" className="action-button">
                 <FontAwesomeIcon icon={this.props.icon} />
             </Button>
         )

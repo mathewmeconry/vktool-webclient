@@ -48,7 +48,7 @@ export default class WizardStep extends Component<WizardStepProps> {
     }
 
     private renderBackButton() {
-        if ((this.props.currentStep || 0) > 1) return <Button className="btn btn-secondary" onClick={this.previousStep}>Zurück</Button>
+        if ((this.props.currentStep || 0) > 1) return <Button variant="secondary" onClick={this.previousStep}>Zurück</Button>
         return <div></div>
     }
 
