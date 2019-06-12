@@ -338,7 +338,7 @@ export default class Table<T extends { id: string | number }> extends Component<
     public render() {
         return (
             <div className="table-responsive">
-                <table className={`table table - striped ${this.props.className || ''}`} ref={this.ref}>
+                <table className={`table table-striped ${this.props.className || ''}`} ref={this.ref}>
                     <thead key="table-head">
                         <tr key="table-head-row">
                             {this.props.columns.map((column) => {
