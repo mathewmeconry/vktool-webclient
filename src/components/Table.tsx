@@ -1,6 +1,7 @@
 import React, { Component, MouseEvent } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import StringIndexed from "../interfaces/StringIndexed";
+import Checkbox from "../components/Checkbox";
 
 export interface TableColumn {
     text: string
@@ -23,7 +24,9 @@ interface TableProps<T> {
     defaultSort?: { keys: Array<string> | StringIndexed<any>, direction: 'asc' | 'desc' },
     searchString?: string,
     ref?: Function,
-    className?: string
+    className?: string,
+    checkable?: boolean,
+    onCheck?: (event: React.ChangeEvent<HTMLInputElement>) => void
 }
 
 interface TableState<T> {
@@ -241,6 +244,10 @@ export default class Table<T extends { id: string | number }> extends Component<
             let dataEntry = data[id]
             let row = []
 
+            if (this.props.checkable) {
+                row.push(<td><Checkbox onChange={this.props.onCheck || (() => { })} /></td>)
+            }
+
             for (let column of this.props.columns) {
                 let tdKey = ''
 
@@ -341,6 +348,7 @@ export default class Table<T extends { id: string | number }> extends Component<
                 <table className={`table table-striped ${this.props.className || ''}`} ref={this.ref}>
                     <thead key="table-head">
                         <tr key="table-head-row">
+                            {this.props.checkable ? <th></th> : ''}
                             {this.props.columns.map((column) => {
                                 let columnKey = ''
                                 if (column.keys instanceof Array) {
