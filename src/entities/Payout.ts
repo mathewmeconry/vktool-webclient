@@ -13,10 +13,11 @@ export default class Payout extends Base {
 
     public compensations: Array<Compensation>
 
-    public total: Number = 0
-
+    public total: number = 0
+    
     public updatedBy: User
-
+    
     // only on client side (introduced by reducer)
     public compensationsByMember: StringIndexed<Array<Compensation>>
+    public totalWithoutMinus: number = 0
 }

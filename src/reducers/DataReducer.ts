@@ -373,6 +373,12 @@ function Payouts(state: DataInterface<Payout> = { loading: false, byId: {}, ids:
                     byMember[compensation.member.id].push(compensation)
                 }
                 entry.compensationsByMember = byMember
+                entry.totalWithoutMinus = Object.keys(byMember).map(key => {
+                    let total = 0
+                    byMember[key].map(comp => total = total +comp.amount)
+                    if(total > 0) return total
+                    return 0
+                }).reduce((a, b) => a + b)
                 byId[entry.id] = entry
                 ids.push(entry.id)
             }

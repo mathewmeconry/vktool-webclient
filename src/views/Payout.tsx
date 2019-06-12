@@ -37,6 +37,7 @@ export class _Payout extends Component<PayoutProps, { modalShow: boolean, select
         this.showModal = this.showModal.bind(this)
         this.hideModal = this.hideModal.bind(this)
         this.sendMails = this.sendMails.bind(this)
+        this.onCheck = this.onCheck.bind(this)
 
         this.state = {
             modalShow: false,
@@ -60,12 +61,12 @@ export class _Payout extends Component<PayoutProps, { modalShow: boolean, select
         await this.props.sendMails(this.props.payout.id, this.state.selected)
 
         this.setState({
-            modalShow: false,
-            selected: []
+            modalShow: false
         })
     }
 
-    public elementView(event: React.MouseEvent<HTMLButtonElement>) {
+    public async elementView(event: React.MouseEvent<HTMLButtonElement>): Promise<void> {
+        event.preventDefault()
         if (event.currentTarget.parentNode && event.currentTarget.parentNode.parentNode && event.currentTarget.parentNode.parentNode.parentElement) {
             let id = event.currentTarget.parentNode.parentNode.parentElement.getAttribute('data-key')
 
@@ -74,6 +75,25 @@ export class _Payout extends Component<PayoutProps, { modalShow: boolean, select
                 window.open((document.location as Location).origin + this.props.history.location.pathname + `/${id}`)
             } else {
                 this.props.history.push(this.props.history.location.pathname + `/${id}`)
+            }
+        }
+    }
+
+    public onCheck(event: React.ChangeEvent<HTMLInputElement>) {
+        if (event.currentTarget.parentNode && event.currentTarget.parentNode.parentNode && event.currentTarget.parentNode.parentNode.parentElement) {
+            let id = event.currentTarget.parentNode.parentNode.parentElement.getAttribute('data-key')
+
+            if (id) {
+                const newId = parseInt(id)
+                if (this.state.selected.indexOf(newId) > -1) {
+                    this.setState({
+                        selected: [...this.state.selected.filter(el => el !== newId)]
+                    })
+                } else {
+                    this.setState({
+                        selected: [...this.state.selected, parseInt(id)]
+                    })
+                }
             }
         }
     }
@@ -91,7 +111,7 @@ export class _Payout extends Component<PayoutProps, { modalShow: boolean, select
                     }
                     footer={<ButtonGroup>
                         <Button variant="success" onClick={this.sendMails}>Senden</Button>
-                        <Button variant="secondary" onClick={this.hideModal}>Abbrechen</Button>
+                        <Button variant="danger" onClick={this.hideModal}>Abbrechen</Button>
                     </ButtonGroup>}
 
                 />
@@ -107,7 +127,7 @@ export class _Payout extends Component<PayoutProps, { modalShow: boolean, select
                             <ul>
                                 {this.state.selected.map(el => {
                                     const member: Contact = this.props.payout.compensationsByMember[el][0].member
-                                    return `${member.lastname} ${member.firstname}`
+                                    return (<li>{member.lastname} {member.firstname}</li>)
                                 })}
                             </ul>
                         </span>
@@ -130,12 +150,10 @@ export class _Payout extends Component<PayoutProps, { modalShow: boolean, select
         }
 
         const data: Array<{ id: number, member: Contact, total: number }> = []
-        let totalWithoutMinus = 0
         for (let i in this.props.payout.compensationsByMember) {
             const records = this.props.payout.compensationsByMember[i]
             let total = 0
             records.map(el => total = total + parseFloat(el.amount.toString()))
-            if (total > 0) totalWithoutMinus = totalWithoutMinus + total
             data.push({
                 id: records[0].member.id,
                 member: records[0].member,
@@ -152,13 +170,13 @@ export class _Payout extends Component<PayoutProps, { modalShow: boolean, select
                             <FormEntry id="until" title="Bis" value={this.props.payout.until} type="date"></FormEntry>
                             <FormEntry id="countCompensations" title="Anzahl Entschädiungen" value={this.props.payout.compensations.length} editable={false}></FormEntry>
                             <FormEntry id="total" title="Total" value={`CHF ${this.props.payout.total.toFixed(2)}`} ></FormEntry>
-                            <FormEntry id="totalWithoutMinus" title="Total ohne Minus" value={`CHF ${totalWithoutMinus.toFixed(2)}`} ></FormEntry>
+                            <FormEntry id="totalWithoutMinus" title="Total ohne Minus" value={`CHF ${this.props.payout.totalWithoutMinus.toFixed(2)}`} ></FormEntry>
                         </Panel>
                     </Column>
                     <Column className="col-md-6">
                         <Panel title="Actions">
                             <a className="btn btn-block btn-outline-primary" target="_blank" href={`${Config.apiEndpoint}/api/payouts/${this.props.payout.id}/pdf`} >PDF</a>
-                            <Button variant="outline-primary" onClick={this.showModal}>Bestätigung E-Mails verschicken</Button>
+                            <Button block={true} variant="outline-primary" onClick={this.showModal}>Bestätigung E-Mails verschicken</Button>
                         </Panel>
                     </Column>
                 </Row>
@@ -172,10 +190,12 @@ export class _Payout extends Component<PayoutProps, { modalShow: boolean, select
                                     {
                                         text: 'Actions', keys: ['id'], content:
                                             <div className="btn-group">
-                                                <button className="btn btn-success view" onMouseUp={this.elementView}><FontAwesomeIcon icon="eye" /></button>
+                                                <Button variant="success" className="view" onClick={this.elementView}><FontAwesomeIcon icon="eye" /></Button>
                                             </div>
                                     }
                                 ]}
+                                checkable={true}
+                                onCheck={this.onCheck}
                                 defaultSort={{ keys: ['_member.lastname', 'firstname'], direction: 'asc' }}
                                 data={data}
                             ></Table>
