@@ -242,6 +242,8 @@ export default class Table<T extends { id: string | number }> extends Component<
             let row = []
 
             for (let column of this.props.columns) {
+                let tdKey = ''
+
                 if (column.content) {
                     row.push(<td key={(column.keys instanceof Array) ? column.keys.join('-') : Object.keys(column.keys).map((el: string) => ((column.keys as StringIndexed<Array<string>>)[el].join('-'))).join('-')}>{column.content || ''}</td>)
                 } else {
@@ -291,6 +293,7 @@ export default class Table<T extends { id: string | number }> extends Component<
                         })
                     } else {
                         for (let k in column.keys) {
+                            tdKey = `${tdKey}${k}-`
                             content = content.concat(column.keys[k].map((key) => {
                                 //@ts-ignore
                                 if (dataEntry.hasOwnProperty(k) && dataEntry[k]) {
@@ -320,9 +323,9 @@ export default class Table<T extends { id: string | number }> extends Component<
                     }
 
                     if (column.link) {
-                        row.push(<td className={column.className || ''} key={dataEntry.id + (content.join(' ') || Math.random().toString())}><a key={dataEntry.id + [...(content || [Math.random().toString()]), 'a'].join(' ')} href={((column.linkPrefix) ? column.linkPrefix : '') + content.join(' ')} target="_blank">{((column.prefix) ? column.prefix : '') + content.join(' ') + ((column.suffix) ? column.suffix : '')}</a></td>)
+                        row.push(<td className={column.className || ''} key={dataEntry.id + tdKey + (content.join(' ') || Math.random().toString())}><a key={dataEntry.id + [...(content || [Math.random().toString()]), 'a'].join(' ')} href={((column.linkPrefix) ? column.linkPrefix : '') + content.join(' ')} target="_blank">{((column.prefix) ? column.prefix : '') + content.join(' ') + ((column.suffix) ? column.suffix : '')}</a></td>)
                     } else {
-                        row.push(<td className={column.className || ''} key={dataEntry.id + (content.join(' ') || Math.random().toString())}>{((column.prefix) ? column.prefix : '') + content.join(' ') + ((column.suffix) ? column.suffix : '')}</td>)
+                        row.push(<td className={column.className || ''} key={dataEntry.id + tdKey + (content.join(' ') || Math.random().toString())}>{((column.prefix) ? column.prefix : '') + content.join(' ') + ((column.suffix) ? column.suffix : '')}</td>)
                     }
                 }
             }
@@ -335,7 +338,7 @@ export default class Table<T extends { id: string | number }> extends Component<
     public render() {
         return (
             <div className="table-responsive">
-                <table className={`table table - striped ${ this.props.className || '' }`} ref={this.ref}>
+                <table className={`table table - striped ${this.props.className || ''}`} ref={this.ref}>
                     <thead key="table-head">
                         <tr key="table-head-row">
                             {this.props.columns.map((column) => {
