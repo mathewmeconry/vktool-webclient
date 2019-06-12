@@ -51,10 +51,12 @@ export class _Payout extends Component<PayoutProps> {
         }
 
         const data: Array<{ id: number, member: Contact, total: number }> = []
+        let totalWithoutMinus = 0
         for (let i in this.props.payout.compensationsByMember) {
             const records = this.props.payout.compensationsByMember[i]
             let total = 0
             records.map(el => total = total + parseFloat(el.amount.toString()))
+            if(total > 0) totalWithoutMinus = totalWithoutMinus + total
             data.push({
                 id: records[0].member.id,
                 member: records[0].member,
@@ -67,9 +69,11 @@ export class _Payout extends Component<PayoutProps> {
                 <Row>
                     <Column className="col-md-6">
                         <Panel title="Informationen">
-                            <FormEntry id="from" title="Von" value={this.props.payout.from.toDateString()} type="date"></FormEntry>
+                            <FormEntry id="from" title="Von" value={this.props.payout.from} type="date"></FormEntry>
                             <FormEntry id="until" title="Bis" value={this.props.payout.until} type="date"></FormEntry>
                             <FormEntry id="countCompensations" title="Anzahl Entschädiungen" value={this.props.payout.compensations.length} editable={false}></FormEntry>
+                            <FormEntry id="total" title="Total" value={`CHF ${this.props.payout.total.toFixed(2)}`} ></FormEntry>
+                            <FormEntry id="totalWithoutMinus" title="Total ohne Minus" value={`CHF ${totalWithoutMinus.toFixed(2)}`} ></FormEntry>
                         </Panel>
                     </Column>
                 </Row>
