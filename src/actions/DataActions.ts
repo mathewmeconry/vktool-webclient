@@ -1,6 +1,6 @@
 import { UI } from "./UIActions";
 import { CreateBillingReport, EditBillingReport, BillingReportCompensationEntry } from "./../interfaces/BillingReport";
-import { Dispatch, AnyAction } from "redux";
+import { AnyAction } from "redux";
 import { ThunkAction, ThunkDispatch } from "redux-thunk";
 import { State } from "../reducers/IndexReducer";
 import axios, { AxiosError, AxiosResponse } from 'axios'
@@ -52,6 +52,9 @@ export const DataActions = {
 
     FETCH_PAYOUTS: 'fetch_payouts',
     GOT_PAYOUTS: 'got_payouts',
+
+    SENDING_PAYOUTS: 'sending_payouts',
+    SENT_PAYOUTS: 'sent_payouts'
 }
 
 export class Data {
@@ -231,6 +234,21 @@ export class Data {
 
     public static fetchPayouts(): ThunkAction<Promise<AnyAction>, State, void, AnyAction> {
         return Data.fetchFromApi(Config.apiEndpoint + '/api/payouts', DataActions.FETCH_PAYOUTS, DataActions.GOT_PAYOUTS)
+    }
+
+    public static sendPayoutMails(payoutId: number, memberIds: Array<number>): ThunkAction<Promise<void>, State, void, AnyAction> {
+        return async (dispatch: ThunkDispatch<State, undefined, AnyAction>) => {
+            dispatch({
+                type: DataActions.SENDING_PAYOUTS
+            })
+
+            await Data.sendToApi('post', Config.apiEndpoint + '/api/payouts/email', { payoutId, memberIds }, dispatch)
+            dispatch({
+                type: DataActions.SENT_PAYOUTS
+            })
+
+            dispatch(UI.showSuccess('Gesendet!'))
+        }
     }
 
     private static fetchFromApi(route: string, fetchAction: string, gotAction: string): ThunkAction<Promise<AnyAction>, State, void, AnyAction> {

@@ -11,23 +11,58 @@ import Panel from "../components/Panel";
 import * as PayoutEntity from "../entities/Payout";
 import Loading from "../components/Loading";
 import Table from "../components/Table";
-import Contact from "../entities/Contact";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { History } from "history";
 import FormEntry from "../components/FormEntry";
+import Button from "../components/Button";
+import Config from "../Config";
+import Modal from '../components/Modal'
+import { ButtonGroup } from "react-bootstrap";
+import Contact from "../entities/Contact";
 
 interface PayoutProps {
     payout: PayoutEntity.default,
     loading: boolean,
     history: History,
-    fetchPayouts: () => Promise<void>
+    fetchPayouts: () => Promise<void>,
+    sendMails: (payoutId: number, memberIds: Array<number>) => Promise<void>
 }
 
-export class _Payout extends Component<PayoutProps> {
+export class _Payout extends Component<PayoutProps, { modalShow: boolean, selected: Array<number> }> {
     constructor(props: PayoutProps) {
         super(props)
         this.props.fetchPayouts()
+
         this.elementView = this.elementView.bind(this)
+        this.showModal = this.showModal.bind(this)
+        this.hideModal = this.hideModal.bind(this)
+        this.sendMails = this.sendMails.bind(this)
+
+        this.state = {
+            modalShow: false,
+            selected: []
+        }
+    }
+
+    private async hideModal(): Promise<void> {
+        this.setState({
+            modalShow: false
+        })
+    }
+
+    private async showModal(): Promise<void> {
+        this.setState({
+            modalShow: true
+        })
+    }
+
+    private async sendMails(): Promise<void> {
+        await this.props.sendMails(this.props.payout.id, this.state.selected)
+
+        this.setState({
+            modalShow: false,
+            selected: []
+        })
     }
 
     public elementView(event: React.MouseEvent<HTMLButtonElement>) {
@@ -40,6 +75,50 @@ export class _Payout extends Component<PayoutProps> {
             } else {
                 this.props.history.push(this.props.history.location.pathname + `/${id}`)
             }
+        }
+    }
+
+    public renderCompensationsAddModal() {
+        if (this.state.selected.length === 0) {
+            return (
+                <Modal
+                    show={this.state.modalShow}
+                    header={<h3>E-Mails versenden</h3>}
+                    body={
+                        <span>
+                            Willst du wirklich eine E-Mail <b>an alle</b> mit der Entschädigungsauszahlung senden?
+                    </span>
+                    }
+                    footer={<ButtonGroup>
+                        <Button variant="success" onClick={this.sendMails}>Senden</Button>
+                        <Button variant="secondary" onClick={this.hideModal}>Abbrechen</Button>
+                    </ButtonGroup>}
+
+                />
+            )
+        } else {
+            return (
+                <Modal
+                    show={this.state.modalShow}
+                    header={<h3>E-Mails versenden</h3>}
+                    body={
+                        <span>
+                            Willst du wirklich eine E-Mail <b>an folgende Personen</b> mit der Entschädigungsauszahlung senden?
+                            <ul>
+                                {this.state.selected.map(el => {
+                                    const member: Contact = this.props.payout.compensationsByMember[el][0].member
+                                    return `${member.lastname} ${member.firstname}`
+                                })}
+                            </ul>
+                        </span>
+                    }
+                    footer={<ButtonGroup>
+                        <Button variant="success" onClick={this.sendMails}>Senden</Button>
+                        <Button variant="danger" onClick={this.hideModal}>Abbrechen</Button>
+                    </ButtonGroup>}
+
+                />
+            )
         }
     }
 
@@ -56,7 +135,7 @@ export class _Payout extends Component<PayoutProps> {
             const records = this.props.payout.compensationsByMember[i]
             let total = 0
             records.map(el => total = total + parseFloat(el.amount.toString()))
-            if(total > 0) totalWithoutMinus = totalWithoutMinus + total
+            if (total > 0) totalWithoutMinus = totalWithoutMinus + total
             data.push({
                 id: records[0].member.id,
                 member: records[0].member,
@@ -74,6 +153,12 @@ export class _Payout extends Component<PayoutProps> {
                             <FormEntry id="countCompensations" title="Anzahl Entschädiungen" value={this.props.payout.compensations.length} editable={false}></FormEntry>
                             <FormEntry id="total" title="Total" value={`CHF ${this.props.payout.total.toFixed(2)}`} ></FormEntry>
                             <FormEntry id="totalWithoutMinus" title="Total ohne Minus" value={`CHF ${totalWithoutMinus.toFixed(2)}`} ></FormEntry>
+                        </Panel>
+                    </Column>
+                    <Column className="col-md-6">
+                        <Panel title="Actions">
+                            <a className="btn btn-block btn-outline-primary" target="_blank" href={`${Config.apiEndpoint}/api/payouts/${this.props.payout.id}/pdf`} >PDF</a>
+                            <Button variant="outline-primary" onClick={this.showModal}>Bestätigung E-Mails verschicken</Button>
                         </Panel>
                     </Column>
                 </Row>
@@ -97,10 +182,12 @@ export class _Payout extends Component<PayoutProps> {
                         </Panel>
                     </Column>
                 </Row>
+                {this.renderCompensationsAddModal()}
             </Page >
         )
     }
 }
+
 
 const mapStateToProps = (state: State, props: any) => {
     return {
@@ -113,6 +200,9 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>
     return {
         fetchPayouts: () => {
             dispatch(Data.fetchPayouts())
+        },
+        sendMails: (payoutId: number, memberIds: Array<number>) => {
+            return dispatch(Data.sendPayoutMails(payoutId, memberIds))
         }
     }
 }
