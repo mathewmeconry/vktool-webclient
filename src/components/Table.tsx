@@ -245,7 +245,7 @@ export default class Table<T extends { id: string | number }> extends Component<
             let row = []
 
             if (this.props.checkable) {
-                row.push(<td><Checkbox onChange={this.props.onCheck || (() => { })} /></td>)
+                row.push(<td style={{width: '40px'}}><Checkbox onChange={this.props.onCheck || (() => { })} /></td>)
             }
 
             for (let column of this.props.columns) {
