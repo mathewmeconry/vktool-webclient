@@ -28,8 +28,9 @@ import { MemberSelect } from '../components/MemberSelect';
 import { EditBillingReport, BillingReportCompensationEntry } from '../interfaces/BillingReport';
 import Compensation from '../entities/Compensation';
 import Modal from '../components/Modal';
-import { ButtonGroup, Button } from 'react-bootstrap';
+import { ButtonGroup } from 'react-bootstrap';
 import AddBillingReportStep2 from './AddBillingReportSteps/AddBillingReportStep2';
+import Button from '../components/Button';
 
 export interface BillingReportProps extends RouteComponentProps<{ id: string }> {
     billingReports: DataInterface<BillingReportEntity.default>,
@@ -39,11 +40,11 @@ export interface BillingReportProps extends RouteComponentProps<{ id: string }> 
     fetchOrders: Function,
     history: History,
     user: User,
-    approve: (id: string) => void,
-    decline: (id: string) => void,
-    edit: (data: EditBillingReport) => void,
-    deleteCompensation: (id: number) => void,
-    addCompensationEntries: (data: { billingReportId: number, entries: Array<BillingReportCompensationEntry> }) => void
+    approve: (id: string) => Promise<void>,
+    decline: (id: string) => Promise<void>,
+    edit: (data: EditBillingReport) => Promise<void>,
+    deleteCompensation: (id: number) => Promise<void>,
+    addCompensationEntries: (data: { billingReportId: number, entries: Array<BillingReportCompensationEntry> }) => Promise<void>
 }
 
 interface BillingReportState {
@@ -116,21 +117,21 @@ export class _BillingReport extends Component<BillingReportProps, BillingReportS
         this.props.fetchOrders()
     }
 
-    public approve(): void {
-        this.props.approve(this.billingReport.id.toString())
+    public approve(): Promise<void> {
+        return this.props.approve(this.billingReport.id.toString())
     }
 
-    public decline(): void {
-        this.props.decline(this.billingReport.id.toString())
+    public decline(): Promise<void> {
+        return this.props.decline(this.billingReport.id.toString())
     }
 
-    public onInformationEdit(event: React.MouseEvent<HTMLElement>) {
+    public async onInformationEdit(event: React.MouseEvent<HTMLElement>) {
         this.setState({
             informationEdit: true
         })
     }
 
-    public onAbort(event: React.MouseEvent<HTMLElement>) {
+    public async onAbort(event: React.MouseEvent<HTMLElement>) {
         this.setState({
             informationEdit: false,
             order: (this.billingReport.order as Order),
@@ -142,8 +143,8 @@ export class _BillingReport extends Component<BillingReportProps, BillingReportS
         })
     }
 
-    public onInformationSave(event: React.MouseEvent<HTMLElement>) {
-        this.props.edit({
+    public async onInformationSave(event: React.MouseEvent<HTMLElement>) {
+        await this.props.edit({
             id: this.billingReport.id.toString(),
             date: this.state.date,
             drivers: this.state.drivers,
@@ -181,7 +182,8 @@ export class _BillingReport extends Component<BillingReportProps, BillingReportS
         }
     }
 
-    public elementView(event: React.MouseEvent<HTMLButtonElement>) {
+    public async elementView(event: React.MouseEvent<HTMLButtonElement>) {
+        event.preventDefault()
         if (event.currentTarget.parentNode && event.currentTarget.parentNode.parentNode && event.currentTarget.parentNode.parentNode.parentElement) {
             let id = event.currentTarget.parentNode.parentNode.parentElement.getAttribute('data-key')
 
@@ -194,7 +196,7 @@ export class _BillingReport extends Component<BillingReportProps, BillingReportS
         }
     }
 
-    private deleteCompensation(event: React.MouseEvent<HTMLButtonElement>) {
+    private async deleteCompensation(event: React.MouseEvent<HTMLButtonElement>) {
         if (event.currentTarget.parentNode && event.currentTarget.parentNode.parentNode && event.currentTarget.parentNode.parentNode.parentElement) {
             let id = event.currentTarget.parentNode.parentNode.parentElement.getAttribute('data-key')
             if (id) {
@@ -206,24 +208,23 @@ export class _BillingReport extends Component<BillingReportProps, BillingReportS
         }
     }
 
-    private deleteCompensationConfirmed() {
+    private async deleteCompensationConfirmed() {
         if (this.state.toDeleteCompensation) {
-            this.props.deleteCompensation(this.state.toDeleteCompensation.id)
+            await this.props.deleteCompensation(this.state.toDeleteCompensation.id)
             this.setState({
                 toDeleteCompensation: undefined,
                 modalShow: false
             })
-            this.props.fetchBillingReports()
         }
     }
 
-    private addCompensations(data: StringIndexed<any>) {
+    private async addCompensations(data: StringIndexed<any>) {
         let compensationEntries: Array<BillingReportCompensationEntry> = []
         for (let i in data.vks) {
             compensationEntries.push(data.vks[i])
         }
 
-        this.props.addCompensationEntries({
+        await this.props.addCompensationEntries({
             billingReportId: this.billingReport.id,
             entries: compensationEntries
         })
@@ -231,13 +232,13 @@ export class _BillingReport extends Component<BillingReportProps, BillingReportS
         this.hideModal()
     }
 
-    private showModal() {
+    private async showModal() {
         this.setState({
             modalShow: true
         })
     }
 
-    private hideModal(): boolean {
+    private async hideModal(): Promise<boolean> {
         this.setState({
             modalShow: false
         })
@@ -260,7 +261,7 @@ export class _BillingReport extends Component<BillingReportProps, BillingReportS
             this.props.user.roles.includes(AuthRoles.BILLINGREPORTS_APPROVE) ||
             this.props.user.roles.includes(AuthRoles.ADMIN))) {
             actions.push(
-                <button id="approve" className="btn btn-block btn-outline-success" onClick={this.approve}>Genehmigen</button>
+                <Button id="approve" className="btn btn-block btn-outline-success" onClick={this.approve}>Genehmigen</Button>
             )
             //TODO: Disabled because of workflow missing for declined reports
             /* actions.push(
@@ -307,10 +308,10 @@ export class _BillingReport extends Component<BillingReportProps, BillingReportS
             this.props.user.roles.includes(AuthRoles.BILLINGREPORTS_EDIT) ||
             (this.billingReport.state === 'pending' && this.billingReport.creator.id === this.props.user.id)) {
             if (!this.state.informationEdit) {
-                panelActions.push(<Action icon="pencil-alt" onClick={this.onInformationEdit} />)
+                panelActions.push(<Action icon="pencil-alt" key="edit" onClick={this.onInformationEdit} />)
             } else {
-                panelActions.push(<Action icon="save" onClick={this.onInformationSave} />)
-                panelActions.push(<Action icon="times" onClick={this.onAbort} />)
+                panelActions.push(<Action icon="save" key="save" onClick={this.onInformationSave} />)
+                panelActions.push(<Action icon="times" key="edit" onClick={this.onAbort} />)
             }
         }
 
@@ -384,11 +385,11 @@ export class _BillingReport extends Component<BillingReportProps, BillingReportS
     }
 
     public getCompensationActions() {
-        let actions = [<Button variant="success" className="view" onMouseUp={this.elementView}><FontAwesomeIcon icon="eye" /></Button>]
+        let actions = [<Button variant="success" className="view" onClick={this.elementView}><FontAwesomeIcon icon="eye" /></Button>]
         if (this.props.user.roles.includes(AuthRoles.ADMIN) ||
             this.props.user.roles.includes(AuthRoles.BILLINGREPORTS_EDIT) ||
             (this.billingReport.state === 'pending' && this.billingReport.creator.id === this.props.user.id)) {
-            actions.push(<Button variant="danger" className="delete" onMouseUp={this.deleteCompensation}><FontAwesomeIcon icon="trash" /></Button>)
+            actions.push(<Button variant="danger" className="delete" onClick={this.deleteCompensation}><FontAwesomeIcon icon="trash" /></Button>)
         }
         return actions
     }
@@ -450,27 +451,27 @@ const mapStateToProps = (state: State, props: any) => {
 const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>, props: any) => {
     return {
         fetchBillingReports: () => {
-            dispatch(Data.fetchBillingReports())
+            return dispatch(Data.fetchBillingReports())
         },
         fetchOrders: () => {
-            dispatch(Data.fetchOrders())
+            return dispatch(Data.fetchOrders())
         },
         approve: (id: string) => {
-            dispatch(Data.approveBillingReport(id))
+            return dispatch(Data.approveBillingReport(id))
         },
         decline: (id: string) => {
-            dispatch(Data.declineBillingReport(id))
+            return dispatch(Data.declineBillingReport(id))
         },
         edit: (data: EditBillingReport) => {
-            dispatch(Data.editBillingReport(data))
+            return dispatch(Data.editBillingReport(data))
         },
-        deleteCompensation: (id: number) => {
-            dispatch(Data.deleteCompensationEntry(id)).then(() => {
+        deleteCompensation: async (id: number) => {
+            return dispatch(Data.deleteCompensationEntry(id)).then(() => {
                 dispatch(Data.fetchBillingReports())
             })
         },
         addCompensationEntries: (data: { billingReportId: number, entries: Array<BillingReportCompensationEntry> }) => {
-            dispatch(Data.addCompensationEntriesForBillingReport(data)).then(() => {
+            return dispatch(Data.addCompensationEntriesForBillingReport(data)).then(() => {
                 dispatch(Data.fetchBillingReports())
             })
         }

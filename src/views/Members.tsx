@@ -20,7 +20,7 @@ export class _Members extends Component<MembersProps> {
         this.excelExport = this.excelExport.bind(this)
     }
 
-    private excelExport(event: React.MouseEvent<HTMLButtonElement>) {
+    private async excelExport(event: React.MouseEvent<HTMLButtonElement>) {
         let membersAsArray = []
         for (let i in this.props.data.byId) {
             let member = this.props.data.byId[i]

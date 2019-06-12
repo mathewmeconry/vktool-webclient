@@ -73,7 +73,7 @@ export class Data {
                 type: DataActions.EDIT_MEMBER
             })
 
-            Data.sendToApi('post', Config.apiEndpoint + '/api/members', data, dispatch, () => {
+            return Data.sendToApi('post', Config.apiEndpoint + '/api/members', data, dispatch, () => {
                 dispatch(Data.fetchMembers())
             })
         }

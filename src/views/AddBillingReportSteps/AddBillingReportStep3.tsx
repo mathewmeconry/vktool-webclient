@@ -61,7 +61,7 @@ export default class AddBillingReportStep3 extends Component<AddBillingReportSte
         }
     }
 
-    private onNext(): boolean {
+    private async onNext(): Promise<boolean> {
         if (this.elSelect) {
             let valid = true
             if (this.state.els.length <= 0) valid = false

@@ -1,0 +1,55 @@
+@import '../../node_modules/bootstrap-scss/variables';
+
+.button-loading {
+    width: 9pt;
+    height: 9pt;  
+    fill: #FFF;  
+}
+
+.btn-outline-primary {
+    .button-loading {
+        fill: $primary
+    }
+}
+
+.btn-outline-secondary {
+    .button-loading {
+        fill: $secondary
+    }
+}
+
+.btn-outline-success {
+    .button-loading {
+        fill: $success
+    }
+}
+
+.btn-outline-info {
+    .button-loading {
+        fill: $info
+    }
+}
+
+.btn-outline-warning {
+    .button-loading {
+        fill: $warning
+    }
+}
+
+.btn-outline-danger {
+    .button-loading {
+        fill: $danger
+    }
+}
+
+.btn-outline-light {
+    .button-loading {
+        fill: $light
+    }
+}
+
+.btn-outline-dark {
+    .button-loading {
+        fill: $dark
+    }
+}

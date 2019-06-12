@@ -30,8 +30,8 @@ export interface ContactProps extends RouteComponentProps<{ id: string }> {
     user: User,
     contact: ContactEntity.default,
     loading: boolean,
-    loadContacts: () => void,
-    editMember: (data: EditMember) => void
+    loadContacts: () => Promise<void>,
+    editMember: (data: EditMember) => Promise<void>
 }
 
 export interface ContactState {
@@ -146,11 +146,9 @@ export default class _Contact extends Component<ContactProps, ContactState> {
         }
     }
 
-    private onSave() {
-        this.setState({ editable: false })
-
+    private async onSave() {
         if (this.props.contact.contactGroups.find(group => group.bexioId === 7)) {
-            this.props.editMember({
+            await this.props.editMember({
                 id: this.props.contact.id,
                 collectionPointId: this.state.collectionPoint.id,
                 entryDate: (this.state.entryDate) ? new Date(this.state.entryDate) : undefined,
@@ -159,10 +157,12 @@ export default class _Contact extends Component<ContactProps, ContactState> {
                 iban: this.state.iban,
                 accountHolder: this.state.accountHolder
             })
+
+            this.setState({ editable: false })
         }
     }
 
-    public onAbort(event: React.MouseEvent<HTMLElement>) {
+    public async onAbort(event: React.MouseEvent<HTMLElement>) {
         this.setState({
             editable: false,
             collectionPoint: this.props.contact.collectionPoint || new CollectionPoint(),
@@ -202,12 +202,12 @@ export default class _Contact extends Component<ContactProps, ContactState> {
     private renderPanelActions() {
         if (this.state.editable) {
             return [
-                <Action icon="save" onClick={this.onSave} />,
-                <Action icon="times" onClick={this.onAbort} />
+                <Action icon="save" key="save" onClick={this.onSave} />,
+                <Action icon="times" key="cancel" onClick={this.onAbort} />
             ]
         }
 
-        return [<Action icon="pencil-alt" onClick={() => { this.setState({ editable: true }) }} />]
+        return [<Action icon="pencil-alt" key="edit" onClick={async () => { this.setState({ editable: true }) }} />]
     }
 
     public renderPanelCompensations() {
@@ -319,10 +319,10 @@ const mapStateToProps = (state: State, props: any) => {
 const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>, props: any) => {
     return {
         loadContacts: () => {
-            dispatch(Data.fetchContacts())
+            return dispatch(Data.fetchContacts())
         },
         editMember: (data: EditMember) => {
-            dispatch(Data.editMember(data))
+            return dispatch(Data.editMember(data))
         }
     }
 }

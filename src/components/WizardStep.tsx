@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import Button from "./Button";
 
 export interface WizardStepProps {
     title: string,
@@ -10,9 +11,9 @@ export interface WizardStepProps {
     nextStep?: () => void,
     previousStep?: () => void,
     gotoStep?: (step: number) => void,
-    onNextStep?: () => boolean,
-    onPreviousStep?: () => boolean,
-    validator?: () => boolean
+    onNextStep?: () => Promise<boolean>,
+    onPreviousStep?: () => Promise<boolean>,
+    validator?: () => Promise<boolean>
 }
 
 export default class WizardStep extends Component<WizardStepProps> {
@@ -23,10 +24,10 @@ export default class WizardStep extends Component<WizardStepProps> {
         this.renderBackButton = this.renderBackButton.bind(this)
     }
 
-    public nextStep() {
+    public async nextStep() {
         let valid = true
         if (this.props.onNextStep) {
-            valid = this.props.onNextStep()
+            valid = await this.props.onNextStep()
         }
 
         if (valid) {
@@ -36,9 +37,9 @@ export default class WizardStep extends Component<WizardStepProps> {
         }
     }
 
-    public previousStep() {
+    public async previousStep() {
         if (this.props.onPreviousStep) {
-            this.props.onPreviousStep()
+            await this.props.onPreviousStep()
         }
 
         if (this.props.previousStep) {
@@ -47,7 +48,7 @@ export default class WizardStep extends Component<WizardStepProps> {
     }
 
     private renderBackButton() {
-        if ((this.props.currentStep || 0) > 1) return <button className="btn btn-secondary" onClick={this.previousStep}>Zurück</button>
+        if ((this.props.currentStep || 0) > 1) return <Button className="btn btn-secondary" onClick={this.previousStep}>Zurück</Button>
         return <div></div>
     }
 
@@ -69,7 +70,7 @@ export default class WizardStep extends Component<WizardStepProps> {
                 </div>
                 <div className="d-flex justify-content-between wizard-step-footer">
                     {this.renderBackButton()}
-                    <button className={nextButtonClasses} onClick={this.nextStep}>{nextButtonText}</button>
+                    <Button className={nextButtonClasses} onClick={this.nextStep}>{nextButtonText}</Button>
                 </div>
             </div>
         )

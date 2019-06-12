@@ -31,7 +31,7 @@ export interface AddBillingReportProps {
     loading: boolean,
     fetchOpenOrders: Function,
     fetchMembers: Function,
-    save: (data: CreateBillingReport) => void,
+    save: (data: CreateBillingReport) => Promise<void>,
     history: History
 }
 
@@ -71,7 +71,7 @@ export class _AddBillingReport extends Component<AddBillingReportProps, AddBilli
         this.setState(state)
     }
 
-    private save(): boolean {
+    private async save(): Promise<boolean> {
         let compensationEntries: StringIndexed<BillingReportCompensationEntry<number>> = {}
 
         for (let i in this.state.vks) {
@@ -80,7 +80,7 @@ export class _AddBillingReport extends Component<AddBillingReportProps, AddBilli
             compensationEntries[i].member = this.state.vks[i].member.id
         }
 
-        this.props.save({
+        await this.props.save({
             orderId: this.state.order.id,
             date: this.state.date,
             compensationEntries: this.state.vks,
@@ -90,7 +90,7 @@ export class _AddBillingReport extends Component<AddBillingReportProps, AddBilli
             remarks: this.state.remarks,
             creatorId: this.props.user.id
         })
-
+        
         this.props.history.push('/billing-reports')
 
         return true
@@ -156,7 +156,7 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>
             dispatch(Data.fetchMembers())
         },
         save: (data: CreateBillingReport) => {
-            dispatch(Data.addBillingReport(data))
+            return dispatch(Data.addBillingReport(data))
         }
     }
 }

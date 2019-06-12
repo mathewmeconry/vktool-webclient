@@ -26,11 +26,5 @@ declare module 'react-bootstrap' {
         onExiting?(node: HTMLElement): any;
     }
 
-    export namespace Button {
-        export interface ButtonProps {}
-    }
-
-    export namespace ButtonGroup {
-        export interface ButtonGroupProps {}
-    }
+    
 }
