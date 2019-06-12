@@ -107,7 +107,7 @@ export class _Payout extends Component<PayoutProps, { modalShow: boolean, select
                     body={
                         <span>
                             Willst du wirklich eine E-Mail <b>an alle</b> mit der Entschädigungsauszahlung senden?
-                    </span>
+                        </span>
                     }
                     footer={<ButtonGroup>
                         <Button variant="success" onClick={this.sendMails}>Senden</Button>
