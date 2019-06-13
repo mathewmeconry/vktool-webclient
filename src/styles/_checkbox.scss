@@ -1,47 +1,44 @@
-input[type="checkbox"]{
-     -webkit-appearance: none;
-     -moz-appearance: none;
-     appearance: none;
-     display: inline-block;
-     top: 10px;
-     height: 20px;
-     width: 20px;
-     border: 0;
-     border-radius: 50px;
-     cursor: pointer;     
-     margin-right: 7px;
-     outline: none;
-     border: 1px solid $gray-800;
-     transform: translateX(100%);
+input[type="checkbox"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  display: inline-block;
+  top: 10px;
+  height: 20px;
+  width: 20px;
+  border: 0;
+  border-radius: 50px;
+  cursor: pointer;
+  margin-right: 7px;
+  outline: none;
+  border: 1px solid $gray-800;
+  transform: translateX(100%);
 }
 input[type="checkbox"] {
-     margin-left: -20px;
+  margin-left: -20px;
 }
-input[type="checkbox"]:checked::before, input[type="checkbox"]:hover::before
-{
-     position: absolute;
-     font: 13px/1 'Open Sans', sans-serif;
-     left: 7px;
-     top: 3px;
-     content: '\02143';
-     transform: rotate(40deg);
-     color: #fff;
+input[type="checkbox"]:checked::before,
+input[type="checkbox"]:hover::before {
+  position: absolute;
+  font: 13px/1 "Open Sans", sans-serif;
+  left: 7px;
+  top: 3px;
+  content: "\02143";
+  transform: rotate(40deg);
+  color: #fff;
 }
-input[type="checkbox"]:hover
-{
-     background-color: lighten($green, 20);
-     border:0;
+input[type="checkbox"]:hover {
+  background-color: lighten($green, 20);
+  border: 0;
 }
-input[type="checkbox"]:checked
-{
-     background-color: $green;
-     border:0;
+input[type="checkbox"]:checked {
+  background-color: $green;
+  border: 0;
 }
-label
-{
-     font: 15px/1.7 'Open Sans', sans-serif;
-     color: #333;
-     -webkit-font-smoothing: antialiased;
-     -moz-osx-font-smoothing: grayscale;
-     cursor: pointer;
-} 
+label {
+  font: 15px/1.7 "Open Sans", sans-serif;
+  color: #333;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  cursor: pointer;
+}
