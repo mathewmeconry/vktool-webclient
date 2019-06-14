@@ -1,3 +1,4 @@
+import React from 'react'
 import { connect } from "react-redux";
 import { State } from "../reducers/IndexReducer";
 import { ThunkDispatch } from "redux-thunk";
@@ -6,9 +7,11 @@ import { Data } from "../actions/DataActions";
 
 
 import { DataList } from '../components/DataList'
+import Action from "../components/Action";
 
 const mapStateToProps = (state: State) => {
     return {
+        panelActions: [<Action icon="plus" to="/payouts/add" />],
         data: state.data.payouts,
         viewLocation: '/payout/',
         title: 'Auszahlungen',

@@ -8,6 +8,7 @@ import { CompensationEntry } from "../interfaces/CompensationEntry";
 import Config from '../Config'
 import { PutCollectionPoints } from "../interfaces/CollectionPoints";
 import { EditMember } from "../interfaces/Member";
+import { AddPayout } from "../interfaces/Payout";
 
 export const DataActions = {
     FETCH_USER: 'fetch_user',
@@ -50,9 +51,10 @@ export const DataActions = {
     GOT_COLLECTION_POINTS: 'got_collection_points',
     ADD_COLLECTION_POINT: 'add_collection_point',
 
+    ADD_PAYOUT: 'add_payout',
+
     FETCH_PAYOUTS: 'fetch_payouts',
     GOT_PAYOUTS: 'got_payouts',
-
     SENDING_PAYOUTS: 'sending_payouts',
     SENT_PAYOUTS: 'sent_payouts'
 }
@@ -248,6 +250,24 @@ export class Data {
             })
 
             dispatch(UI.showSuccess('Gesendet!'))
+        }
+    }
+
+    public static addPayout(data: AddPayout): ThunkAction<Promise<AnyAction>, State, void, AnyAction> {
+        return async (dispatch: ThunkDispatch<State, undefined, AnyAction>) => {
+            return new Promise<AnyAction>((resolve, reject) => {
+                dispatch({
+                    type: DataActions.ADD_PAYOUT
+                })
+
+                Data.sendToApi('put', Config.apiEndpoint + '/api/payouts', data, dispatch).then(() => {
+                    dispatch(Data.fetchPayouts())
+                    dispatch(UI.showSuccess('Gespeichert!'))
+                    resolve()
+                }).catch(err => {
+                    reject(err)
+                })
+            })
         }
     }
 
