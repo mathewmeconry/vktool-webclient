@@ -10,6 +10,7 @@ import Row from "../components/Row";
 import Column from "../components/Column";
 import Panel from "../components/Panel";
 import { History } from "history";
+import Button from '../components/Button';
 
 export class _AddPayout extends Component<{ history: History, save: (data: AddPayoutInterface) => Promise<AnyAction> }, { from?: string, until: string }> {
     private formEl?: HTMLFormElement
@@ -47,11 +48,11 @@ export class _AddPayout extends Component<{ history: History, save: (data: AddPa
         });
     }
 
-    private onSave(event: React.MouseEvent<HTMLButtonElement>) {
+    private async onSave(event: React.MouseEvent<HTMLButtonElement>) {
         event.preventDefault()
         if (this.formEl) {
             if (this.validate()) {
-                this.props.save({
+                await this.props.save({
                     from: new Date(this.state.from || '01/01/1970'),
                     until: new Date(this.state.until)
                 })
@@ -75,7 +76,7 @@ export class _AddPayout extends Component<{ history: History, save: (data: AddPa
                                 <input name="until" type="date" className="form-control" value={this.state.until} onChange={this.onInputChange} required={true} />
                                 <br></br>
 
-                                <button className="btn btn-primary btn-block" onClick={this.onSave}>Speichern</button>
+                                <Button variant="primary" block={true} onClick={this.onSave}>Speichern</Button>
                             </form>
                         </Panel>
                     </Column>

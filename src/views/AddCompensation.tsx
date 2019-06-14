@@ -15,6 +15,7 @@ import { ValueType } from 'react-select/lib/types';
 import { CompensationEntry } from '../interfaces/CompensationEntry';
 import { History } from "history";
 import Contact from '../entities/Contact';
+import Button from '../components/Button';
 
 export class _AddCompensation extends Component<{ history: History, members: DataInterface<Contact>, loading: boolean, fetchMembers: Function, save: Function }, { member: string, date: string, description: string, amount?: number }> {
     private formEl?: HTMLFormElement
@@ -85,11 +86,11 @@ export class _AddCompensation extends Component<{ history: History, members: Dat
         });
     }
 
-    private onSave(event: React.MouseEvent<HTMLButtonElement>) {
+    private async onSave(event: React.MouseEvent<HTMLButtonElement>): Promise<void> {
         event.preventDefault()
         if (this.formEl) {
             if (this.validate()) {
-                this.props.save({
+                await this.props.save({
                     member: this.state.member,
                     date: new Date(this.state.date),
                     description: this.state.description,
@@ -143,7 +144,7 @@ export class _AddCompensation extends Component<{ history: History, members: Dat
                                 </div>
                                 <br></br>
 
-                                <button className="btn btn-primary btn-block" onClick={this.onSave}>Speichern</button>
+                                <Button variant="primary" block={true} onClick={this.onSave}>Speichern</Button>
                             </form>
                         </Panel>
                     </Column>

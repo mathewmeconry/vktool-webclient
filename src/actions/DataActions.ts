@@ -271,6 +271,14 @@ export class Data {
         }
     }
 
+    public static reclaimPayout(payoutId: number): ThunkAction<Promise<void>, State, void, AnyAction> {
+        return async (dispatch: ThunkDispatch<State, undefined, AnyAction>) => {
+            await Data.sendToApi('post', Config.apiEndpoint + '/api/payouts/reclaim', { id: payoutId }, dispatch)
+            dispatch(Data.fetchPayouts())
+            dispatch(UI.showSuccess('Done!'))
+        }
+    }
+
     private static fetchFromApi(route: string, fetchAction: string, gotAction: string): ThunkAction<Promise<AnyAction>, State, void, AnyAction> {
         return async (dispatch: ThunkDispatch<State, undefined, AnyAction>) => {
             return new Promise<AnyAction>((resolve, reject) => {

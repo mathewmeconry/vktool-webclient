@@ -26,6 +26,7 @@ interface PayoutProps {
     history: History,
     fetchPayouts: () => Promise<void>,
     sendMails: (payoutId: number, memberIds: Array<number>) => Promise<void>
+    reclaim: (payoutId: number) => Promise<void>
 }
 
 export class _Payout extends Component<PayoutProps, { modalShow: boolean, selected: Array<number> }> {
@@ -38,6 +39,7 @@ export class _Payout extends Component<PayoutProps, { modalShow: boolean, select
         this.hideModal = this.hideModal.bind(this)
         this.sendMails = this.sendMails.bind(this)
         this.onCheck = this.onCheck.bind(this)
+        this.reclaim = this.reclaim.bind(this)
 
         this.state = {
             modalShow: false,
@@ -63,6 +65,10 @@ export class _Payout extends Component<PayoutProps, { modalShow: boolean, select
         this.setState({
             modalShow: false
         })
+    }
+
+    private async reclaim(): Promise<void> {
+        return this.props.reclaim(this.props.payout.id)
     }
 
     public async elementView(event: React.MouseEvent<HTMLButtonElement>): Promise<void> {
@@ -177,6 +183,7 @@ export class _Payout extends Component<PayoutProps, { modalShow: boolean, select
                         <Panel title="Actions">
                             <a className="btn btn-block btn-outline-primary" target="_blank" href={`${Config.apiEndpoint}/api/payouts/${this.props.payout.id}/pdf`} >PDF</a>
                             <Button block={true} variant="outline-primary" onClick={this.showModal}>Bestätigung E-Mails verschicken</Button>
+                            <Button block={true} variant="outline-primary" onClick={this.reclaim}>Neu Berechnen</Button>
                         </Panel>
                     </Column>
                 </Row>
@@ -223,6 +230,9 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>
         },
         sendMails: (payoutId: number, memberIds: Array<number>) => {
             return dispatch(Data.sendPayoutMails(payoutId, memberIds))
+        },
+        reclaim: (payoutId: number) => {
+            return dispatch(Data.reclaimPayout(payoutId))
         }
     }
 }
