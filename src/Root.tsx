@@ -34,6 +34,10 @@ import { MailingLists } from "./views/MailingLists";
 import { CollectionPoints } from "./views/CollectionPoints";
 import { AddCollectionPoint } from "./views/AddCollectionPoint";
 import { Memberlist } from "./views/Pdfs/Memberlist";
+import { Payouts } from "./views/Payouts";
+import { Payout } from "./views/Payout";
+import { PayoutMember } from "./views/PayoutMember";
+import { AddPayout } from "./views/AddPayout";
 
 export default class Root extends Component<{}, {}> {
     private store: Store<any, AnyAction>
@@ -82,6 +86,10 @@ export default class Root extends Component<{}, {}> {
                             <SecureRoute exact path="/compensations" roles={[AuthRoles.COMPENSATIONS_READ]} component={Compensations} />
                             <SecureRoute exact path="/compensations/add" roles={[AuthRoles.COMPENSATIONS_CREATE]} component={AddCompensation} />
                             <SecureRoute exact path="/compensation/:id" roles={[AuthRoles.COMPENSATIONS_READ]} component={Compensation} />
+                            <SecureRoute exact path="/payouts" roles={[AuthRoles.PAYOUTS_READ]} component={Payouts} />
+                            <SecureRoute exact path="/payouts/add" roles={[AuthRoles.PAYOUTS_CREATE]} component={AddPayout} />
+                            <SecureRoute exact path="/payout/:id" roles={[AuthRoles.PAYOUTS_READ]} component={Payout} />
+                            <SecureRoute exact path="/payout/:id/:memberId" roles={[AuthRoles.PAYOUTS_READ]} component={PayoutMember} />
                             <SecureRoute exact path="/users" roles={[AuthRoles.ADMIN]} component={Users} />
                             <SecureRoute exact path="/user/:id" roles={[AuthRoles.ADMIN]} component={User} />
                             <Route path="/*" component={Error404} />

@@ -9,6 +9,9 @@ import Order from "../entities/Order";
 import BillingReport from "../entities/BillingReport";
 import Compensation from "../entities/Compensation";
 import CollectionPoint from "../entities/CollectionPoint";
+import Payout from "../entities/Payout";
+import CustomCompensation from "../entities/CustomCompensation";
+import OrderCompensation from "../entities/OrderCompensation";
 
 export interface Data {
     users: DataInterface<User>
@@ -21,7 +24,8 @@ export interface Data {
     billingReports: DataInterface<BillingReport>,
     compensationEntries: DataInterface<Compensation>,
     mailingLists: StringIndexed<Array<string>>,
-    collectionPoints: DataInterface<CollectionPoint>
+    collectionPoints: DataInterface<CollectionPoint>,
+    payouts: DataInterface<Payout>
 }
 
 export interface SingleDataInterface<T> {
@@ -251,8 +255,8 @@ function CompensationEntries(state: DataInterface<Compensation> = { loading: fal
     }
 }
 
-function CollectionPoints(state: DataInterface<Compensation> = { loading: false, byId: {}, ids: [], sort: { keys: ['city'], direction: 'desc' } }, action: AnyAction): DataInterface<Compensation> {
-    let byId: StringIndexed<Compensation> = {}
+function CollectionPoints(state: DataInterface<CollectionPoint> = { loading: false, byId: {}, ids: [], sort: { keys: ['city'], direction: 'desc' } }, action: AnyAction): DataInterface<CollectionPoint> {
+    let byId: StringIndexed<CollectionPoint> = {}
     let ids: Array<number> = []
     switch (action.type) {
         case DataActions.FETCH_COLLECTION_POINTS:
@@ -337,4 +341,52 @@ function MailingLists(state: StringIndexed<Array<string>> = {}, action: AnyActio
     }
 }
 
-export default combineReducers({ collectionPoints: CollectionPoints, user: UserReducer, users: Users, contacts: Contacts, members: Members, ranks: Ranks, orders: Orders, openOrders: OpenOrders, billingReports: BillingReports, compensationEntries: CompensationEntries, mailingLists: MailingLists })
+function Payouts(state: DataInterface<Payout> = { loading: false, byId: {}, ids: [], sort: { keys: ['until'], direction: 'desc' } }, action: AnyAction): DataInterface<Payout> {
+    let byId: StringIndexed<Payout> = {}
+    let ids: Array<number> = []
+    switch (action.type) {
+        case DataActions.FETCH_PAYOUTS:
+            if (state.ids.length === 0) {
+                return Object.assign({}, state, { loading: true })
+            }
+            return Object.assign({}, state, { loading: false })
+        case DataActions.GOT_PAYOUTS:
+            if (Object.keys(action.payload).length < 1) return state
+
+            for (let entry of action.payload as Array<Payout>) {
+                let byMember: StringIndexed<Array<Compensation>> = {}
+                for (let i in entry.compensations) {
+                    let compensation = entry.compensations[i]
+                    if (!compensation.hasOwnProperty('description')) {
+                        if (compensation.hasOwnProperty('billingReport') && (compensation as OrderCompensation).billingReport && (compensation as OrderCompensation).billingReport.hasOwnProperty('order')) {
+                            // only show the contact if the contact is not a privat person (identified that companies doesn't have any firstname)
+                            if ((compensation as OrderCompensation).billingReport.order.hasOwnProperty('contact') && !(compensation as OrderCompensation).billingReport.order.contact.hasOwnProperty('firstname')) {
+                                compensation = Object.assign(compensation, { description: `${(compensation as OrderCompensation).billingReport.order.title} (${(compensation as OrderCompensation).billingReport.order.contact.lastname})` })
+                            } else {
+                                compensation = Object.assign(compensation, { description: `${(compensation as OrderCompensation).billingReport.order.title}` })
+                            }
+                        }
+                    }
+
+                    entry.compensations[i] = compensation
+                    if (!byMember.hasOwnProperty(compensation.member.id)) byMember[compensation.member.id] = []
+                    byMember[compensation.member.id].push(compensation)
+                }
+                entry.compensationsByMember = byMember
+                entry.totalWithoutMinus = Object.keys(byMember).map(key => {
+                    let total = 0
+                    byMember[key].map(comp => total = total +comp.amount)
+                    if(total > 0) return total
+                    return 0
+                }).reduce((a, b) => a + b)
+                byId[entry.id] = entry
+                ids.push(entry.id)
+            }
+
+            return Object.assign({}, state, { loading: false, byId: byId, ids: ids })
+        default:
+            return state
+    }
+}
+
+export default combineReducers({ payouts: Payouts, collectionPoints: CollectionPoints, user: UserReducer, users: Users, contacts: Contacts, members: Members, ranks: Ranks, orders: Orders, openOrders: OpenOrders, billingReports: BillingReports, compensationEntries: CompensationEntries, mailingLists: MailingLists })

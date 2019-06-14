@@ -50,7 +50,7 @@ export default class AddBillingReportStep1 extends Component<Step1Props, { order
         });
     }
 
-    private validate(): boolean {
+    private async validate(): Promise<boolean> {
         if (this.formEl) {
             let valid = this.formEl.checkValidity()
             this.formEl.className = 'was-validated'

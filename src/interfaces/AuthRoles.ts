@@ -29,5 +29,9 @@ export enum AuthRoles {
     DRAFT_CREATE = 'draft_create',
     DRAFT_EDIT = 'draft_edit',
 
+    PAYOUTS_READ = 'payouts_read',
+    PAYOUTS_CREATE = 'payouts_create',
+    PAYOUTS_SEND = 'payouts_send',
+
     ADMIN = 'admin'
 }

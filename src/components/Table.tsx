@@ -1,6 +1,7 @@
 import React, { Component, MouseEvent } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import StringIndexed from "../interfaces/StringIndexed";
+import Checkbox from "../components/Checkbox";
 
 export interface TableColumn {
     text: string
@@ -23,7 +24,9 @@ interface TableProps<T> {
     defaultSort?: { keys: Array<string> | StringIndexed<any>, direction: 'asc' | 'desc' },
     searchString?: string,
     ref?: Function,
-    className?: string
+    className?: string,
+    checkable?: boolean,
+    onCheck?: (event: React.ChangeEvent<HTMLInputElement>) => void
 }
 
 interface TableState<T> {
@@ -241,9 +244,15 @@ export default class Table<T extends { id: string | number }> extends Component<
             let dataEntry = data[id]
             let row = []
 
+            if (this.props.checkable) {
+                row.push(<td style={{width: '40px'}}><Checkbox onChange={this.props.onCheck || (() => { })} /></td>)
+            }
+
             for (let column of this.props.columns) {
+                let tdKey = ''
+
                 if (column.content) {
-                    row.push(<td>{column.content || ''}</td>)
+                    row.push(<td key={(column.keys instanceof Array) ? column.keys.join('-') : Object.keys(column.keys).map((el: string) => ((column.keys as StringIndexed<Array<string>>)[el].join('-'))).join('-')}>{column.content || ''}</td>)
                 } else {
                     let content: Array<string> = []
                     if (column.keys instanceof Array) {
@@ -291,6 +300,7 @@ export default class Table<T extends { id: string | number }> extends Component<
                         })
                     } else {
                         for (let k in column.keys) {
+                            tdKey = `${tdKey}${k}-`
                             content = content.concat(column.keys[k].map((key) => {
                                 //@ts-ignore
                                 if (dataEntry.hasOwnProperty(k) && dataEntry[k]) {
@@ -320,9 +330,9 @@ export default class Table<T extends { id: string | number }> extends Component<
                     }
 
                     if (column.link) {
-                        row.push(<td className={column.className || ''} key={dataEntry.id + (content.join(' ') || Math.random().toString())}><a key={dataEntry.id + [...(content || [Math.random().toString()]), 'a'].join(' ')} href={((column.linkPrefix) ? column.linkPrefix : '') + content.join(' ')} target="_blank">{((column.prefix) ? column.prefix : '') + content.join(' ') + ((column.suffix) ? column.suffix : '')}</a></td>)
+                        row.push(<td className={column.className || ''} key={dataEntry.id + tdKey + (content.join(' ') || Math.random().toString())}><a key={dataEntry.id + [...(content || [Math.random().toString()]), 'a'].join(' ')} href={((column.linkPrefix) ? column.linkPrefix : '') + content.join(' ')} target="_blank">{((column.prefix) ? column.prefix : '') + content.join(' ') + ((column.suffix) ? column.suffix : '')}</a></td>)
                     } else {
-                        row.push(<td className={column.className || ''} key={dataEntry.id + (content.join(' ') || Math.random().toString())}>{((column.prefix) ? column.prefix : '') + content.join(' ') + ((column.suffix) ? column.suffix : '')}</td>)
+                        row.push(<td className={column.className || ''} key={dataEntry.id + tdKey + (content.join(' ') || Math.random().toString())}>{((column.prefix) ? column.prefix : '') + content.join(' ') + ((column.suffix) ? column.suffix : '')}</td>)
                     }
                 }
             }
@@ -337,7 +347,8 @@ export default class Table<T extends { id: string | number }> extends Component<
             <div className="table-responsive">
                 <table className={`table table-striped ${this.props.className || ''}`} ref={this.ref}>
                     <thead key="table-head">
-                        <tr>
+                        <tr key="table-head-row">
+                            {this.props.checkable ? <th></th> : ''}
                             {this.props.columns.map((column) => {
                                 let columnKey = ''
                                 if (column.keys instanceof Array) {

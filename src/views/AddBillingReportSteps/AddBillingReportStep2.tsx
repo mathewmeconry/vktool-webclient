@@ -8,7 +8,7 @@ import { MemberSelect } from "../../components/MemberSelect";
 
 export interface Step2Props {
     onNext: (data: StringIndexed<any>) => void,
-    onPrevious?: () => boolean
+    onPrevious?: () => Promise<boolean>
 }
 
 export default class AddBillingReportStep2 extends Component<Step2Props, { tableEntries: StringIndexed<BillingReportCompensationEntry>, vks: Array<Contact>, from: string, until: string, charge: boolean }> {
@@ -106,7 +106,7 @@ export default class AddBillingReportStep2 extends Component<Step2Props, { table
         }
     }
 
-    private validate(): boolean {
+    private async validate(): Promise<boolean> {
         if (Object.keys(this.state.tableEntries).length > 0) {
             this.props.onNext({
                 vks: this.state.tableEntries
@@ -120,7 +120,7 @@ export default class AddBillingReportStep2 extends Component<Step2Props, { table
 
     public render() {
         return (
-            <WizardStep title="Einsatzzeiten" onNextStep={this.validate} onPreviousStep={this.props.onPrevious || function () { return true }} {...this.props}>
+            <WizardStep title="Einsatzzeiten" onNextStep={this.validate} onPreviousStep={this.props.onPrevious || async function () { return true }} {...this.props}>
                 <form ref={(form: HTMLFormElement) => this.formEl = form}>
                     <div className="row">
                         <div className="col">

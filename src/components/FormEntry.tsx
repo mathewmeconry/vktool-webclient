@@ -22,7 +22,7 @@ export default class FormEntry extends Component<{ id: string, title: string, ed
                 let date = this.props.value
                 if (typeof this.props.value === 'string') date = new Date(this.props.value)
 
-                value = `${date.getUTCFullYear()}-${('0' + date.getUTCMonth()).slice(-2)}-${('0' + date.getUTCDate()).slice(-2)}`
+                value = `${date.getUTCFullYear()}-${('0' + (date.getUTCMonth() + 1)).slice(-2)}-${('0' + date.getUTCDate()).slice(-2)}`
             }
 
             return <input id={this.props.id} name={this.props.id} type={(this.props.type) ? this.props.type : 'text'} value={value} onChange={this.props.onChange} className={'form-entry form-control' + ((!this.props.editable) ? '-plaintext' : '')} readOnly={!this.props.editable} />

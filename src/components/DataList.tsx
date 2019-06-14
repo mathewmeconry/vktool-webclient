@@ -123,7 +123,7 @@ export class DataList<T extends { id: string | number }> extends Component<DataL
 
     public render() {
         let actions = []
-        if (this.props.pdfExport) actions.push(<Action to={this.props.pdfExport} state={this.state} icon='file-pdf' />)
+        if (this.props.pdfExport) actions.push(<Action key="pdf-export" to={this.props.pdfExport} state={this.state} icon='file-pdf' />)
         actions = actions.concat(this.props.panelActions || [])
 
         return (

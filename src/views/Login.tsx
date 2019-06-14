@@ -22,6 +22,8 @@ export interface LoginProps {
 }
 
 export class _Login extends Component<LoginProps, { loaded: boolean }> {
+    private mounted = false
+
     constructor(props: LoginProps) {
         super(props)
         this.state = {
@@ -30,10 +32,18 @@ export class _Login extends Component<LoginProps, { loaded: boolean }> {
     }
 
     public async componentDidMount() {
+        this.mounted = true
         await this.props.fetchUser()
-        this.setState({
-            loaded: true
-        })
+
+        if (this.mounted) {
+            this.setState({
+                loaded: true
+            })
+        }
+    }
+
+    public async componentWillUnmount() {
+        this.mounted = false
     }
 
     public render() {

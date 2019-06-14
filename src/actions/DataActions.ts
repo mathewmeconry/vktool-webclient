@@ -1,6 +1,6 @@
 import { UI } from "./UIActions";
 import { CreateBillingReport, EditBillingReport, BillingReportCompensationEntry } from "./../interfaces/BillingReport";
-import { Dispatch, AnyAction } from "redux";
+import { AnyAction } from "redux";
 import { ThunkAction, ThunkDispatch } from "redux-thunk";
 import { State } from "../reducers/IndexReducer";
 import axios, { AxiosError, AxiosResponse } from 'axios'
@@ -8,6 +8,7 @@ import { CompensationEntry } from "../interfaces/CompensationEntry";
 import Config from '../Config'
 import { PutCollectionPoints } from "../interfaces/CollectionPoints";
 import { EditMember } from "../interfaces/Member";
+import { AddPayout } from "../interfaces/Payout";
 
 export const DataActions = {
     FETCH_USER: 'fetch_user',
@@ -48,7 +49,14 @@ export const DataActions = {
 
     FETCH_COLLECTION_POINTS: 'fetch_collection_points',
     GOT_COLLECTION_POINTS: 'got_collection_points',
-    ADD_COLLECTION_POINT: 'add_collection_point'
+    ADD_COLLECTION_POINT: 'add_collection_point',
+
+    ADD_PAYOUT: 'add_payout',
+
+    FETCH_PAYOUTS: 'fetch_payouts',
+    GOT_PAYOUTS: 'got_payouts',
+    SENDING_PAYOUTS: 'sending_payouts',
+    SENT_PAYOUTS: 'sent_payouts'
 }
 
 export class Data {
@@ -70,7 +78,7 @@ export class Data {
                 type: DataActions.EDIT_MEMBER
             })
 
-            Data.sendToApi('post', Config.apiEndpoint + '/api/members', data, dispatch, () => {
+            return Data.sendToApi('post', Config.apiEndpoint + '/api/members', data, dispatch, () => {
                 dispatch(Data.fetchMembers())
             })
         }
@@ -223,6 +231,51 @@ export class Data {
                     reject(err)
                 })
             })
+        }
+    }
+
+    public static fetchPayouts(): ThunkAction<Promise<AnyAction>, State, void, AnyAction> {
+        return Data.fetchFromApi(Config.apiEndpoint + '/api/payouts', DataActions.FETCH_PAYOUTS, DataActions.GOT_PAYOUTS)
+    }
+
+    public static sendPayoutMails(payoutId: number, memberIds: Array<number>): ThunkAction<Promise<void>, State, void, AnyAction> {
+        return async (dispatch: ThunkDispatch<State, undefined, AnyAction>) => {
+            dispatch({
+                type: DataActions.SENDING_PAYOUTS
+            })
+
+            await Data.sendToApi('post', Config.apiEndpoint + '/api/payouts/email', { payoutId, memberIds }, dispatch)
+            dispatch({
+                type: DataActions.SENT_PAYOUTS
+            })
+
+            dispatch(UI.showSuccess('Gesendet!'))
+        }
+    }
+
+    public static addPayout(data: AddPayout): ThunkAction<Promise<AnyAction>, State, void, AnyAction> {
+        return async (dispatch: ThunkDispatch<State, undefined, AnyAction>) => {
+            return new Promise<AnyAction>((resolve, reject) => {
+                dispatch({
+                    type: DataActions.ADD_PAYOUT
+                })
+
+                Data.sendToApi('put', Config.apiEndpoint + '/api/payouts', data, dispatch).then(() => {
+                    dispatch(Data.fetchPayouts())
+                    dispatch(UI.showSuccess('Gespeichert!'))
+                    resolve()
+                }).catch(err => {
+                    reject(err)
+                })
+            })
+        }
+    }
+
+    public static reclaimPayout(payoutId: number): ThunkAction<Promise<void>, State, void, AnyAction> {
+        return async (dispatch: ThunkDispatch<State, undefined, AnyAction>) => {
+            await Data.sendToApi('post', Config.apiEndpoint + '/api/payouts/reclaim', { id: payoutId }, dispatch)
+            dispatch(Data.fetchPayouts())
+            dispatch(UI.showSuccess('Done!'))
         }
     }
 

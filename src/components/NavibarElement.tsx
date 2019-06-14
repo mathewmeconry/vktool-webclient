@@ -63,7 +63,7 @@ export class _NavibarElement extends Component<NavibarElementProps> {
 
         if (this.props.to) {
             return this.renderLinkElement(this.props.to, [
-                <li>
+                <li key={this.props.to}>
                     {leftIcon}
                     <p className="navibar-element-text">{this.props.text}</p>
                     {rightIcon}
@@ -71,7 +71,7 @@ export class _NavibarElement extends Component<NavibarElementProps> {
             ], this.onMouseUp)
         } else {
             return (
-                <li className="navibar-element" onMouseUp={this.onMouseUp}>
+                <li className="navibar-element" onMouseUp={this.onMouseUp} key={this.props.text}>
                     {leftIcon}
                     <p className="navibar-element-text">{this.props.text}</p>
                     {rightIcon}

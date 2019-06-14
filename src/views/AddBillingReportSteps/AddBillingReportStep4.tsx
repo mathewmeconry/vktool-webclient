@@ -5,7 +5,7 @@ import StringIndexed from "../../interfaces/StringIndexed";
 import { BillingReportCompensationEntry } from "../../interfaces/BillingReport";
 import Order from "../../entities/Order";
 
-export default class AddBillingReportStep4 extends Component<{ onNext: () => boolean, order: Order, date: Date, vks: StringIndexed<BillingReportCompensationEntry>, els: Array<string>, drivers: Array<string>, food: boolean, remarks: string }> {
+export default class AddBillingReportStep4 extends Component<{ onNext: () => Promise<boolean>, order: Order, date: Date, vks: StringIndexed<BillingReportCompensationEntry>, els: Array<string>, drivers: Array<string>, food: boolean, remarks: string }> {
     public render() {
         return (
             <WizardStep title="Zusammenfassung" onNextStep={this.props.onNext} {...this.props}>
