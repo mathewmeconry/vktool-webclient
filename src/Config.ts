@@ -5,7 +5,7 @@ export default class Config {
         if (process.env.NODE_ENV && process.env.NODE_ENV === 'development') {
             Config.apiEndpoint = "http://localhost:8000"
         } else {
-            Config.apiEndpoint = "https://app.vkazu.ch"
+            Config.apiEndpoint = `${window.location.protocol}//${window.location.host}`
         }
     }
 
