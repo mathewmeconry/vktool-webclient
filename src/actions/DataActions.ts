@@ -55,8 +55,10 @@ export const DataActions = {
 
     FETCH_PAYOUTS: 'fetch_payouts',
     GOT_PAYOUTS: 'got_payouts',
-    SENDING_PAYOUTS: 'sending_payouts',
-    SENT_PAYOUTS: 'sent_payouts'
+    SENDING_PAYOUTS_MAILS: 'sending_payouts_mail',
+    SENT_PAYOUTS_MAILS: 'sent_payouts_mail',
+    SENDING_PAYOUTS_BEXIO: 'sending_payouts_bexio',
+    SENT_PAYOUTS_BEXIO: 'sent_payouts_bexio'
 }
 
 export class Data {
@@ -241,15 +243,30 @@ export class Data {
     public static sendPayoutMails(payoutId: number, memberIds: Array<number>): ThunkAction<Promise<void>, State, void, AnyAction> {
         return async (dispatch: ThunkDispatch<State, undefined, AnyAction>) => {
             dispatch({
-                type: DataActions.SENDING_PAYOUTS
+                type: DataActions.SENDING_PAYOUTS_MAILS
             })
 
             await Data.sendToApi('post', Config.apiEndpoint + '/api/payouts/email', { payoutId, memberIds }, dispatch)
             dispatch({
-                type: DataActions.SENT_PAYOUTS
+                type: DataActions.SENT_PAYOUTS_MAILS
             })
 
             dispatch(UI.showSuccess('Gesendet!'))
+        }
+    }
+
+    public static sendToBexio(payoutId: number, memberIds: Array<number>): ThunkAction<Promise<void>, State, void, AnyAction> {
+        return async (dispatch: ThunkDispatch<State, undefined, AnyAction>) => {
+            dispatch({
+                type: DataActions.SENDING_PAYOUTS_BEXIO
+            })
+
+            await Data.sendToApi('post', Config.apiEndpoint + '/api/payouts/bexio', { payoutId, memberIds }, dispatch)
+            dispatch({
+                type: DataActions.SENT_PAYOUTS_BEXIO
+            })
+
+            dispatch(UI.showSuccess('Übertragen!'))
         }
     }
 

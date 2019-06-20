@@ -26,23 +26,27 @@ interface PayoutProps {
     history: History,
     fetchPayouts: () => Promise<void>,
     sendMails: (payoutId: number, memberIds: Array<number>) => Promise<void>
+    sendToBexio: (payoutId: number, memberIds: Array<number>) => Promise<void>
     reclaim: (payoutId: number) => Promise<void>
 }
 
-export class _Payout extends Component<PayoutProps, { modalShow: boolean, selected: Array<number> }> {
+export class _Payout extends Component<PayoutProps, { modalShow: boolean, modalType: string, selected: Array<number> }> {
     constructor(props: PayoutProps) {
         super(props)
         this.props.fetchPayouts()
 
         this.elementView = this.elementView.bind(this)
-        this.showModal = this.showModal.bind(this)
+        this.showMailModal = this.showMailModal.bind(this)
+        this.showBexioModal = this.showBexioModal.bind(this)
         this.hideModal = this.hideModal.bind(this)
         this.sendMails = this.sendMails.bind(this)
+        this.sendToBexio = this.sendToBexio.bind(this)
         this.onCheck = this.onCheck.bind(this)
         this.reclaim = this.reclaim.bind(this)
 
         this.state = {
             modalShow: false,
+            modalType: '',
             selected: []
         }
     }
@@ -53,14 +57,30 @@ export class _Payout extends Component<PayoutProps, { modalShow: boolean, select
         })
     }
 
-    private async showModal(): Promise<void> {
+    private async showMailModal(): Promise<void> {
         this.setState({
-            modalShow: true
+            modalShow: true,
+            modalType: 'mail'
+        })
+    }
+
+    private async showBexioModal(): Promise<void> {
+        this.setState({
+            modalShow: true,
+            modalType: 'bexio'
         })
     }
 
     private async sendMails(): Promise<void> {
         await this.props.sendMails(this.props.payout.id, this.state.selected)
+
+        this.setState({
+            modalShow: false
+        })
+    }
+
+    private async sendToBexio(): Promise<void> {
+        await this.props.sendToBexio(this.props.payout.id, this.state.selected)
 
         this.setState({
             modalShow: false
@@ -105,46 +125,92 @@ export class _Payout extends Component<PayoutProps, { modalShow: boolean, select
     }
 
     public renderCompensationsAddModal() {
-        if (this.state.selected.length === 0) {
-            return (
-                <Modal
-                    show={this.state.modalShow}
-                    header={<h3>E-Mails versenden</h3>}
-                    body={
-                        <span>
-                            Willst du wirklich eine E-Mail <b>an alle</b> mit der Entschädigungsauszahlung senden?
+        if (this.state.modalType === 'mail') {
+            if (this.state.selected.length === 0) {
+                return (
+                    <Modal
+                        show={this.state.modalShow}
+                        header={<h3>E-Mails versenden</h3>}
+                        body={
+                            <span>
+                                Willst du wirklich eine E-Mail <b>an alle</b> mit der Entschädigungsauszahlung senden?
                         </span>
-                    }
-                    footer={<ButtonGroup>
-                        <Button variant="success" onClick={this.sendMails}>Senden</Button>
-                        <Button variant="danger" onClick={this.hideModal}>Abbrechen</Button>
-                    </ButtonGroup>}
+                        }
+                        footer={<ButtonGroup>
+                            <Button variant="success" onClick={this.sendMails}>Senden</Button>
+                            <Button variant="danger" onClick={this.hideModal}>Abbrechen</Button>
+                        </ButtonGroup>}
 
-                />
-            )
-        } else {
-            return (
-                <Modal
-                    show={this.state.modalShow}
-                    header={<h3>E-Mails versenden</h3>}
-                    body={
-                        <span>
-                            Willst du wirklich eine E-Mail <b>an folgende Personen</b> mit der Entschädigungsauszahlung senden?
+                    />
+                )
+            } else {
+                return (
+                    <Modal
+                        show={this.state.modalShow}
+                        header={<h3>E-Mails versenden</h3>}
+                        body={
+                            <span>
+                                Willst du wirklich eine E-Mail <b>an folgende Personen</b> mit der Entschädigungsauszahlung senden?
                             <ul>
-                                {this.state.selected.map(el => {
-                                    const member: Contact = this.props.payout.compensationsByMember[el][0].member
-                                    return (<li>{member.lastname} {member.firstname}</li>)
-                                })}
-                            </ul>
-                        </span>
-                    }
-                    footer={<ButtonGroup>
-                        <Button variant="success" onClick={this.sendMails}>Senden</Button>
-                        <Button variant="danger" onClick={this.hideModal}>Abbrechen</Button>
-                    </ButtonGroup>}
+                                    {this.state.selected.map(el => {
+                                        const member: Contact = this.props.payout.compensationsByMember[el][0].member
+                                        return (<li>{member.lastname} {member.firstname}</li>)
+                                    })}
+                                </ul>
+                            </span>
+                        }
+                        footer={<ButtonGroup>
+                            <Button variant="success" onClick={this.sendMails}>Senden</Button>
+                            <Button variant="danger" onClick={this.hideModal}>Abbrechen</Button>
+                        </ButtonGroup>}
 
-                />
-            )
+                    />
+                )
+            }
+        } else if (this.state.modalType === 'bexio') {
+            if (this.state.selected.length === 0) {
+                return (
+                    <Modal
+                        show={this.state.modalShow}
+                        header={<h3>Bexio Übertrag</h3>}
+                        body={
+                            <span>
+                                Willst du wirklich <b>alle</b> Entschädigungen an Bexio übertragen?
+                        </span>
+                        }
+                        footer={<ButtonGroup>
+                            <Button variant="success" onClick={this.sendToBexio}>Ja</Button>
+                            <Button variant="danger" onClick={this.hideModal}>Nein</Button>
+                        </ButtonGroup>}
+
+                    />
+                )
+            } else {
+                return (
+                    <Modal
+                        show={this.state.modalShow}
+                        header={<h3>Bexio Übertrag</h3>}
+                        body={
+                            <span>
+                                Willst du wirklich <b>folgende Entschädigungen</b> an Bexio übertragen?
+                            <ul>
+                                    {this.state.selected.map(el => {
+                                        const member: Contact = this.props.payout.compensationsByMember[el][0].member
+                                        return (<li>{member.lastname} {member.firstname}</li>)
+                                    })}
+                                </ul>
+                            </span>
+                        }
+                        footer={<ButtonGroup>
+                            <Button variant="success" onClick={this.sendToBexio}>Ja</Button>
+                            <Button variant="danger" onClick={this.hideModal}>Abbrechen</Button>
+                        </ButtonGroup>}
+
+                    />
+                )
+            }
+        } else {
+            return null
         }
     }
 
@@ -182,7 +248,8 @@ export class _Payout extends Component<PayoutProps, { modalShow: boolean, select
                     <Column className="col-md-6">
                         <Panel title="Actions">
                             <a className="btn btn-block btn-outline-primary" target="_blank" href={`${Config.apiEndpoint}/api/payouts/${this.props.payout.id}/pdf`} >PDF</a>
-                            <Button block={true} variant="outline-primary" onClick={this.showModal}>Bestätigung E-Mails verschicken</Button>
+                            <Button block={true} variant="outline-primary" onClick={this.showMailModal}>Bestätigung E-Mails verschicken</Button>
+                            <Button block={true} variant="outline-primary" onClick={this.showBexioModal}>An Bexio übertragen</Button>
                             <Button block={true} variant="outline-primary" onClick={this.reclaim}>Neu Berechnen</Button>
                         </Panel>
                     </Column>
@@ -230,6 +297,9 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>
         },
         sendMails: (payoutId: number, memberIds: Array<number>) => {
             return dispatch(Data.sendPayoutMails(payoutId, memberIds))
+        },
+        sendToBexio: (payoutId: number, memberIds: Array<number>) => {
+            return dispatch(Data.sendToBexio(payoutId, memberIds))
         },
         reclaim: (payoutId: number) => {
             return dispatch(Data.reclaimPayout(payoutId))
