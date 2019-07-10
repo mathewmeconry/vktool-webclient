@@ -250,6 +250,7 @@ export class _Payout extends Component<PayoutProps, { modalShow: boolean, modalT
                             <a className="btn btn-block btn-outline-primary" target="_blank" href={`${Config.apiEndpoint}/api/payouts/${this.props.payout.id}/pdf`} >PDF</a>
                             <Button block={true} variant="outline-primary" onClick={this.showMailModal}>Bestätigung E-Mails verschicken</Button>
                             <Button block={true} variant="outline-primary" onClick={this.showBexioModal}>An Bexio übertragen</Button>
+                            <a target="_blank" className="btn btn-block btn-outline-primary" href={`${Config.apiEndpoint}/api/payouts/${this.props.payout.id}/xml`}>Banking XML herunterladen</a>
                             <Button block={true} variant="outline-primary" onClick={this.reclaim}>Neu Berechnen</Button>
                         </Panel>
                     </Column>
