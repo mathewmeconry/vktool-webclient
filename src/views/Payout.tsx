@@ -27,7 +27,8 @@ interface PayoutProps {
     fetchPayouts: () => Promise<void>,
     sendMails: (payoutId: number, memberIds: Array<number>) => Promise<void>
     sendToBexio: (payoutId: number, memberIds: Array<number>) => Promise<void>
-    reclaim: (payoutId: number) => Promise<void>
+    reclaim: (payoutId: number) => Promise<void>,
+    getBankingXml: (payout: PayoutEntity.default, memberIds: Array<number>) => Promise<void>
 }
 
 export class _Payout extends Component<PayoutProps, { modalShow: boolean, modalType: string, selected: Array<number> }> {
@@ -250,7 +251,7 @@ export class _Payout extends Component<PayoutProps, { modalShow: boolean, modalT
                             <a className="btn btn-block btn-outline-primary" target="_blank" href={`${Config.apiEndpoint}/api/payouts/${this.props.payout.id}/pdf`} >PDF</a>
                             <Button block={true} variant="outline-primary" onClick={this.showMailModal}>Bestätigung E-Mails verschicken</Button>
                             <Button block={true} variant="outline-primary" onClick={this.showBexioModal}>An Bexio übertragen</Button>
-                            <a target="_blank" className="btn btn-block btn-outline-primary" href={`${Config.apiEndpoint}/api/payouts/${this.props.payout.id}/xml`}>Banking XML herunterladen</a>
+                            <Button block={true} variant="outline-primary" onClick={() => { return this.props.getBankingXml(this.props.payout, this.state.selected) }}>Banking XML herunterladen</Button>
                             <Button block={true} variant="outline-primary" onClick={this.reclaim}>Neu Berechnen</Button>
                         </Panel>
                     </Column>
@@ -292,6 +293,16 @@ const mapStateToProps = (state: State, props: any) => {
 }
 
 const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>, props: any) => {
+    const downloader = (blob: Blob, filename: string) => {
+        const url = window.URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href = url
+        link.download = filename
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+    }
+
     return {
         fetchPayouts: () => {
             dispatch(Data.fetchPayouts())
@@ -304,6 +315,11 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>
         },
         reclaim: (payoutId: number) => {
             return dispatch(Data.reclaimPayout(payoutId))
+        },
+        getBankingXml: async (payout: PayoutEntity.default, memberIds: Array<number>) => {
+            const data = await Data.sendToApi<string>('post', `${Config.apiEndpoint}/api/payouts/xml`, { payoutId: payout.id, memberIds }, dispatch, undefined, undefined, false)
+            downloader(new Blob([data]), `Soldperiode_${(payout.from > new Date('1970-01-01')) ? payout.from.toLocaleDateString() : ''}_-_${payout.until.toLocaleDateString()}.xml`)
+            return
         }
     }
 }

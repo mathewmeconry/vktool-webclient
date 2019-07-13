@@ -3,7 +3,7 @@ import { CreateBillingReport, EditBillingReport, BillingReportCompensationEntry 
 import { AnyAction } from "redux";
 import { ThunkAction, ThunkDispatch } from "redux-thunk";
 import { State } from "../reducers/IndexReducer";
-import axios, { AxiosError, AxiosResponse } from 'axios'
+import axios, { AxiosError, AxiosResponse, AxiosRequestConfig } from 'axios'
 import { CompensationEntry } from "../interfaces/CompensationEntry";
 import Config from '../Config'
 import { PutCollectionPoints } from "../interfaces/CollectionPoints";
@@ -326,18 +326,19 @@ export class Data {
         }
     }
 
-    private static sendToApi(method: 'post' | 'put' | 'delete', route: string, data: any, dispatch: ThunkDispatch<State, undefined, AnyAction>, callback?: () => void): Promise<void> {
-        return new Promise<void>((resolve, reject) => {
+    public static sendToApi<T>(method: 'post' | 'put' | 'delete', route: string, data: any, dispatch: ThunkDispatch<State, undefined, AnyAction>, callback?: (data?: T) => void, axiosSettings?: AxiosRequestConfig, deepParse = true): Promise<T> {
+        return new Promise<T>((resolve, reject) => {
             axios({
+                ...axiosSettings,
                 method: method,
                 url: route,
                 data: data,
                 withCredentials: true
             }).then(response => {
-                let data = Data.deepParser(response.data)
-
-                if (callback) callback()
-                resolve()
+                let data = response.data
+                if (deepParse) data = Data.deepParser(data)
+                if (callback) callback(data)
+                resolve(data)
             }).catch((error: AxiosError) => {
                 if (error.response && (error.response as AxiosResponse).status === 403) {
                     dispatch(UI.showError('Zugriff verweigert!'))

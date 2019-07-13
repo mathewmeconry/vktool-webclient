@@ -14,7 +14,8 @@ import Panel from '../components/Panel';
 import { connect } from "react-redux";
 import FormEntry from '../components/FormEntry';
 import Table from '../components/Table';
-import Button from 'react-bootstrap/Button';
+import Button from '../components/Button';
+import ReactButton from 'react-bootstrap/Button'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { History } from "history";
 import Config from '../Config';
@@ -24,7 +25,8 @@ export interface PayoutMemberProps {
     loading: boolean,
     member: { compensations: Array<Compensation> } & Contact,
     history: History,
-    fetchPayouts: () => void
+    fetchPayouts: () => void,
+    memberPdf: (payoutId: number, member: Contact) => Promise<void>
 }
 
 export class _PayoutMember extends Component<PayoutMemberProps> {
@@ -73,7 +75,7 @@ export class _PayoutMember extends Component<PayoutMemberProps> {
                     </Column>
                     <Column className="col-md-6">
                         <Panel title="Actions">
-                            <a target="_blank" className="btn btn-block btn-outline-primary" href={`${Config.apiEndpoint}/api/payouts/${this.props.payout.id}/${this.props.member.id}/pdf`}>PDF</a>
+                            <Button block={true} variant="outline-primary" onClick={async () => { await this.props.memberPdf(this.props.payout.id, this.props.member); }}>PDF</Button>
                         </Panel>
                     </Column>
                 </Row>
@@ -88,7 +90,7 @@ export class _PayoutMember extends Component<PayoutMemberProps> {
                                     { text: 'Genehmigt', keys: ['approved'], sortable: true },
                                     { text: 'Ausbezahlt', keys: ['paied'], sortable: true },
                                     {
-                                        text: 'Actions', keys: ['_id'], content: <Button variant="success" className="view" onMouseUp={this.compensationView}><FontAwesomeIcon icon="eye" /></Button>
+                                        text: 'Actions', keys: ['_id'], content: <ReactButton variant="success" className="view" onMouseUp={this.compensationView}><FontAwesomeIcon icon="eye" /></ReactButton>
                                     }
                                 ]}
                                 defaultSort={{
@@ -123,9 +125,24 @@ const mapStateToProps = (state: State, props: any) => {
 }
 
 const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>, props: any) => {
+    const downloader = (blob: Blob, filename: string) => {
+        const url = window.URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href = url
+        link.download = filename
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+    }
+
     return {
         fetchPayouts: () => {
             dispatch(Data.fetchPayouts())
+        },
+        memberPdf: async (payoutId: number, member: Contact) => {
+            const data = await Data.sendToApi<string>('post', `${Config.apiEndpoint}/api/payouts/member/pdf`, { payoutId, memberId: member.id }, dispatch, undefined, { responseType: 'arraybuffer' })
+            downloader(new Blob([data], { type: 'application/pdf' }), `Auszahlung Verkehrskadettenentschädigung ${member.lastname} ${member.firstname}.pdf`)
+            return
         }
     }
 }
