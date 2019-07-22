@@ -285,11 +285,13 @@ function MailingLists(state: StringIndexed<Array<string>> = {}, action: AnyActio
             for (let member of (action.payload as Array<Contact>)) {
                 mailingLists.all.push(member.mail)
                 if (member.mailSecond) mailingLists.all.push(member.mailSecond)
+                mailingLists.all = mailingLists.all.concat(member.moreMails || [])
 
                 // Drivers
                 if (member.contactGroups.find(group => group.bexioId === 9)) {
                     mailingLists.drivers.push(member.mail)
                     if (member.mailSecond) mailingLists.drivers.push(member.mailSecond)
+                    mailingLists.drivers = mailingLists.drivers.concat(member.moreMails || [])
                 }
 
                 // VKs
@@ -308,6 +310,7 @@ function MailingLists(state: StringIndexed<Array<string>> = {}, action: AnyActio
                 )) {
                     mailingLists.vks.push(member.mail)
                     if (member.mailSecond) mailingLists.vks.push(member.mailSecond)
+                    mailingLists.vks = mailingLists.vks.concat(member.moreMails || [])
                 }
 
                 // Squad
@@ -321,18 +324,21 @@ function MailingLists(state: StringIndexed<Array<string>> = {}, action: AnyActio
                 )) {
                     mailingLists.squad.push(member.mail)
                     if (member.mailSecond) mailingLists.squad.push(member.mailSecond)
+                    mailingLists.squad = mailingLists.squad.concat(member.moreMails || [])
                 }
 
                 // VST
                 if (member.contactGroups.find(group => group.bexioId === 16)) {
                     mailingLists.vst.push(member.mail)
                     if (member.mailSecond) mailingLists.vst.push(member.mailSecond)
+                    mailingLists.vst = mailingLists.vst.concat(member.moreMails || [])
                 }
 
                 // Condor
                 if (member.contactGroups.find(group => group.bexioId === 22)) {
                     mailingLists.con.push(member.mail)
                     if (member.mailSecond) mailingLists.con.push(member.mailSecond)
+                    mailingLists.con = mailingLists.con.concat(member.moreMails || [])
                 }
             }
             return mailingLists
@@ -375,8 +381,8 @@ function Payouts(state: DataInterface<Payout> = { loading: false, byId: {}, ids:
                 entry.compensationsByMember = byMember
                 entry.totalWithoutMinus = Object.keys(byMember).map(key => {
                     let total = 0
-                    byMember[key].map(comp => total = total +comp.amount)
-                    if(total > 0) return total
+                    byMember[key].map(comp => total = total + comp.amount)
+                    if (total > 0) return total
                     return 0
                 }).reduce((a, b) => a + b)
                 byId[entry.id] = entry

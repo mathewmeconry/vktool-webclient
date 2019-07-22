@@ -5,5 +5,6 @@ export interface EditMember {
     exitDate?: Date,
     bankName?: string,
     iban?: string,
-    accountHolder?: string
+    accountHolder?: string,
+    moreMails?: Array<string>
 }
