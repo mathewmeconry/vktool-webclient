@@ -81,7 +81,7 @@ export class Data {
             })
 
             return Data.sendToApi('post', Config.apiEndpoint + '/api/members', data, dispatch, () => {
-                dispatch(Data.fetchMembers())
+                dispatch(Data.fetchContacts())
             })
         }
     }

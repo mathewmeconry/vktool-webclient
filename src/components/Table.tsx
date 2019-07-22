@@ -257,6 +257,7 @@ export default class Table<T extends { id: string | number }> extends Component<
                     let content: Array<string> = []
                     if (column.keys instanceof Array) {
                         content = column.keys.map((key) => {
+                            tdKey = `-${key}`
                             //@ts-ignore
                             if (dataEntry[key] instanceof Date) {
                                 //@ts-ignore
@@ -318,7 +319,7 @@ export default class Table<T extends { id: string | number }> extends Component<
                         })
                     } else {
                         for (let k in column.keys) {
-                            tdKey = `${tdKey}${k}-`
+                            tdKey = `-${tdKey}${k}`
                             content = content.concat(column.keys[k].map((key) => {
                                 //@ts-ignore
                                 if (dataEntry.hasOwnProperty(k) && dataEntry[k]) {
@@ -358,9 +359,9 @@ export default class Table<T extends { id: string | number }> extends Component<
                     }
 
                     if (column.link) {
-                        row.push(<td className={column.className || ''} key={dataEntry.id + tdKey + (content.join(' ') || Math.random().toString())}><a key={dataEntry.id + [...(content || [Math.random().toString()]), 'a'].join(' ')} href={((column.linkPrefix) ? column.linkPrefix : '') + content.join(' ')} target="_blank">{((column.prefix) ? column.prefix : '') + content.join(' ') + ((column.suffix) ? column.suffix : '')}</a></td>)
+                        row.push(<td className={column.className || ''} key={dataEntry.id + tdKey}><a key={dataEntry.id + [...(content || [Math.random().toString()]), 'a'].join(' ')} href={((column.linkPrefix) ? column.linkPrefix : '') + content.join(' ')} target="_blank">{((column.prefix) ? column.prefix : '') + content.join(' ') + ((column.suffix) ? column.suffix : '')}</a></td>)
                     } else {
-                        row.push(<td className={column.className || ''} key={dataEntry.id + tdKey + (content.join(' ') || Math.random().toString())}>{((column.prefix) ? column.prefix : '') + content.join(' ') + ((column.suffix) ? column.suffix : '')}</td>)
+                        row.push(<td className={column.className || ''} key={dataEntry.id + tdKey}>{((column.prefix) ? column.prefix : '') + content.join(' ') + ((column.suffix) ? column.suffix : '')}</td>)
                     }
                 }
             }

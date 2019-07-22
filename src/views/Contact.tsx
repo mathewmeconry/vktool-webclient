@@ -24,7 +24,7 @@ import Config from "../Config";
 import Table from "../components/Table";
 import { RouteComponentProps } from "react-router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import Button from "react-bootstrap/Button";
+import { Button } from "react-bootstrap";
 
 export interface ContactProps extends RouteComponentProps<{ id: string }> {
     user: User,
@@ -43,6 +43,7 @@ export interface ContactState {
     iban?: string,
     accountHolder?: string,
     compensations: Array<Compensation>,
+    moreMails: Array<string>,
     openCompensationsSum: number,
     compensationsLoaded: boolean
 }
@@ -66,6 +67,7 @@ export default class _Contact extends Component<ContactProps, ContactState> {
         this.onSelectChange = this.onSelectChange.bind(this)
         this.renderCollectionPoint = this.renderCollectionPoint.bind(this)
         this.renderPanelActions = this.renderPanelActions.bind(this)
+        this.onMoreMailsChange = this.onMoreMailsChange.bind(this)
 
         const contact = this.props.contact || {}
 
@@ -77,6 +79,7 @@ export default class _Contact extends Component<ContactProps, ContactState> {
             bankName: contact.bankName || '',
             iban: contact.iban || '',
             accountHolder: contact.accountHolder || '',
+            moreMails: contact.moreMails || [],
             compensations: [],
             openCompensationsSum: 0,
             compensationsLoaded: false
@@ -92,6 +95,22 @@ export default class _Contact extends Component<ContactProps, ContactState> {
         this.setState({
             [name]: value
         });
+    }
+
+    private onMoreMailsChange(event: React.ChangeEvent<HTMLInputElement>) {
+        const target = event.target;
+        const value = target.value;
+        const name = target.name;
+
+        this.setState({
+            moreMails: Object.assign([], this.state.moreMails, { [name]: value })
+        })
+    }
+
+    private removeMoreMailEntry(index: number) {
+        this.setState({
+            moreMails: [...this.state.moreMails.slice(0, index), ...this.state.moreMails.slice(index + 1)]
+        })
     }
 
     private async loadCompensations() {
@@ -129,6 +148,7 @@ export default class _Contact extends Component<ContactProps, ContactState> {
                 bankName: nextProps.contact.bankName || '',
                 iban: nextProps.contact.iban || '',
                 accountHolder: nextProps.contact.accountHolder || '',
+                moreMails: nextProps.contact.moreMails || []
             })
         }
     }
@@ -155,7 +175,8 @@ export default class _Contact extends Component<ContactProps, ContactState> {
                 exitDate: (this.state.exitDate) ? new Date(this.state.exitDate) : undefined,
                 bankName: this.state.bankName,
                 iban: this.state.iban,
-                accountHolder: this.state.accountHolder
+                accountHolder: this.state.accountHolder,
+                moreMails: this.state.moreMails.filter(el => el !== "")
             })
 
             this.setState({ editable: false })
@@ -170,7 +191,8 @@ export default class _Contact extends Component<ContactProps, ContactState> {
             exitDate: (this.props.contact.exitDate) ? this.props.contact.exitDate.toLocaleDateString() : '',
             bankName: this.props.contact.bankName || '',
             iban: this.props.contact.iban || '',
-            accountHolder: this.props.contact.accountHolder || ''
+            accountHolder: this.props.contact.accountHolder || '',
+            moreMails: this.props.contact.moreMails || []
         })
     }
 
@@ -271,8 +293,26 @@ export default class _Contact extends Component<ContactProps, ContactState> {
                                 <FormEntry id="phoneFixed" title="Festnetz"><a href={'tel:' + this.props.contact.phoneFixed}>{this.props.contact.phoneFixed}</a></FormEntry>
                                 <FormEntry id="phoneFixedSecond" title="Festnetz 2"><a href={'tel:' + this.props.contact.phoneFixedSecond}>{this.props.contact.phoneFixedSecond}</a></FormEntry>
                                 <FormEntry id="phoneMobile" title="Mobile"><a href={'tel:' + this.props.contact.phoneMobile}>{this.props.contact.phoneMobile}</a></FormEntry>
-                                <FormEntry id="mail" title="E-Mail"><a href={'mailto:' + this.props.contact.mail}>{this.props.contact.mail}</a></FormEntry>
-                                <FormEntry id="mailSecond" title="E-Mail 2"><a href={'mailto:' + this.props.contact.mailSecond}>{this.props.contact.mailSecond}</a></FormEntry>
+                                <FormEntry id="mail" title="E-Mails">
+                                    <a href={`mailto:${this.props.contact.mail}`}>{this.props.contact.mail}</a> <br />
+                                    <a href={`mailto:${this.props.contact.mailSecond}`}>{this.props.contact.mailSecond}</a> <br />
+                                    {[...this.state.moreMails].map((el, index) => {
+                                        if (this.state.editable) {
+                                            return (
+                                                <div className="input-group">
+                                                    <input type="email" className="form-control" value={el} key={index.toString()} name={index.toString()} onChange={this.onMoreMailsChange} />
+                                                    <div className="input-group-append">
+                                                        <Button className="btn-outline-secondary" onClick={this.removeMoreMailEntry.bind(this, index)}>
+                                                            <FontAwesomeIcon icon="times" />
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            )
+                                        }
+                                        return <><a href={`mailto:${el}`}>{el}</a><br /></>
+                                    })}
+                                    {this.state.editable && <Button className="btn-outline btn-block" onClick={() => { this.setState({ moreMails: [...this.state.moreMails, ''] }) }}>Hinzufügen</Button>}
+                                </FormEntry>
                                 <FormEntry id="groups" title="Gruppen">
                                     {(this.groups) ? this.groups.map((group: ContactGroup) => {
                                         return <span className="badge badge-primary">{group.name}</span>
