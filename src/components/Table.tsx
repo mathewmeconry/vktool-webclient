@@ -245,7 +245,7 @@ export default class Table<T extends { id: string | number }> extends Component<
             let row = []
 
             if (this.props.checkable) {
-                row.push(<td style={{width: '40px'}}><Checkbox onChange={this.props.onCheck || (() => { })} /></td>)
+                row.push(<td style={{ width: '40px' }}><Checkbox onChange={this.props.onCheck || (() => { })} /></td>)
             }
 
             for (let column of this.props.columns) {
@@ -259,13 +259,8 @@ export default class Table<T extends { id: string | number }> extends Component<
                         content = column.keys.map((key) => {
                             //@ts-ignore
                             if (dataEntry[key] instanceof Date) {
-                                if (column.format) {
-                                    //@ts-ignore
-                                    return dataEntry[key][column.format]()
-                                } else {
-                                    //@ts-ignore
-                                    return dataEntry[key].toLocaleDateString()
-                                }
+                                //@ts-ignore
+                                return dataEntry[key].toLocaleDateString()
                                 //@ts-ignore
                             } else if (typeof dataEntry[key] === 'boolean') {
                                 //@ts-ignore
@@ -278,12 +273,7 @@ export default class Table<T extends { id: string | number }> extends Component<
                                 //@ts-ignore
                                 return dataEntry[key].map((entry: any) => {
                                     if (entry instanceof Date) {
-                                        if (column.format) {
-                                            //@ts-ignore
-                                            return entry[column.format]()
-                                        } else {
-                                            return entry.toLocaleDateString()
-                                        }
+                                        return entry.toLocaleDateString()
                                     } else if (typeof entry === 'boolean') {
                                         if (entry) {
                                             return '✓'
@@ -291,8 +281,36 @@ export default class Table<T extends { id: string | number }> extends Component<
                                         return '⨯'
                                     }
 
+                                    if (column.format) {
+                                        let param
+                                        let command = column.format
+                                        if (column.format.indexOf('(') > -1 && column.format.indexOf(')') > -1) {
+                                            const match = column.format.match(/(\w+)\((.*)\)/)
+                                            if (match && match.length > 2) {
+                                                command = match[1]
+                                                param = match[2]
+                                            }
+                                        }
+                                        //@ts-ignore
+                                        return entry[command](param)
+                                    }
+
                                     return entry
                                 })
+                            }
+
+                            if (column.format) {
+                                let param
+                                let command = column.format
+                                if (column.format.indexOf('(') > -1 && column.format.indexOf(')') > -1) {
+                                    const match = column.format.match(/(\w+)\((.*)\)/)
+                                    if (match && match.length > 2) {
+                                        command = match[1]
+                                        param = match[2]
+                                    }
+                                }
+                                //@ts-ignore
+                                return dataEntry[key][command](param)
                             }
 
                             //@ts-ignore
@@ -306,13 +324,8 @@ export default class Table<T extends { id: string | number }> extends Component<
                                 if (dataEntry.hasOwnProperty(k) && dataEntry[k]) {
                                     //@ts-ignore
                                     if (dataEntry[k][key] instanceof Date) {
-                                        if (column.format) {
-                                            //@ts-ignore
-                                            return dataEntry[k][key][column.format]()
-                                        } else {
-                                            //@ts-ignore
-                                            return dataEntry[k][key].toLocaleDateString()
-                                        }
+                                        //@ts-ignore
+                                        return dataEntry[k][key].toLocaleDateString()
                                         //@ts-ignore
                                     } else if (typeof dataEntry[k][key] === 'boolean') {
                                         //@ts-ignore
@@ -321,6 +334,21 @@ export default class Table<T extends { id: string | number }> extends Component<
                                         }
                                         return '⨯'
                                     }
+
+                                    if (column.format) {
+                                        let param
+                                        let command = column.format
+                                        if (column.format.indexOf('(') > -1 && column.format.indexOf(')') > -1) {
+                                            const match = column.format.match(/(\w+)\((.*)\)/)
+                                            if (match && match.length > 2) {
+                                                command = match[1]
+                                                param = match[2]
+                                            }
+                                        }
+                                        //@ts-ignore
+                                        return dataEntry[k][key][command](param)
+                                    }
+
                                     //@ts-ignore
                                     return dataEntry[k][key]
                                 }
