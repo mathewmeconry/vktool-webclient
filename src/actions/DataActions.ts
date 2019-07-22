@@ -333,7 +333,8 @@ export class Data {
                 method: method,
                 url: route,
                 data: data,
-                withCredentials: true
+                withCredentials: true,
+                timeout: 600000
             }).then(response => {
                 let data = response.data
                 if (deepParse) data = Data.deepParser(data)
