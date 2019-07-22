@@ -155,6 +155,7 @@ export default class Table<T extends { id: string | number }> extends Component<
 
     private sortClick(event: MouseEvent<HTMLTableHeaderCellElement>) {
         let dataKey = (event.target as HTMLElement).dataset.key as string
+        if (!dataKey) dataKey = ((event.target as HTMLElement).parentElement as HTMLElement).dataset.key as string
         let direction: 'asc' | 'desc' = 'asc';
 
         if (this.state.sortKey === dataKey) {
