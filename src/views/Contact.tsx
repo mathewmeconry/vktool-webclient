@@ -219,12 +219,12 @@ export default class _Contact extends Component<ContactProps, ContactState> {
         }
 
         return (
-            <Panel title={`Entschädigungen (Offen: ${this.state.openCompensationsSum}.-)`} scrollable={true}>
+            <Panel title={`Entschädigungen (Offen: ${this.state.openCompensationsSum.toFixed(2)}.-)`} scrollable={true}>
                 <Table<Compensation>
                     columns={[
                         { text: 'Datum', keys: ['date'], sortable: true },
                         { text: 'Beschreibung', keys: ['description'], sortable: true },
-                        { text: 'Betrag', keys: ['amount'], prefix: 'CHF ', sortable: true },
+                        { text: 'Betrag', keys: ['amount'], prefix: 'CHF ', sortable: true, format: 'toFixed(2)' },
                         { text: 'Genehmigt', keys: ['approved'], sortable: true },
                         { text: 'Ausbezahlt', keys: ['paied'], sortable: true },
                         {

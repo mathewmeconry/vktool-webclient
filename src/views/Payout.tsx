@@ -226,7 +226,7 @@ export class _Payout extends Component<PayoutProps, { modalShow: boolean, modalT
         for (let i in this.props.payout.compensationsByMember) {
             const records = this.props.payout.compensationsByMember[i]
             let total = 0
-            records.map(el => total = total + parseFloat(el.amount.toString()))
+            records.map(el => total = total + parseFloat(el.amount.toFixed(2)))
             data.push({
                 id: records[0].member.id,
                 member: records[0].member,
@@ -262,7 +262,7 @@ export class _Payout extends Component<PayoutProps, { modalShow: boolean, modalT
                             <Table<{ id: number, member: Contact, total: number }>
                                 columns={[
                                     { text: 'Mitglied', keys: { member: ['lastname', 'firstname'] }, sortable: true },
-                                    { text: 'Betrag', keys: ['total'], prefix: 'CHF ', sortable: true },
+                                    { text: 'Betrag', keys: ['total'], prefix: 'CHF ', sortable: true, format: 'toFixed(2)' },
                                     {
                                         text: 'Actions', keys: ['id'], content:
                                             <div className="btn-group">

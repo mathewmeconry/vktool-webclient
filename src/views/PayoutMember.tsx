@@ -60,7 +60,7 @@ export class _PayoutMember extends Component<PayoutMemberProps> {
         }
 
         let total = 0
-        this.props.member.compensations.map(el => total = total + parseFloat(el.amount.toString()))
+        this.props.member.compensations.map(el => total = total + parseFloat(el.amount.toFixed(2)))
 
         return (
             <Page title={`Auszahlung ${this.props.payout.from.toLocaleDateString()} - ${this.props.payout.until.toLocaleDateString()} / ${this.props.member.firstname} ${this.props.member.lastname}`}>
@@ -69,7 +69,7 @@ export class _PayoutMember extends Component<PayoutMemberProps> {
                         <Panel title="Informationen">
                             <FormEntry id="member" title="Mitglied">{this.props.member.firstname} {this.props.member.lastname}</FormEntry>
                             <FormEntry id="amountCompensations" title="Anzahl Entschädigungen">{this.props.member.compensations.length}</FormEntry>
-                            <FormEntry id="total" title="Total">CHF {total}</FormEntry>
+                            <FormEntry id="total" title="Total">CHF {total.toFixed(2)}</FormEntry>
                             <FormEntry id="payout" title="Auszahlung">{this.props.payout.until.toLocaleDateString()}</FormEntry>
                         </Panel>
                     </Column>
@@ -86,7 +86,7 @@ export class _PayoutMember extends Component<PayoutMemberProps> {
                                 columns={[
                                     { text: 'Datum', keys: ['date'], sortable: true },
                                     { text: 'Beschreibung', keys: ['description'], sortable: true },
-                                    { text: 'Betrag', keys: ['amount'], prefix: 'CHF ', sortable: true },
+                                    { text: 'Betrag', keys: ['amount'], prefix: 'CHF ', sortable: true, format: 'toFixed(2)' },
                                     { text: 'Genehmigt', keys: ['approved'], sortable: true },
                                     { text: 'Ausbezahlt', keys: ['paied'], sortable: true },
                                     {

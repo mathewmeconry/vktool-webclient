@@ -422,7 +422,7 @@ export class _BillingReport extends Component<BillingReportProps, BillingReportS
                                     { text: 'Von', keys: ['from'], format: 'toLocaleTimeString', sortable: true },
                                     { text: 'Bis', keys: ['until'], format: 'toLocaleTimeString', sortable: true },
                                     { text: 'Verrechnen', keys: ['charge'], sortable: true },
-                                    { text: 'Betrag', keys: ['amount'], prefix: 'CHF ', sortable: true },
+                                    { text: 'Betrag', keys: ['amount'], prefix: 'CHF ', sortable: true, format: 'toFixed(2)' },
                                     { text: 'Ausbezahlt', keys: ['paied'], sortable: true },
                                     {
                                         text: 'Actions', keys: ['_id'], content: <ButtonGroup>{this.getCompensationActions()}</ButtonGroup>

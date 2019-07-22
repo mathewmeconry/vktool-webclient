@@ -93,7 +93,7 @@ export class _Compensation extends Component<CompensationProps> {
                         <Panel title="Informationen">
                             <FormEntry id="member" title="Mitglied">{this.props.compensation.member.firstname} {this.props.compensation.member.lastname}</FormEntry>
                             <FormEntry id="date" title="Datum">{this.props.compensation.date.toLocaleDateString()}</FormEntry>
-                            <FormEntry id="amount" title="Betrag">CHF {this.props.compensation.amount}</FormEntry>
+                            <FormEntry id="amount" title="Betrag">CHF {this.props.compensation.amount.toFixed(2)}</FormEntry>
                             {
                                 CompensationEntity.default.isCustom(this.props.compensation) &&
                                 <FormEntry id="description" title="Beschreibung">{this.props.compensation.description}</FormEntry>

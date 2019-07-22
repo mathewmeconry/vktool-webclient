@@ -105,7 +105,7 @@ export class _Compensations extends Component<CompensationsProps & RouteComponen
                 tableColumns={[
                     { text: 'Mitglied', keys: { 'member': ['firstname', 'lastname'] }, sortable: true, searchable: true },
                     { text: 'Datum', keys: ['date'], sortable: true },
-                    { text: 'Betrag', keys: ['amount'], sortable: true, prefix: 'CHF ' },
+                    { text: 'Betrag', keys: ['amount'], sortable: true, prefix: 'CHF ', format: 'toFixed(2)' },
                     { text: 'Beschreibung', keys: ['description'], sortable: false, searchable: true },
                     { text: 'Ersteller', keys: { 'creator': ['displayName'] }, sortable: true },
                     { text: 'Genehmigt', keys: ['approved'], sortable: true },
