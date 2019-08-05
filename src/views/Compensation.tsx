@@ -113,8 +113,8 @@ export class _Compensation extends Component<CompensationProps> {
                     <Column className="col-md-6">
                         <Panel title="Auszahlung">
                             <FormEntry id="paied" title="Ausbezahlt">{(this.props.compensation.paied) ? '✓' : '⨯'}</FormEntry>
-                            <FormEntry id="valutaDate" title="Valuta Datum">{(this.props.compensation.valutaDate) ? this.props.compensation.valutaDate.toLocaleDateString() : ''}</FormEntry>
                             {(this.props.compensation.payout) ? (<Link to={"/payout/" + (this.props.compensation.payout as Payout).id + '/' + this.props.compensation.member.id} className="btn btn-outline-primary btn-block">Auszahlung</Link>) : (<p></p>)}
+                            {(this.props.compensation.bexioBill) ? (<a href={`https://office.bexio.com/index.php/kb_bill/show/id/${this.props.compensation.bexioBill}`} target="_blank" className="btn btn-outline-primary btn-block">Bexio Lieferantenrechnung</a>) : (<p></p>)}
                         </Panel>
                     </Column>
                 </Row>
