@@ -19,6 +19,7 @@ import Config from "../Config";
 import Modal from '../components/Modal'
 import { ButtonGroup } from "react-bootstrap";
 import Contact from "../entities/Contact";
+import { UI } from "../actions/UIActions";
 
 interface PayoutProps {
     payout: PayoutEntity.default,
@@ -29,6 +30,8 @@ interface PayoutProps {
     sendToBexio: (payoutId: number, memberIds: Array<number>) => Promise<void>
     reclaim: (payoutId: number) => Promise<void>,
     getBankingXml: (payout: PayoutEntity.default, memberIds: Array<number>) => Promise<void>
+    markPaied: (paied: boolean, payoutId: number, memberIds: Array<number>) => Promise<void>
+    showError: (message: string) => Promise<void>
 }
 
 export class _Payout extends Component<PayoutProps, { modalShow: boolean, modalType: string, selected: Array<number> }> {
@@ -44,6 +47,7 @@ export class _Payout extends Component<PayoutProps, { modalShow: boolean, modalT
         this.sendToBexio = this.sendToBexio.bind(this)
         this.onCheck = this.onCheck.bind(this)
         this.reclaim = this.reclaim.bind(this)
+        this.markPaied = this.markPaied.bind(this)
 
         this.state = {
             modalShow: false,
@@ -90,6 +94,11 @@ export class _Payout extends Component<PayoutProps, { modalShow: boolean, modalT
 
     private async reclaim(): Promise<void> {
         return this.props.reclaim(this.props.payout.id)
+    }
+
+    private async markPaied(paied: boolean): Promise<void> {
+        if (this.state.selected.length > 0) return this.props.markPaied(paied, this.props.payout.id, this.state.selected)
+        this.props.showError('Bitte zuerst auswahl tätigen!')
     }
 
     public async elementView(event: React.MouseEvent<HTMLButtonElement>): Promise<void> {
@@ -253,6 +262,8 @@ export class _Payout extends Component<PayoutProps, { modalShow: boolean, modalT
                             <Button block={true} variant="outline-primary" onClick={this.showBexioModal}>An Bexio übertragen</Button>
                             <Button block={true} variant="outline-primary" onClick={() => { return this.props.getBankingXml(this.props.payout, this.state.selected) }}>Banking XML herunterladen</Button>
                             <Button block={true} variant="outline-primary" onClick={this.reclaim}>Neu Berechnen</Button>
+                            <Button block={true} variant="outline-primary" onClick={() => this.markPaied(true)}>Als bezahlt markieren</Button>
+                            <Button block={true} variant="outline-primary" onClick={() => this.markPaied(false)}>Als unbezahlt markieren</Button>
                         </Panel>
                     </Column>
                 </Row>
@@ -320,6 +331,16 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>
             const data = await Data.sendToApi<string>('post', `${Config.apiEndpoint}/api/payouts/xml`, { payoutId: payout.id, memberIds }, dispatch, undefined, undefined, false)
             downloader(new Blob([data]), `Soldperiode_${(payout.from > new Date('1970-01-01')) ? payout.from.toLocaleDateString() : ''}_-_${payout.until.toLocaleDateString()}.xml`)
             return
+        },
+        markPaied: (paied: boolean, payoutId: number, memberIds: Array<number>) => {
+            if (paied) {
+                return Data.sendToApi('post', `${Config.apiEndpoint}/api/payouts/markAsPaied`, { payoutId, memberIds }, dispatch)
+            } else {
+                return Data.sendToApi('post', `${Config.apiEndpoint}/api/payouts/markAsUnpaied`, { payoutId, memberIds }, dispatch)
+            }
+        },
+        showError: (message: string) => {
+            return dispatch(UI.showError(message))
         }
     }
 }

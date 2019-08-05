@@ -213,7 +213,7 @@ export default class Table<T extends { id: string | number }> extends Component<
                                 }
                             }
                         }
-                    } else if (typeof key === 'string' && record.hasOwnProperty(key)) {
+                    } else if (typeof key === 'string' && record.hasOwnProperty(key) && record[key] !== null) {
                         if (key.indexOf('phone') > -1) {
                             //@ts-ignore
                             searchableString += record[key].toString().replace(' ', '') + ' '
