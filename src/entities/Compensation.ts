@@ -30,8 +30,7 @@ export default class Compensation extends Base {
 
     public paied: boolean
 
-
-    public valutaDate?: Date
+    public bexioBill?: number
 
 
     public payout?: Payout
@@ -40,7 +39,7 @@ export default class Compensation extends Base {
 
     public updatedBy: User
 
-    constructor(member: Contact, creator: User, amount: number, date: Date, approved: boolean = false, paied: boolean = false, valutaDate?: Date, payout?: Payout) {
+    constructor(member: Contact, creator: User, amount: number, date: Date, approved: boolean = false, paied: boolean = false, payout?: Payout) {
         super()
         this.member = member
         this.creator = creator
@@ -48,7 +47,6 @@ export default class Compensation extends Base {
         this.date = date
         this.approved = approved
         this.paied = paied
-        this.valutaDate = valutaDate
         this.payout = payout
     }
 
