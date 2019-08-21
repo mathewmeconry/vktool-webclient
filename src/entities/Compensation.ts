@@ -31,7 +31,7 @@ export default class Compensation extends Base {
     public paied: boolean
 
     public bexioBill?: number
-
+    public transferCompensation?: CustomCompensation
 
     public payout?: Payout
 
