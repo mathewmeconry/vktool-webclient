@@ -30,7 +30,7 @@ interface PayoutProps {
     sendToBexio: (payoutId: number, memberIds: Array<number>) => Promise<void>
     reclaim: (payoutId: number) => Promise<void>,
     getBankingXml: (payout: PayoutEntity.default, memberIds: Array<number>) => Promise<void>
-    markPaied: (paied: boolean, payoutId: number, memberIds: Array<number>) => Promise<void>
+    transfer: (payoutId: number, memberIds: Array<number>) => Promise<void>
     showError: (message: string) => Promise<void>
 }
 
@@ -47,7 +47,7 @@ export class _Payout extends Component<PayoutProps, { modalShow: boolean, modalT
         this.sendToBexio = this.sendToBexio.bind(this)
         this.onCheck = this.onCheck.bind(this)
         this.reclaim = this.reclaim.bind(this)
-        this.markPaied = this.markPaied.bind(this)
+        this.transfer = this.transfer.bind(this)
 
         this.state = {
             modalShow: false,
@@ -96,8 +96,8 @@ export class _Payout extends Component<PayoutProps, { modalShow: boolean, modalT
         return this.props.reclaim(this.props.payout.id)
     }
 
-    private async markPaied(paied: boolean): Promise<void> {
-        if (this.state.selected.length > 0) return this.props.markPaied(paied, this.props.payout.id, this.state.selected)
+    private async transfer(): Promise<void> {
+        if (this.state.selected.length > 0) return this.props.transfer(this.props.payout.id, this.state.selected)
         this.props.showError('Bitte zuerst auswahl tätigen!')
     }
 
@@ -262,8 +262,7 @@ export class _Payout extends Component<PayoutProps, { modalShow: boolean, modalT
                             <Button block={true} variant="outline-primary" onClick={this.showBexioModal}>An Bexio übertragen</Button>
                             <Button block={true} variant="outline-primary" onClick={() => { return this.props.getBankingXml(this.props.payout, this.state.selected) }}>Banking XML herunterladen</Button>
                             <Button block={true} variant="outline-primary" onClick={this.reclaim}>Neu Berechnen</Button>
-                            <Button block={true} variant="outline-primary" onClick={() => this.markPaied(true)}>Als bezahlt markieren</Button>
-                            <Button block={true} variant="outline-primary" onClick={() => this.markPaied(false)}>Als unbezahlt markieren</Button>
+                            <Button block={true} variant="outline-primary" onClick={() => this.transfer()}>Übertragen</Button>
                         </Panel>
                     </Column>
                 </Row>
@@ -332,12 +331,8 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>
             downloader(new Blob([data]), `Soldperiode_${(payout.from > new Date('1970-01-01')) ? payout.from.toLocaleDateString() : ''}_-_${payout.until.toLocaleDateString()}.xml`)
             return
         },
-        markPaied: (paied: boolean, payoutId: number, memberIds: Array<number>) => {
-            if (paied) {
-                return Data.sendToApi('post', `${Config.apiEndpoint}/api/payouts/markAsPaied`, { payoutId, memberIds }, dispatch)
-            } else {
-                return Data.sendToApi('post', `${Config.apiEndpoint}/api/payouts/markAsUnpaied`, { payoutId, memberIds }, dispatch)
-            }
+        transfer: (payoutId: number, memberIds: Array<number>) => {
+            return Data.sendToApi('post', `${Config.apiEndpoint}/api/payouts/transfer`, { payoutId, memberIds }, dispatch)
         },
         showError: (message: string) => {
             return dispatch(UI.showError(message))

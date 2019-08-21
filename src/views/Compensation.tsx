@@ -115,6 +115,7 @@ export class _Compensation extends Component<CompensationProps> {
                             <FormEntry id="paied" title="Ausbezahlt">{(this.props.compensation.paied) ? '✓' : '⨯'}</FormEntry>
                             {(this.props.compensation.payout) ? (<Link to={"/payout/" + (this.props.compensation.payout as Payout).id + '/' + this.props.compensation.member.id} className="btn btn-outline-primary btn-block">Auszahlung</Link>) : (<p></p>)}
                             {(this.props.compensation.bexioBill) ? (<a href={`https://office.bexio.com/index.php/kb_bill/show/id/${this.props.compensation.bexioBill}`} target="_blank" className="btn btn-outline-primary btn-block">Bexio Lieferantenrechnung</a>) : (<p></p>)}
+                            {(this.props.compensation.transferCompensation) ? (<Link to={`/compensation/${this.props.compensation.transferCompensation.id}`} className="btn btn-outline-primary btn-block">Übertrag</Link>) : (<p></p>)}
                         </Panel>
                     </Column>
                 </Row>
