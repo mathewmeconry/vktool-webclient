@@ -98,7 +98,7 @@ export default class AddBillingReportStep2 extends Component<Step2Props, { table
 
             if (id) {
                 let entries = this.state.tableEntries
-                delete entries[id]
+                delete entries[id.replace('_', '')]
                 this.setState({
                     tableEntries: entries
                 })

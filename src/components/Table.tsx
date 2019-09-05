@@ -405,7 +405,10 @@ export default class Table<T extends { id: string | number }> extends Component<
                     }
                 }
             }
-            rows.push(<tr key={dataEntry.id} data-key={dataEntry.id}>{row}</tr>)
+            
+            let trKey = id
+            if (data instanceof Array) trKey = dataEntry.id
+            rows.push(<tr key={trKey} data-key={trKey}>{row}</tr>)
         }
 
         return rows
