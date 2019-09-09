@@ -99,7 +99,7 @@ export class DataList<T extends { id: string | number }> extends Component<DataL
 
         let dataById: StringIndexed<any> = {}
         for (let id of this.props.data.ids) {
-            dataById['_' + id] = this.props.data.byId[id]
+            dataById[id] = this.props.data.byId[id]
         }
 
         return (

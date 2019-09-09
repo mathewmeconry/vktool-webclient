@@ -408,7 +408,7 @@ export default class Table<T extends { id: string | number }> extends Component<
             
             let trKey = id
             if (data instanceof Array) trKey = dataEntry.id
-            rows.push(<tr key={trKey} data-key={trKey}>{row}</tr>)
+            rows.push(<tr key={trKey} data-key={trKey.replace(/^_/, '')}>{row}</tr>)
         }
 
         return rows
