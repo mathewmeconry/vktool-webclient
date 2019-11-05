@@ -20,6 +20,7 @@ import Modal from '../components/Modal'
 import { ButtonGroup } from "react-bootstrap";
 import Contact from "../entities/Contact";
 import { UI } from "../actions/UIActions";
+import StringIndexed from "../interfaces/StringIndexed";
 
 interface PayoutProps {
     payout: PayoutEntity.default,
@@ -231,16 +232,16 @@ export class _Payout extends Component<PayoutProps, { modalShow: boolean, modalT
             )
         }
 
-        const data: Array<{ id: number, member: Contact, total: number }> = []
+        const data: StringIndexed<{ id: number, member: Contact, total: number }> = {}
         for (let i in this.props.payout.compensationsByMember) {
             const records = this.props.payout.compensationsByMember[i]
             let total = 0
             records.map(el => total = total + parseFloat(el.amount.toFixed(2)))
-            data.push({
+            data[records[0].member.id] = {
                 id: records[0].member.id,
                 member: records[0].member,
                 total
-            })
+            }
         }
 
         return (

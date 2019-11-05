@@ -384,7 +384,7 @@ function Payouts(state: DataInterface<Payout> = { loading: false, byId: {}, ids:
                     byMember[key].map(comp => total = total + comp.amount)
                     if (total > 0) return total
                     return 0
-                }).reduce((a, b) => a + b)
+                }).reduce((a, b) => a + b, 0)
                 byId[entry.id] = entry
                 ids.push(entry.id)
             }
