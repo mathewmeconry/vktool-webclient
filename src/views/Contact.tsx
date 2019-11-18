@@ -171,8 +171,8 @@ export default class _Contact extends Component<ContactProps, ContactState> {
             await this.props.editMember({
                 id: this.props.contact.id,
                 collectionPointId: this.state.collectionPoint.id,
-                entryDate: (this.state.entryDate) ? new Date(this.state.entryDate) : undefined,
-                exitDate: (this.state.exitDate) ? new Date(this.state.exitDate) : undefined,
+                entryDate: (this.state.entryDate) ? new Date(this.state.entryDate) : '',
+                exitDate: (this.state.exitDate) ? new Date(this.state.exitDate) : '',
                 bankName: this.state.bankName,
                 iban: this.state.iban,
                 accountHolder: this.state.accountHolder,
