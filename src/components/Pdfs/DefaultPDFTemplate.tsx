@@ -10,7 +10,7 @@ export default class DefaultPDFTemplate extends Component<DefaultPDFTemplateProp
         return (
             <div className="template">
                 <div className="header-left">
-                    <img src="/logo.png" height="60mm" />
+                    <img src="/webapp/logo.png" height="60mm" />
                 </div>
                 <div className="header-center">
                     <p className="title">{this.props.title}</p>
