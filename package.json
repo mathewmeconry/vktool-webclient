@@ -1,5 +1,6 @@
 {
   "name": "vk-tool-webclient",
+  "homepage": "https://app.vkazu.ch/webapp/",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -11,8 +12,6 @@
     "@progress/kendo-drawing": "^1.5.9",
     "@progress/kendo-react-pdf": "^2.7.1",
     "@svgr/webpack": "2.4.1",
-    "@types/mongoose": "^5.3.7",
-    "@types/react-bootstrap": "^0.32.16",
     "axios": "^0.18.0",
     "babel-core": "7.0.0-bridge.0",
     "babel-eslint": "9.0.0",
@@ -144,12 +143,14 @@
     "@types/react-bootstrap-typeahead": "^3.4.0",
     "@types/react-dom": "^16.0.11",
     "@types/react-fontawesome": "^1.6.4",
-    "@types/react-redux": "^6.0.14",
+    "@types/react-redux": "6.0.10",
     "@types/react-router": "^4.4.1",
     "@types/react-router-dom": "^4.3.1",
     "@types/react-select": "^2.0.11",
     "@types/redux-saga": "^0.10.5",
     "@types/remote-redux-devtools": "^0.5.3",
+    "@types/mongoose": "^5.3.7",
+    "@types/react-bootstrap": "0.32.16",
     "remote-redux-devtools": "^0.5.16",
     "typescript": "^3.2.1"
   }

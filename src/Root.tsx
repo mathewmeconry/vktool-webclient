@@ -46,7 +46,7 @@ export default class Root extends Component<{}, {}> {
     constructor(props: {}, state: {}) {
         super(props, state)
         Config.loadConfig()
-        this.history = createBrowserHistory()
+        this.history = createBrowserHistory({ basename: '/webapp/' })
         this.store = configureStore(this.history)
         this.store.getState()
     }
@@ -65,7 +65,7 @@ export default class Root extends Component<{}, {}> {
                         draggable={true}
                         pauseOnHover={true}
                     />
-                    <ConnectedRouter history={this.history}>
+                    <ConnectedRouter history={this.history} >
                         <Switch>
                             <Route exact path="/" component={() => { return (<Redirect to="/login" />) }} />
                             <Route exact path="/login" component={Login} />

@@ -58,7 +58,7 @@ export class _Memberlist extends Component<{ data: DataInterface<Contact>, fetch
                     repeatHeaders={true}
                     landscape={true}
                     date={new Date()}
-                    fileName={`Mitgliederliste-${new Date().toLocaleDateString()}`}
+                    fileName={`Mitgliederliste-${Date.now()}`}
                     scale={0.5}
                     margin="2cm"
                     pageTemplate={(props: PageTemplateProps) => <DefaultPDFTemplate title="Mitgliederliste" {...props} />}
