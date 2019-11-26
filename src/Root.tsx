@@ -33,7 +33,6 @@ import { Error404 } from "./components/Errors/404";
 import { MailingLists } from "./views/MailingLists";
 import { CollectionPoints } from "./views/CollectionPoints";
 import { AddCollectionPoint } from "./views/AddCollectionPoint";
-import { Memberlist } from "./views/Pdfs/Memberlist";
 import { Payouts } from "./views/Payouts";
 import { Payout } from "./views/Payout";
 import { PayoutMember } from "./views/PayoutMember";
@@ -73,7 +72,6 @@ export default class Root extends Component<{}, {}> {
                             <SecureRoute exact path="/dashboard" roles={[AuthRoles.AUTHENTICATED]} component={Dashboard} />
                             <SecureRoute exact path="/me" roles={[AuthRoles.AUTHENTICATED]} component={User} />
                             <SecureRoute exact path="/members" roles={[AuthRoles.MEMBERS_READ]} component={Members} />
-                            <SecureRoute exact path="/members/pdf" roles={[AuthRoles.MEMBERS_READ]} component={Memberlist} />
                             <SecureRoute exact path="/mailing-lists" roles={[AuthRoles.MAILING_LISTS]} component={MailingLists} />
                             <SecureRoute exact path="/draft/collection-points" roles={[AuthRoles.DRAFT_READ]} component={CollectionPoints} />
                             <SecureRoute exact path="/draft/collection-points/add" roles={[AuthRoles.DRAFT_EDIT, AuthRoles.DRAFT_CREATE]} component={AddCollectionPoint} />

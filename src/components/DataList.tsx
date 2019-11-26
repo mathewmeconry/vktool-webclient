@@ -21,7 +21,6 @@ export interface DataListProps<T> {
     history: History
     panelActions?: Array<any>
     rowActions?: Array<any>,
-    pdfExport?: string,
 }
 
 export interface DataListState {
@@ -122,16 +121,12 @@ export class DataList<T extends { id: string | number }> extends Component<DataL
     }
 
     public render() {
-        let actions = []
-        if (this.props.pdfExport) actions.push(<Action key="pdf-export" to={this.props.pdfExport} state={this.state} icon='file-pdf' />)
-        actions = actions.concat(this.props.panelActions || [])
-
         return (
             <Page title={this.props.title}>
                 <Row>
                     <Column>
                         <Panel
-                            actions={actions}
+                            actions={this.props.panelActions || []}
                             title={
                                 <input id="search" value={this.state.searchString} placeholder="Search..." className="float-right form-control form-control-sm" onChange={(event) => this.textSearch(event)} />
                             }>

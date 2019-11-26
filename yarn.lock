@@ -1068,18 +1068,6 @@
   dependencies:
     pako "^1.0.5"
 
-"@progress/kendo-file-saver@^1.0.1":
-  version "1.0.7"
-  resolved "https://registry.yarnpkg.com/@progress/kendo-file-saver/-/kendo-file-saver-1.0.7.tgz#5b602115d1b0b5e26f3e52451a3ed7c29ed76c51"
-  integrity sha512-8tsho/+DATzfTW4BBaHrkF3C3jqH2/bQ+XbjqA0KfmTiBRVK6ygK+tkvkYeDhFlQBbJ02MmJlEC6OmXvXRFkUg==
-
-"@progress/kendo-react-pdf@^2.7.1":
-  version "2.11.0"
-  resolved "https://registry.yarnpkg.com/@progress/kendo-react-pdf/-/kendo-react-pdf-2.11.0.tgz#38eddd2176a14c93a4d4600c32a851d027a837ab"
-  integrity sha512-wxvLE7PKRIpo7HJe/k4DoYmmrbvipy7krT+dm+9NzgkLrktYU+DvXWlfhB/QVnoMAwfaaZfSpH2a3KKDsLDKAQ==
-  dependencies:
-    "@progress/kendo-file-saver" "^1.0.1"
-
 "@redux-saga/core@^1.1.3":
   version "1.1.3"
   resolved "https://registry.yarnpkg.com/@redux-saga/core/-/core-1.1.3.tgz#3085097b57a4ea8db5528d58673f20ce0950f6a4"

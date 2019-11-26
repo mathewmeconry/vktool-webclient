@@ -9,8 +9,10 @@ import Action from "../components/Action";
 import React, { Component } from "react";
 import Contact from "../entities/Contact";
 import Xlsx from 'xlsx'
+import Config from "../Config";
 
 interface MembersProps extends DataListProps<Contact> {
+    memberlistPdf: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => Promise<void>
 }
 
 export class _Members extends Component<MembersProps> {
@@ -52,9 +54,9 @@ export class _Members extends Component<MembersProps> {
         return (
             <DataList<Contact>
                 {...this.props}
-                pdfExport='/members/pdf'
                 panelActions={[
-                    <Action key="excel-export" icon="file-excel" onClick={this.excelExport} />
+                    <Action key="excel-export" icon="file-excel" onClick={this.excelExport} />,
+                    <Action key="pdf-export" onClick={this.props.memberlistPdf} icon='file-pdf' />
                 ]}
             />
         )
@@ -85,6 +87,9 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>
     return {
         fetchData: () => {
             dispatch(Data.fetchMembers())
+        },
+        memberlistPdf: async () => {
+            window.open(`${Config.apiEndpoint}/api/members/pdf`)
         }
     }
 }

@@ -303,26 +303,34 @@ export class Data {
                     type: fetchAction
                 })
 
-                axios.get(route, { withCredentials: true }).then(response => {
-                    let data = Data.deepParser(response.data)
-
+                Data.getFromApi<any>(route, dispatch).then(data => {
                     resolve(dispatch({
                         type: gotAction,
                         payload: data
                     }))
                 }).catch((error: AxiosError) => {
-                    if (error.response && (error.response as AxiosResponse).status === 403) {
-                        dispatch(UI.showError('Zugriff verweigert!'))
-                    } else if (error.response && (error.response as AxiosResponse).status === 401) {
-                        dispatch(UI.logout())
-                    } else {
-                        dispatch(UI.showError('Ooops... Da ist ein Fehler passiert!'))
-
-                    }
                     reject(error)
                 })
             })
 
+        }
+    }
+
+    public static async getFromApi<T>(route: string, dispatch: ThunkDispatch<State, undefined, AnyAction>): Promise<T> {
+        try {
+            const response = await axios.get(route, { withCredentials: true })
+            const data = Data.deepParser(response.data)
+            return data
+        } catch (error) {
+            if (error.response && (error.response as AxiosResponse).status === 403) {
+                dispatch(UI.showError('Zugriff verweigert!'))
+            } else if (error.response && (error.response as AxiosResponse).status === 401) {
+                dispatch(UI.logout())
+            } else {
+                dispatch(UI.showError('Ooops... Da ist ein Fehler passiert!'))
+            }
+
+            throw error
         }
     }
 

@@ -133,6 +133,10 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>
         document.body.appendChild(link)
         link.click()
         document.body.removeChild(link)
+        setTimeout(function () {
+            // For Firefox it is necessary to delay revoking the ObjectURL
+            window.URL.revokeObjectURL(url);
+        }, 100);
     }
 
     return {
