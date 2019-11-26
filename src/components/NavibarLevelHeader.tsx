@@ -1,6 +1,6 @@
 import { NavibarElement } from "./NavibarElement";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
-import React, { Component, Children, cloneElement, ReactElement } from "react";
+import React, { Component, Children, cloneElement, ReactElement, PropsWithChildren } from "react";
 import { connect } from "react-redux";
 import { State } from "../reducers/IndexReducer";
 import { ThunkDispatch } from "redux-thunk";
@@ -17,7 +17,7 @@ export interface NavibarLevelHeaderProps {
     onClose: () => void
 }
 
-export default class _NavibarLevelHeader extends Component<NavibarLevelHeaderProps> {
+export default class _NavibarLevelHeader extends Component<PropsWithChildren<NavibarLevelHeaderProps>> {
 
     constructor(props: NavibarLevelHeaderProps) {
         super(props)

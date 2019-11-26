@@ -9,7 +9,6 @@ import { History } from "history";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Loading from "./Loading";
 import StringIndexed from "../interfaces/StringIndexed";
-import Action from "./Action";
 
 export interface DataListProps<T> {
     data: DataInterface<T>,

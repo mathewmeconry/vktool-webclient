@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, PropsWithChildren } from "react";
 import { State } from "../reducers/IndexReducer";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
@@ -7,14 +7,14 @@ import Swipe from "./Swipe";
 import { Header } from "./Header";
 import { Navibar } from "./Navibar";
 
-export interface PageProps {
+export interface PageProps  {
     title: string,
     open: boolean,
     openNavibar?: () => void,
     closeNavibar?: () => void
 }
 
-export class _Page extends Component<PageProps> {
+export class _Page extends Component<PropsWithChildren<PageProps>> {
     constructor(props: PageProps) {
         super(props)
 
