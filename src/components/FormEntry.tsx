@@ -23,6 +23,8 @@ export default class FormEntry extends Component<{ id: string, title: string, ed
                 if (typeof this.props.value === 'string' && this.props.value !== '') {
                     date = new Date(this.props.value)
                     value = `${date.getFullYear()}-${('0' + (date.getMonth() + 1)).slice(-2)}-${('0' + date.getDate()).slice(-2)}`
+                } else if (this.props.value instanceof Date) {
+                    value = `${date.getFullYear()}-${('0' + (date.getMonth() + 1)).slice(-2)}-${('0' + date.getDate()).slice(-2)}`
                 } else {
                     date = ''
                 }
