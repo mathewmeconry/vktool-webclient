@@ -399,13 +399,12 @@ export default class Table<T extends { id: string | number }> extends Component<
                     }
 
                     if (column.link) {
-                        row.push(<td className={column.className || ''} key={dataEntry.id + tdKey}><a key={dataEntry.id + [...(content || [Math.random().toString()]), 'a'].join(' ')} href={((column.linkPrefix) ? column.linkPrefix : '') + content.join(' ')} target="_blank">{((column.prefix) ? column.prefix : '') + content.join(' ') + ((column.suffix) ? column.suffix : '')}</a></td>)
+                        row.push(<td className={column.className || ''} key={dataEntry.id + tdKey}><a key={dataEntry.id + [...(content || [Math.random().toString()]), 'a'].join(' ')} href={((column.linkPrefix) ? column.linkPrefix : '') + content.join(' ')} target={(column.linkPrefix && (column.linkPrefix.match(/w+:/i) || []).length > 0) ? "" : "_blank"}>{((column.prefix) ? column.prefix : '') + content.join(' ') + ((column.suffix) ? column.suffix : '')}</a></td>)
                     } else {
                         row.push(<td className={column.className || ''} key={dataEntry.id + tdKey}>{((column.prefix) ? column.prefix : '') + content.join(' ') + ((column.suffix) ? column.suffix : '')}</td>)
                     }
                 }
             }
-            
             let trKey = id
             if (this.props.data instanceof Array) trKey = dataEntry.id.toString()
             rows.push(<tr key={trKey} data-key={trKey.replace(/^_/, '')}>{row}</tr>)
