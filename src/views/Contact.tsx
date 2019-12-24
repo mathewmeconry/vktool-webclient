@@ -18,13 +18,11 @@ import { CollectionPointSelect } from "../components/CollectionPointSelect";
 import { EditMember } from "../interfaces/Member";
 import User from "../entities/User";
 import { AuthRoles } from "../interfaces/AuthRoles";
-import Compensation from "../entities/Compensation";
-import Axios from "axios";
-import Config from "../Config";
-import Table from "../components/Table";
 import { RouteComponentProps } from "react-router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button } from "react-bootstrap";
+import { ContactCompensation } from "../components/ContactCompensation";
+import { Error403 } from "../components/Errors/403";
 
 export interface ContactProps extends RouteComponentProps<{ id: string }> {
     user: User,
@@ -42,10 +40,7 @@ export interface ContactState {
     bankName?: string,
     iban?: string,
     accountHolder?: string,
-    compensations: Array<Compensation>,
     moreMails: Array<string>,
-    openCompensationsSum: number,
-    compensationsLoaded: boolean
 }
 
 export default class _Contact extends Component<ContactProps, ContactState> {
@@ -59,8 +54,6 @@ export default class _Contact extends Component<ContactProps, ContactState> {
             this.props.loadContacts()
         }
 
-        this.loadCompensations = this.loadCompensations.bind(this)
-        this.compensationView = this.compensationView.bind(this)
         this.onInputChange = this.onInputChange.bind(this)
         this.onSave = this.onSave.bind(this)
         this.onAbort = this.onAbort.bind(this)
@@ -80,9 +73,6 @@ export default class _Contact extends Component<ContactProps, ContactState> {
             iban: contact.iban || '',
             accountHolder: contact.accountHolder || '',
             moreMails: contact.moreMails || [],
-            compensations: [],
-            openCompensationsSum: 0,
-            compensationsLoaded: false
         }
     }
 
@@ -113,32 +103,6 @@ export default class _Contact extends Component<ContactProps, ContactState> {
         })
     }
 
-    private async loadCompensations() {
-        if (this.props.user && this.props.user.roles.indexOf(AuthRoles.COMPENSATIONS_READ)) {
-            let openCompensationsSum = 0
-            let data = []
-            for (let rec of Data.deepParser((await Axios.get<Array<Compensation>>(Config.apiEndpoint + `/api/compensations/${this.props.contact.id}`, { withCredentials: true })).data)) {
-                if (rec.hasOwnProperty('billingReport') && rec.billingReport.hasOwnProperty('order')) {
-                    // only show the contact if the contact is not a privat person (identified that companies doesn't have any firstname)
-                    if (rec.billingReport.order.hasOwnProperty('contact') && !rec.billingReport.order.contact.hasOwnProperty('firstname')) {
-                        rec.description = `${rec.billingReport.order.title} (${rec.billingReport.order.contact.lastname})`
-                    } else {
-                        rec.description = `${rec.billingReport.order.title}`
-                    }
-                }
-                data.push(rec)
-
-                if (!rec.paied) openCompensationsSum += parseFloat(rec.amount)
-            }
-
-            this.setState({
-                compensations: data,
-                openCompensationsSum: openCompensationsSum,
-                compensationsLoaded: true
-            })
-        }
-    }
-
     public componentWillReceiveProps(nextProps: ContactProps) {
         if (nextProps.contact) {
             this.setState({
@@ -153,18 +117,6 @@ export default class _Contact extends Component<ContactProps, ContactState> {
         }
     }
 
-    public compensationView(event: React.MouseEvent<HTMLButtonElement>) {
-        if (event.currentTarget.parentNode && event.currentTarget.parentNode.parentElement) {
-            let id = event.currentTarget.parentNode.parentElement.getAttribute('data-key')
-
-            // open a new tap when the middle button is pressed (buttonID 1)
-            if (event.button == 1) {
-                window.open((document.location as Location).origin + '/compensation/' + id)
-            } else {
-                this.props.history.push('/compensation/' + id)
-            }
-        }
-    }
 
     private async onSave() {
         if (this.props.contact.contactGroups.find(group => group.bexioId === 7)) {
@@ -229,41 +181,41 @@ export default class _Contact extends Component<ContactProps, ContactState> {
             ]
         }
 
-        return [<Action icon="pencil-alt" key="edit" onClick={async () => { this.setState({ editable: true }) }} />]
-    }
-
-    public renderPanelCompensations() {
-        if (!this.props.user.roles.indexOf(AuthRoles.COMPENSATIONS_READ)) return null
-
-        if (!this.state.compensationsLoaded) {
-            this.loadCompensations()
-            return <Panel title="Entschädigungen"><Loading /></Panel>
+        if (this.props.user.roles.indexOf(AuthRoles.MEMBERS_EDIT) > -1 || this.props.user.roles.indexOf(AuthRoles.CONTACTS_EDIT) > -1) {
+            return [<Action icon="pencil-alt" key="edit" onClick={async () => { this.setState({ editable: true }) }} />]
         }
 
-        return (
-            <Panel title={`Entschädigungen (Offen: ${this.state.openCompensationsSum.toFixed(2)}.-)`} scrollable={true}>
-                <Table<Compensation>
-                    columns={[
-                        { text: 'Datum', keys: ['date'], sortable: true },
-                        { text: 'Beschreibung', keys: ['description'], sortable: true },
-                        { text: 'Betrag', keys: ['amount'], prefix: 'CHF ', sortable: true, format: 'toFixed(2)' },
-                        { text: 'Genehmigt', keys: ['approved'], sortable: true },
-                        { text: 'Ausbezahlt', keys: ['paied'], sortable: true },
-                        {
-                            text: 'Actions', keys: ['_id'], content: <Button variant="success" className="view" onMouseUp={this.compensationView}><FontAwesomeIcon icon="eye" /></Button>
-                        }
-                    ]}
-                    defaultSort={{
-                        keys: ['date'],
-                        direction: 'desc'
-                    }}
-                    data={this.state.compensations}
-                />
-            </Panel>
-        )
+        return []
     }
 
+    private renderActions() {
+        const actions = []
+
+        if (this.props.user.roles.indexOf(AuthRoles.CONTACTS_READ) > -1) {
+            actions.push(<a target="_blank" href={"https://office.bexio.com/index.php/kontakt/show/id/" + this.props.contact.bexioId} className="btn btn-block btn-outline-primary">In Bexio anschauen</a>)
+        }
+
+        if (this.props.user.roles.indexOf(AuthRoles.MEMBERS_READ) > -1) {
+            actions.push(<a target="_blank" href={"https://vkazu.sharepoint.com/leitung/Personalakten?viewpath=/leitung/Personalakten&id=/leitung/Personalakten/" + this.props.contact.firstname + " " + this.props.contact.lastname} className="btn btn-block btn-outline-primary">Personalakte öffnen</a>)
+        }
+
+        if (actions.length > 0) {
+            return (
+                <Panel title="Actions">
+                    {actions}
+                </Panel>
+            )
+        }
+
+        return null
+    }
+
+
     public render() {
+        if (parseInt(this.props.match.params.id) !== (this.props.user.bexioContact || { id: undefined }).id && this.props.user.roles.indexOf(AuthRoles.CONTACTS_READ) < 0) {
+            return <Error403 />
+        }
+
         if (this.props.loading || !this.props.contact) {
             return (
                 <Page title="Kontakt">
@@ -332,15 +284,12 @@ export default class _Contact extends Component<ContactProps, ContactState> {
                                 <FormEntry id="accountHolder" title="Kontoinhaber" value={this.state.accountHolder} editable={this.state.editable} onChange={this.onInputChange} />
                             </div>
                         </Panel>
-                        <Panel title="Actions">
-                            <a target="_blank" href={"https://office.bexio.com/index.php/kontakt/show/id/" + this.props.contact.bexioId} className="btn btn-block btn-outline-primary">In Bexio anschauen</a>
-                            <a target="_blank" href={"https://vkazu.sharepoint.com/leitung/Personalakten?viewpath=/leitung/Personalakten&id=/leitung/Personalakten/" + this.props.contact.firstname + " " + this.props.contact.lastname} className="btn btn-block btn-outline-primary">Personalakte öffnen</a>
-                        </Panel>
+                        {this.renderActions()}
                     </Column>
                 </Row>
                 <Row>
                     <Column className="col-md-6">
-                        {this.renderPanelCompensations()}
+                        <ContactCompensation contact={this.props.contact}  {...this.props} />
                     </Column>
                 </Row>
             </Page>

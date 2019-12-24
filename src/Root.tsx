@@ -70,12 +70,11 @@ export default class Root extends Component<{}, {}> {
                             <Route exact path="/login" component={Login} />
                             <Route exact path="/login?source=:source" component={Login} />
                             <SecureRoute exact path="/dashboard" roles={[AuthRoles.AUTHENTICATED]} component={Dashboard} />
-                            <SecureRoute exact path="/me" roles={[AuthRoles.AUTHENTICATED]} component={User} />
                             <SecureRoute exact path="/members" roles={[AuthRoles.MEMBERS_READ]} component={Members} />
                             <SecureRoute exact path="/mailing-lists" roles={[AuthRoles.MAILING_LISTS]} component={MailingLists} />
                             <SecureRoute exact path="/draft/collection-points" roles={[AuthRoles.DRAFT_READ]} component={CollectionPoints} />
                             <SecureRoute exact path="/draft/collection-points/add" roles={[AuthRoles.DRAFT_EDIT, AuthRoles.DRAFT_CREATE]} component={AddCollectionPoint} />
-                            <SecureRoute exact path="/contact/:id" roles={[AuthRoles.CONTACTS_READ, AuthRoles.MEMBERS_READ]} component={Contact} />
+                            <SecureRoute exact path="/contact/:id" roles={[AuthRoles.CONTACTS_READ, AuthRoles.MEMBERS_READ, AuthRoles.AUTHENTICATED]} component={Contact} />
                             <SecureRoute exact path="/orders" roles={[AuthRoles.ORDERS_READ]} component={Orders} />
                             <SecureRoute exact path="/order/:id" roles={[AuthRoles.ORDERS_READ]} component={Order} />
                             <SecureRoute exact path="/billing-reports" roles={[AuthRoles.BILLINGREPORTS_READ, AuthRoles.BILLINGREPORTS_CREATE]} component={BillingReports} />
@@ -83,7 +82,7 @@ export default class Root extends Component<{}, {}> {
                             <SecureRoute exact path="/billing-report/:id" roles={[AuthRoles.BILLINGREPORTS_CREATE, AuthRoles.BILLINGREPORTS_READ]} component={BillingReport} />
                             <SecureRoute exact path="/compensations" roles={[AuthRoles.COMPENSATIONS_READ]} component={Compensations} />
                             <SecureRoute exact path="/compensations/add" roles={[AuthRoles.COMPENSATIONS_CREATE]} component={AddCompensation} />
-                            <SecureRoute exact path="/compensation/:id" roles={[AuthRoles.COMPENSATIONS_READ]} component={Compensation} />
+                            <SecureRoute exact path="/compensation/:id" roles={[AuthRoles.COMPENSATIONS_READ, AuthRoles.AUTHENTICATED]} component={Compensation} />
                             <SecureRoute exact path="/payouts" roles={[AuthRoles.PAYOUTS_READ]} component={Payouts} />
                             <SecureRoute exact path="/payouts/add" roles={[AuthRoles.PAYOUTS_CREATE]} component={AddPayout} />
                             <SecureRoute exact path="/payout/:id" roles={[AuthRoles.PAYOUTS_READ]} component={Payout} />
