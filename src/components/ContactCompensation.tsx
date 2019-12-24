@@ -12,20 +12,21 @@ import Contact from '../entities/Contact'
 import Table from "./Table";
 import { Button } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import Axios from "axios";
-import Config from "../Config";
+import { ThunkDispatch } from "redux-thunk";
+import { AnyAction } from "redux";
+import { DataInterface } from "../reducers/DataReducer";
 
 export interface ContactCompensationProps extends RouteComponentProps<{ id: string }> {
     user: User,
     contact: Contact,
-    loading: boolean
+    loading: boolean,
+    fetchData: () => Promise<AnyAction>,
+    compensations: DataInterface<Compensation>,
 }
 
 
 export interface ContactCompensationState {
-    compensations: Array<Compensation>,
     openCompensationsSum: number,
-    compensationsLoaded: boolean
 }
 
 export class _ContactCompensation extends Component<ContactCompensationProps, ContactCompensationState> {
@@ -33,12 +34,9 @@ export class _ContactCompensation extends Component<ContactCompensationProps, Co
         super(props)
 
         this.compensationView = this.compensationView.bind(this)
-        this.loadCompensations = this.loadCompensations.bind(this)
 
         this.state = {
-            compensations: [],
-            openCompensationsSum: 0,
-            compensationsLoaded: false
+            openCompensationsSum: 0
         }
     }
 
@@ -55,34 +53,24 @@ export class _ContactCompensation extends Component<ContactCompensationProps, Co
         }
     }
 
-    private async loadCompensations() {
-        if (this.props.user && (this.props.user.roles.indexOf(AuthRoles.COMPENSATIONS_READ) || (this.props.user.bexioContact || { id: undefined }).id === this.props.contact.id)) {
-            let openCompensationsSum = 0
-            let data = []
-            for (let rec of Data.deepParser((await Axios.get<Array<Compensation>>(Config.apiEndpoint + `/api/compensations/${this.props.contact.id}`, { withCredentials: true })).data)) {
-                if (rec.hasOwnProperty('billingReport') && rec.billingReport.hasOwnProperty('order')) {
-                    // only show the contact if the contact is not a privat person (identified that companies doesn't have any firstname)
-                    if (rec.billingReport.order.hasOwnProperty('contact') && !rec.billingReport.order.contact.hasOwnProperty('firstname')) {
-                        rec.description = `${rec.billingReport.order.title} (${rec.billingReport.order.contact.lastname})`
-                    } else {
-                        rec.description = `${rec.billingReport.order.title}`
-                    }
-                }
-                data.push(rec)
+    public componentDidMount() {
+        this.props.fetchData()
 
-                if (!rec.paied) openCompensationsSum += parseFloat(rec.amount)
-            }
-
-            this.setState({
-                compensations: data,
-                openCompensationsSum: openCompensationsSum,
-                compensationsLoaded: true
-            })
+        let openCompensationsSum = 0
+        for (const i of this.props.compensations.ids) {
+            openCompensationsSum += this.props.compensations.byId[i].amount
         }
+        this.setState({ openCompensationsSum })
     }
 
-    public componentDidMount() {
-        this.loadCompensations()
+    public componentWillReceiveProps(nextProps: ContactCompensationProps) {
+        if (nextProps.compensations.ids.length > 0 && nextProps.loading === false && this.props.compensations.ids.length !== nextProps.compensations.ids.length) {
+            let openCompensationsSum = 0
+            for (const i of nextProps.compensations.ids) {
+                openCompensationsSum += nextProps.compensations.byId[i].amount
+            }
+            this.setState({ openCompensationsSum })
+        }
     }
 
     public render() {
@@ -92,7 +80,7 @@ export class _ContactCompensation extends Component<ContactCompensationProps, Co
             return null
         }
 
-        if (!this.state.compensationsLoaded) {
+        if (this.props.loading) {
             return <Panel title="Entschädigungen"><Loading /></Panel>
         }
 
@@ -115,7 +103,7 @@ export class _ContactCompensation extends Component<ContactCompensationProps, Co
                         keys: ['date'],
                         direction: 'desc'
                     }}
-                    data={this.state.compensations}
+                    data={this.props.compensations.byId}
                 />
             </Panel>
         )
@@ -125,9 +113,18 @@ export class _ContactCompensation extends Component<ContactCompensationProps, Co
 const mapStateToProps = (state: State, props: any) => {
     return {
         user: state.data.user.data,
-        loading: state.data.contacts.loading || state.data.members.loading
+        loading: state.data.contacts.loading || state.data.members.loading || state.data.compensationEntries.loading,
+        compensations: state.data.compensationEntries
+    }
+}
+
+const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>) => {
+    return {
+        fetchData: () => {
+            return dispatch(Data.fetchCompensationEntries())
+        }
     }
 }
 
 //@ts-ignore
-export const ContactCompensation = connect(mapStateToProps)(_ContactCompensation)
+export const ContactCompensation = connect(mapStateToProps, mapDispatchToProps)(_ContactCompensation)
