@@ -11,6 +11,8 @@ import { connect } from 'react-redux'
 import { Data } from "../actions/DataActions";
 import Loading from "../components/Loading";
 import User from "../entities/User";
+import { ContactCompensation } from "../components/ContactCompensation";
+import { AuthRoles } from "../interfaces/AuthRoles";
 
 export class _Dashboard extends Component<{ user: User, loading: boolean, fetchUser: Function }> {
 
@@ -19,11 +21,25 @@ export class _Dashboard extends Component<{ user: User, loading: boolean, fetchU
     }
 
     public renderShortcuts() {
-        let shortcuts = [<Link key="billingreport" to="/billing-reports/add/" className="btn btn-block btn-outline-primary">Verrechnungsrapport erstellen</Link>]
+        const shortcuts = []
+        if(this.props.user.roles.indexOf(AuthRoles.BILLINGREPORTS_CREATE) > -1) {
+            shortcuts.push(<Link key="billingreport" to="/billing-reports/add/" className="btn btn-block btn-outline-primary">Verrechnungsrapport erstellen</Link>)
+        }
+
         if (this.props.user.bexioContact) {
-            shortcuts.push(<Link key="profile" to="/me" className="btn btn-block btn-outline-primary">Mein Profil</Link>)
+            shortcuts.push(<Link key="profile" to={`/contact/${this.props.user.bexioContact.id}`} className="btn btn-block btn-outline-primary">Mein Profil</Link>)
         }
         return shortcuts
+    }
+
+    public renderCompensations() {
+        if (this.props.user.bexioContact) {
+            return (
+                <Column className="col-md-6">
+                    <ContactCompensation contact={this.props.user.bexioContact} {...this.props}/>
+                </Column>
+            )
+        }
     }
 
     public render() {
@@ -43,6 +59,7 @@ export class _Dashboard extends Component<{ user: User, loading: boolean, fetchU
                             {this.renderShortcuts()}
                         </Panel>
                     </Column>
+                    {this.renderCompensations()}
                 </Row>
             </Page>
         )

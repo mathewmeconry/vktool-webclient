@@ -249,8 +249,8 @@ export class _Payout extends Component<PayoutProps, { modalShow: boolean, modalT
                 <Row>
                     <Column className="col-md-6">
                         <Panel title="Informationen">
-                            <FormEntry id="from" title="Von" value={this.props.payout.from} type="date"></FormEntry>
-                            <FormEntry id="until" title="Bis" value={this.props.payout.until} type="date"></FormEntry>
+                            <FormEntry id="from" title="Von" value={this.props.payout.from.toLocaleDateString()} type="date"></FormEntry>
+                            <FormEntry id="until" title="Bis" value={this.props.payout.until.toLocaleDateString()} type="date"></FormEntry>
                             <FormEntry id="countCompensations" title="Anzahl Entschädiungen" value={this.props.payout.compensations.length} editable={false}></FormEntry>
                             <FormEntry id="total" title="Total" value={`CHF ${this.props.payout.total.toFixed(2)}`} ></FormEntry>
                             <FormEntry id="totalWithoutMinus" title="Total ohne Minus" value={`CHF ${this.props.payout.totalWithoutMinus.toFixed(2)}`} ></FormEntry>
