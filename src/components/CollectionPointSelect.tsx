@@ -42,10 +42,10 @@ export class _CollectionPointSelect extends Component<CollectionPointSelectProps
         }
     }
 
-    public componentWillReceiveProps(nextProps: CollectionPointSelectProps) {
-        if (nextProps.defaultValue instanceof Array) {
+    public componentDidUpdate() {
+        if (this.props.defaultValue instanceof Array) {
             let valueProps = []
-            for (let collectionPoint of nextProps.defaultValue) {
+            for (let collectionPoint of this.props.defaultValue) {
                 if (Object.keys(collectionPoint).length > 0) {
                     valueProps.push({
                         value: collectionPoint.id.toString(),
@@ -54,9 +54,11 @@ export class _CollectionPointSelect extends Component<CollectionPointSelectProps
                 }
             }
 
-            this.setState({
-                value: valueProps
-            })
+            if (JSON.stringify(this.state.value) !== JSON.stringify(valueProps)) {
+                this.setState({
+                    value: valueProps
+                })
+            }
         }
     }
 

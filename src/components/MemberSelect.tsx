@@ -40,19 +40,21 @@ export class _MemberSelect extends Component<MemberSelectProps, { value?: Array<
         }
     }
 
-    public componentWillReceiveProps(nextProps: MemberSelectProps) {
-        if (nextProps.defaultValue instanceof Array) {
+    public componentDidUpdate() {
+        if (this.props.defaultValue instanceof Array) {
             let valueProps = []
-            for (let member of nextProps.defaultValue) {
+            for (let member of this.props.defaultValue) {
                 valueProps.push({
                     value: member.id.toString(),
                     label: member.firstname + ' ' + member.lastname
                 })
             }
 
-            this.setState({
-                value: valueProps
-            })
+            if (JSON.stringify(this.state.value) !== JSON.stringify(valueProps)) {
+                this.setState({
+                    value: valueProps
+                })
+            }
         }
     }
 

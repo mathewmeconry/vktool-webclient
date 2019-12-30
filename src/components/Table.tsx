@@ -57,10 +57,10 @@ export default class Table<T extends { id: string | number }> extends Component<
         }
     }
 
-    public componentWillReceiveProps(nextProps: TableProps<T>) {
-        if (nextProps !== this.props) {
+    public componentDidUpdate(prevProps: TableProps<T>) {
+        if (prevProps !== this.props) {
             this.setState({
-                searchableKeys: this.genSearchKeys(nextProps.columns)
+                searchableKeys: this.genSearchKeys(this.props.columns)
             })
         }
     }
