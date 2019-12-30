@@ -47,7 +47,9 @@ export default class _NavibarLevelHeader extends Component<PropsWithChildren<Nav
                 <div key={"levelContainer-" + this.props.id} className={"level-container" + " level-" + this.props.level.toString() + openClass}>
                     {
                         Children.map(this.props.children, child => {
-                            return cloneElement(child as ReactElement<any>, { level: this.props.level })
+                            if (child) {
+                                return cloneElement(child as ReactElement<any>, { level: this.props.level })
+                            }
                         })
                     }
                 </div>
