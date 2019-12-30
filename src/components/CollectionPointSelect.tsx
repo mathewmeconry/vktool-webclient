@@ -26,7 +26,7 @@ export class _CollectionPointSelect extends Component<CollectionPointSelectProps
         if (this.props.defaultValue instanceof Array) {
             let valueProps = []
             for (let collectionPoint of this.props.defaultValue) {
-                if (Object.keys(collectionPoint).length > 0) {
+                if (collectionPoint && Object.keys(collectionPoint).length > 0) {
                     valueProps.push({
                         value: collectionPoint.id.toString(),
                         label: `(${collectionPoint.name}) ${collectionPoint.address}, ${collectionPoint.postcode} ${collectionPoint.city}`,
@@ -46,7 +46,7 @@ export class _CollectionPointSelect extends Component<CollectionPointSelectProps
         if (this.props.defaultValue instanceof Array) {
             let valueProps = []
             for (let collectionPoint of this.props.defaultValue) {
-                if (Object.keys(collectionPoint).length > 0) {
+                if (collectionPoint && Object.keys(collectionPoint).length > 0) {
                     valueProps.push({
                         value: collectionPoint.id.toString(),
                         label: `(${collectionPoint.name}) ${collectionPoint.address}, ${collectionPoint.postcode} ${collectionPoint.city}`,
@@ -95,7 +95,9 @@ export class _CollectionPointSelect extends Component<CollectionPointSelectProps
 
         let collectionPoints = []
         for (let o of ops) {
-            collectionPoints.push(this.props.collectionPoints.byId[o.value])
+            if (o) {
+                collectionPoints.push(this.props.collectionPoints.byId[o.value])
+            }
         }
 
         if (this.props.onChange) {

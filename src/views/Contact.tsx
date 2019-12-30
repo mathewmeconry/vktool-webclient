@@ -122,7 +122,7 @@ export default class _Contact extends Component<ContactProps, ContactState> {
         if (this.props.contact.contactGroups.find(group => group.bexioId === 7)) {
             await this.props.editMember({
                 id: this.props.contact.id,
-                collectionPointId: this.state.collectionPoint.id,
+                collectionPointId: (this.state.collectionPoint || { id: undefined }).id,
                 entryDate: (this.state.entryDate) ? new Date(this.state.entryDate) : '',
                 exitDate: (this.state.exitDate) ? new Date(this.state.exitDate) : '',
                 bankName: this.state.bankName,
@@ -174,8 +174,6 @@ export default class _Contact extends Component<ContactProps, ContactState> {
     }
 
     private renderPanelActions() {
-        const isAdmin = !!this.props.user.roles.indexOf(AuthRoles.ADMIN)
-
         if (this.state.editable) {
             return [
                 <Action icon="save" key="save" onClick={this.onSave} />,
