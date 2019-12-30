@@ -27,6 +27,7 @@ export interface ContactCompensationProps extends RouteComponentProps<{ id: stri
 
 export interface ContactCompensationState {
     openCompensationsSum: number,
+    compensations: Array<Compensation>
 }
 
 export class _ContactCompensation extends Component<ContactCompensationProps, ContactCompensationState> {
@@ -36,8 +37,23 @@ export class _ContactCompensation extends Component<ContactCompensationProps, Co
         this.compensationView = this.compensationView.bind(this)
 
         this.state = {
-            openCompensationsSum: 0
+            openCompensationsSum: 0,
+            compensations: []
         }
+    }
+
+    private getContactCompensations(): Array<Compensation> {
+        if (this.props.compensations.ids.length <= 0) return []
+
+        const compensations: Array<Compensation> = []
+        this.props.compensations.ids.forEach(id => {
+            const compensation = this.props.compensations.byId[id]
+            if (compensation.member.id === this.props.contact.id && compensation.approved) {
+                compensations.push(compensation)
+            }
+
+        })
+        return compensations
     }
 
     public compensationView(event: React.MouseEvent<HTMLButtonElement>) {
@@ -55,28 +71,21 @@ export class _ContactCompensation extends Component<ContactCompensationProps, Co
 
     public componentDidMount() {
         this.props.fetchData()
-
-        let openCompensationsSum = 0
-        for (const i of this.props.compensations.ids) {
-            openCompensationsSum += this.props.compensations.byId[i].amount
-        }
-        this.setState({ openCompensationsSum })
+        const compensations = this.getContactCompensations()
+        this.setState({ openCompensationsSum: compensations.reduce((a, b) => a + b.amount, 0), compensations })
     }
 
-    public componentWillReceiveProps(nextProps: ContactCompensationProps) {
-        if (nextProps.compensations.ids.length > 0 && nextProps.loading === false && this.props.compensations.ids.length !== nextProps.compensations.ids.length) {
-            let openCompensationsSum = 0
-            for (const i of nextProps.compensations.ids) {
-                openCompensationsSum += nextProps.compensations.byId[i].amount
-            }
-            this.setState({ openCompensationsSum })
+    public componentDidUpdate(prevProps: ContactCompensationProps) {
+        if (this.props.compensations.ids.length > 0 && this.props.loading === false && prevProps.compensations.ids.length !== this.props.compensations.ids.length) {
+            const compensations = this.getContactCompensations()
+            this.setState({ openCompensationsSum: compensations.reduce((a, b) => a + b.amount, 0), compensations })
         }
     }
 
     public render() {
         const actions: Array<React.ReactElement> = [<Button variant="success" className="view" onMouseUp={this.compensationView}><FontAwesomeIcon icon="eye" /></Button>]
 
-        if (!this.props.user.roles.indexOf(AuthRoles.COMPENSATIONS_READ) || (this.props.user.bexioContact || { id: undefined }).id !== this.props.contact.id) {
+        if (this.props.user.roles.indexOf(AuthRoles.COMPENSATIONS_READ) < 0 && this.props.user.roles.indexOf(AuthRoles.ADMIN) < 0 && (this.props.user.bexioContact || { id: undefined }).id !== this.props.contact.id) {
             return null
         }
 
@@ -103,7 +112,7 @@ export class _ContactCompensation extends Component<ContactCompensationProps, Co
                         keys: ['date'],
                         direction: 'desc'
                     }}
-                    data={this.props.compensations.byId}
+                    data={this.state.compensations}
                 />
             </Panel>
         )
