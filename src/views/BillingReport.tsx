@@ -97,18 +97,20 @@ export class _BillingReport extends Component<BillingReportProps, BillingReportS
         }
     }
 
-    public componentWillReceiveProps(nextProps: BillingReportProps) {
-        this.billingReport = nextProps.billingReports.byId[parseInt(nextProps.match.params.id)]
+    public componentDidUpdate(prevProps: BillingReportProps) {
+        if (this.props.match.params.id !== prevProps.match.params.id) {
+            this.billingReport = this.props.billingReports.byId[parseInt(this.props.match.params.id)]
 
-        if (this.billingReport) {
-            this.setState({
-                order: (this.billingReport.order as Order),
-                date: this.billingReport.date,
-                els: this.billingReport.els,
-                drivers: this.billingReport.drivers,
-                food: this.billingReport.food,
-                remarks: this.billingReport.remarks
-            })
+            if (this.billingReport) {
+                this.setState({
+                    order: (this.billingReport.order as Order),
+                    date: this.billingReport.date,
+                    els: this.billingReport.els,
+                    drivers: this.billingReport.drivers,
+                    food: this.billingReport.food,
+                    remarks: this.billingReport.remarks
+                })
+            }
         }
     }
 

@@ -40,10 +40,10 @@ export class _OrderSelect extends Component<OrderSelectProps, { value?: Array<{ 
         }
     }
 
-    public componentWillReceiveProps(nextProps: OrderSelectProps) {
-        if (nextProps.defaultValue instanceof Array) {
+    public componentDidUpdate() {
+        if (this.props.defaultValue instanceof Array) {
             let valueProps = []
-            for (let order of nextProps.defaultValue) {
+            for (let order of this.props.defaultValue) {
                 if (order.hasOwnProperty('id')) {
                     valueProps.push({
                         value: order.id.toString(),
@@ -52,9 +52,11 @@ export class _OrderSelect extends Component<OrderSelectProps, { value?: Array<{ 
                 }
             }
 
-            this.setState({
-                value: valueProps
-            })
+            if (JSON.stringify(this.state.value) !== JSON.stringify(valueProps)) {
+                this.setState({
+                    value: valueProps
+                })
+            }
         }
     }
 

@@ -149,6 +149,6 @@
     "@types/redux-saga": "^0.10.5",
     "@types/remote-redux-devtools": "^0.5.3",
     "remote-redux-devtools": "^0.5.16",
-    "typescript": "^3.2.1"
+    "typescript": "^3.7.4"
   }
 }

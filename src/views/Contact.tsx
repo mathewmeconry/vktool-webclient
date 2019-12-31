@@ -103,16 +103,16 @@ export default class _Contact extends Component<ContactProps, ContactState> {
         })
     }
 
-    public componentWillReceiveProps(nextProps: ContactProps) {
-        if (nextProps.contact) {
+    public componentDidUpdate(prevProps: ContactProps) {
+        if (this.props.contact && !prevProps.contact) {
             this.setState({
-                collectionPoint: nextProps.contact.collectionPoint || new CollectionPoint(),
-                entryDate: (nextProps.contact.entryDate) ? nextProps.contact.entryDate.toLocaleDateString() : '',
-                exitDate: (nextProps.contact.exitDate) ? nextProps.contact.exitDate.toLocaleDateString() : '',
-                bankName: nextProps.contact.bankName || '',
-                iban: nextProps.contact.iban || '',
-                accountHolder: nextProps.contact.accountHolder || '',
-                moreMails: nextProps.contact.moreMails || []
+                collectionPoint: this.props.contact.collectionPoint || new CollectionPoint(),
+                entryDate: (this.props.contact.entryDate) ? this.props.contact.entryDate.toLocaleDateString() : '',
+                exitDate: (this.props.contact.exitDate) ? this.props.contact.exitDate.toLocaleDateString() : '',
+                bankName: this.props.contact.bankName || '',
+                iban: this.props.contact.iban || '',
+                accountHolder: this.props.contact.accountHolder || '',
+                moreMails: this.props.contact.moreMails || []
             })
         }
     }
@@ -122,7 +122,7 @@ export default class _Contact extends Component<ContactProps, ContactState> {
         if (this.props.contact.contactGroups.find(group => group.bexioId === 7)) {
             await this.props.editMember({
                 id: this.props.contact.id,
-                collectionPointId: this.state.collectionPoint.id,
+                collectionPointId: (this.state.collectionPoint || { id: undefined }).id,
                 entryDate: (this.state.entryDate) ? new Date(this.state.entryDate) : '',
                 exitDate: (this.state.exitDate) ? new Date(this.state.exitDate) : '',
                 bankName: this.state.bankName,
@@ -181,7 +181,7 @@ export default class _Contact extends Component<ContactProps, ContactState> {
             ]
         }
 
-        if (this.props.user.roles.indexOf(AuthRoles.MEMBERS_EDIT) > -1 || this.props.user.roles.indexOf(AuthRoles.CONTACTS_EDIT) > -1) {
+        if (!!this.props.user.roles.indexOf(AuthRoles.MEMBERS_EDIT) || !!this.props.user.roles.indexOf(AuthRoles.CONTACTS_EDIT) || !!this.props.user.roles.indexOf(AuthRoles.ADMIN)) {
             return [<Action icon="pencil-alt" key="edit" onClick={async () => { this.setState({ editable: true }) }} />]
         }
 
@@ -190,12 +190,13 @@ export default class _Contact extends Component<ContactProps, ContactState> {
 
     private renderActions() {
         const actions = []
+        const isAdmin = !!this.props.user.roles.indexOf(AuthRoles.ADMIN)
 
-        if (this.props.user.roles.indexOf(AuthRoles.CONTACTS_READ) > -1) {
+        if (this.props.user.roles.indexOf(AuthRoles.CONTACTS_READ) > -1 || isAdmin) {
             actions.push(<a target="_blank" href={"https://office.bexio.com/index.php/kontakt/show/id/" + this.props.contact.bexioId} className="btn btn-block btn-outline-primary">In Bexio anschauen</a>)
         }
 
-        if (this.props.user.roles.indexOf(AuthRoles.MEMBERS_READ) > -1) {
+        if (this.props.user.roles.indexOf(AuthRoles.MEMBERS_READ) > -1 || isAdmin) {
             actions.push(<a target="_blank" href={"https://vkazu.sharepoint.com/leitung/Personalakten?viewpath=/leitung/Personalakten&id=/leitung/Personalakten/" + this.props.contact.firstname + " " + this.props.contact.lastname} className="btn btn-block btn-outline-primary">Personalakte öffnen</a>)
         }
 
@@ -212,7 +213,7 @@ export default class _Contact extends Component<ContactProps, ContactState> {
 
 
     public render() {
-        if (parseInt(this.props.match.params.id) !== (this.props.user.bexioContact || { id: undefined }).id && this.props.user.roles.indexOf(AuthRoles.CONTACTS_READ) < 0) {
+        if (parseInt(this.props.match.params.id) !== (this.props.user.bexioContact || { id: undefined }).id && (this.props.user.roles.indexOf(AuthRoles.CONTACTS_READ) < 0 && this.props.user.roles.indexOf(AuthRoles.ADMIN) < 0)) {
             return <Error403 />
         }
 
