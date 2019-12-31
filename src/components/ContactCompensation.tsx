@@ -72,13 +72,13 @@ export class _ContactCompensation extends Component<ContactCompensationProps, Co
     public componentDidMount() {
         this.props.fetchData()
         const compensations = this.getContactCompensations()
-        this.setState({ openCompensationsSum: compensations.reduce((a, b) => a + b.amount, 0), compensations })
+        this.setState({ openCompensationsSum: compensations.filter(a => !a.paied).reduce((a, b) => a + b.amount, 0), compensations })
     }
 
     public componentDidUpdate(prevProps: ContactCompensationProps) {
         if (this.props.compensations.ids.length > 0 && this.props.loading === false && prevProps.compensations.ids.length !== this.props.compensations.ids.length) {
             const compensations = this.getContactCompensations()
-            this.setState({ openCompensationsSum: compensations.reduce((a, b) => a + b.amount, 0), compensations })
+            this.setState({ openCompensationsSum: compensations.filter(a => !a.paied).reduce((a, b) => a + b.amount, 0), compensations })
         }
     }
 
