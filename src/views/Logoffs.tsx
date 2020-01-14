@@ -10,6 +10,7 @@ import { RouteComponentProps } from "react-router-dom"
 import Modal from "../components/Modal"
 import { Button, ButtonGroup } from "react-bootstrap"
 import Logoff from "../entities/Logoff"
+import Action from "../components/Action"
 
 interface LogoffsProps extends DataListProps<Logoff> {
     delete: (id: number) => void
@@ -98,6 +99,7 @@ export class _Logoffs extends Component<LogoffsProps & RouteComponentProps, { mo
             <DataList<Logoff>
                 title='Abmeldungen'
                 viewLocation='/draft/logoff/'
+                panelActions={[<Action icon="plus" to="/draft/logoff/add" />]}
                 rowActions={[
                     <button className="btn btn-danger delete" onMouseUp={this.deleteLogoff}><FontAwesomeIcon icon="trash" /></button>
                 ]}

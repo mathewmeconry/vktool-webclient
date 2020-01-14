@@ -7,7 +7,7 @@ export interface AddLogoffs {
     logoffs: LogoffBase[]
 }
 
-interface LogoffBase {
+export interface LogoffBase {
     from: Date,
     until: Date,
     remarks?: string
