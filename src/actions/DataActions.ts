@@ -354,7 +354,7 @@ export class Data {
             })
 
             return Data.sendToApi('post', Config.apiEndpoint + '/api/logoffs/approve', { 'id': id }, dispatch, () => {
-                dispatch(Data.fetchCompensationEntries())
+                dispatch(Data.fetchLogoffs())
                 dispatch(UI.showSuccess('Genehmigt!'))
             })
         }
@@ -367,8 +367,8 @@ export class Data {
                 payload: id
             })
 
-            return Data.sendToApi('delete', `${Config.apiEndpoint}/api/logoffs/${id}`, dispatch, () => {
-                dispatch(Data.fetchCompensationEntries())
+            return Data.sendToApi('delete', `${Config.apiEndpoint}/api/logoffs/${id}`, {}, dispatch).then(() => {
+                dispatch(Data.fetchLogoffs())
                 dispatch(UI.showSuccess('Gelöscht!'))
             })
         }

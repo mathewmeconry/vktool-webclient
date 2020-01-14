@@ -1,43 +1,44 @@
-import React, { Component, SyntheticEvent } from "react";
-import { Provider } from "react-redux";
-import configureStore from "./Store";
-import { Store, AnyAction } from "redux";
-import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
-import { ToastContainer } from 'react-toastify';
-import { AuthRoles } from "./interfaces/AuthRoles";
-import { SecureRoute } from "./components/SecureRoute";
+import React, { Component, SyntheticEvent } from "react"
+import { Provider } from "react-redux"
+import configureStore from "./Store"
+import { Store, AnyAction } from "redux"
+import { Route, Switch, Redirect } from "react-router-dom"
+import { ToastContainer } from 'react-toastify'
+import { AuthRoles } from "./interfaces/AuthRoles"
+import { SecureRoute } from "./components/SecureRoute"
 import Config from './Config'
-import { ConnectedRouter } from "connected-react-router";
-import { createBrowserHistory, History } from "history";
+import { ConnectedRouter } from "connected-react-router"
+import { createBrowserHistory, History } from "history"
 
 // styles
 import './styles/index.scss'
 import 'react-toastify/dist/ReactToastify.css'
 
 // views
-import { Dashboard } from "./views/Dashboard";
-import { Members } from "./views/Members";
-import { Contact } from "./views/Contact";
-import { Orders } from "./views/Orders";
-import { Order } from "./views/Order";
-import { BillingReports } from "./views/BillingReports";
-import { Compensations } from "./views/Compensations";
-import { AddBillingReport } from "./views/AddBillingReport";
-import { Login } from "./views/Login";
-import { Users } from "./views/Users";
-import { User } from "./views/User";
-import { BillingReport } from "./views/BillingReport";
-import { AddCompensation } from "./views/AddCompensation";
-import { Compensation } from "./views/Compensation";
-import { Error404 } from "./components/Errors/404";
-import { MailingLists } from "./views/MailingLists";
-import { CollectionPoints } from "./views/CollectionPoints";
-import { AddCollectionPoint } from "./views/AddCollectionPoint";
-import { Payouts } from "./views/Payouts";
-import { Payout } from "./views/Payout";
-import { PayoutMember } from "./views/PayoutMember";
-import { AddPayout } from "./views/AddPayout";
-import { Logoffs } from "./views/Logoffs";
+import { Dashboard } from "./views/Dashboard"
+import { Members } from "./views/Members"
+import { Contact } from "./views/Contact"
+import { Orders } from "./views/Orders"
+import { Order } from "./views/Order"
+import { BillingReports } from "./views/BillingReports"
+import { Compensations } from "./views/Compensations"
+import { AddBillingReport } from "./views/AddBillingReport"
+import { Login } from "./views/Login"
+import { Users } from "./views/Users"
+import { User } from "./views/User"
+import { BillingReport } from "./views/BillingReport"
+import { AddCompensation } from "./views/AddCompensation"
+import { Compensation } from "./views/Compensation"
+import { Error404 } from "./components/Errors/404"
+import { MailingLists } from "./views/MailingLists"
+import { CollectionPoints } from "./views/CollectionPoints"
+import { AddCollectionPoint } from "./views/AddCollectionPoint"
+import { Payouts } from "./views/Payouts"
+import { Payout } from "./views/Payout"
+import { PayoutMember } from "./views/PayoutMember"
+import { AddPayout } from "./views/AddPayout"
+import { Logoffs } from "./views/Logoffs"
+import { Logoff } from "./views/Logoff"
 
 export default class Root extends Component<{}, {}> {
     private store: Store<any, AnyAction>
@@ -76,6 +77,7 @@ export default class Root extends Component<{}, {}> {
                             <SecureRoute exact path="/draft/collection-points" roles={[AuthRoles.DRAFT_READ]} component={CollectionPoints} />
                             <SecureRoute exact path="/draft/collection-points/add" roles={[AuthRoles.DRAFT_EDIT, AuthRoles.DRAFT_CREATE]} component={AddCollectionPoint} />
                             <SecureRoute exact path="/draft/logoffs" roles={[AuthRoles.LOGOFFS_READ]} component={Logoffs} />
+                            <SecureRoute exact path="/draft/logoff/:id" roles={[AuthRoles.LOGOFFS_READ, AuthRoles.AUTHENTICATED]} component={Logoff} />
                             <SecureRoute exact path="/contact/:id" roles={[AuthRoles.CONTACTS_READ, AuthRoles.MEMBERS_READ, AuthRoles.AUTHENTICATED]} component={Contact} />
                             <SecureRoute exact path="/orders" roles={[AuthRoles.ORDERS_READ]} component={Orders} />
                             <SecureRoute exact path="/order/:id" roles={[AuthRoles.ORDERS_READ]} component={Order} />

@@ -97,7 +97,7 @@ export class _Logoffs extends Component<LogoffsProps & RouteComponentProps, { mo
         return (
             <DataList<Logoff>
                 title='Abmeldungen'
-                viewLocation='/logoffs/'
+                viewLocation='/draft/logoff/'
                 rowActions={[
                     <button className="btn btn-danger delete" onMouseUp={this.deleteLogoff}><FontAwesomeIcon icon="trash" /></button>
                 ]}
