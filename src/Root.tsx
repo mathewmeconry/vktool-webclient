@@ -37,6 +37,7 @@ import { Payouts } from "./views/Payouts";
 import { Payout } from "./views/Payout";
 import { PayoutMember } from "./views/PayoutMember";
 import { AddPayout } from "./views/AddPayout";
+import { Logoffs } from "./views/Logoffs";
 
 export default class Root extends Component<{}, {}> {
     private store: Store<any, AnyAction>
@@ -74,6 +75,7 @@ export default class Root extends Component<{}, {}> {
                             <SecureRoute exact path="/mailing-lists" roles={[AuthRoles.MAILING_LISTS]} component={MailingLists} />
                             <SecureRoute exact path="/draft/collection-points" roles={[AuthRoles.DRAFT_READ]} component={CollectionPoints} />
                             <SecureRoute exact path="/draft/collection-points/add" roles={[AuthRoles.DRAFT_EDIT, AuthRoles.DRAFT_CREATE]} component={AddCollectionPoint} />
+                            <SecureRoute exact path="/draft/logoffs" roles={[AuthRoles.LOGOFFS_READ]} component={Logoffs} />
                             <SecureRoute exact path="/contact/:id" roles={[AuthRoles.CONTACTS_READ, AuthRoles.MEMBERS_READ, AuthRoles.AUTHENTICATED]} component={Contact} />
                             <SecureRoute exact path="/orders" roles={[AuthRoles.ORDERS_READ]} component={Orders} />
                             <SecureRoute exact path="/order/:id" roles={[AuthRoles.ORDERS_READ]} component={Order} />

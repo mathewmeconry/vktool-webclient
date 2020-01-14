@@ -1,14 +1,15 @@
-import { UI } from "./UIActions";
-import { CreateBillingReport, EditBillingReport, BillingReportCompensationEntry } from "./../interfaces/BillingReport";
-import { AnyAction } from "redux";
-import { ThunkAction, ThunkDispatch } from "redux-thunk";
-import { State } from "../reducers/IndexReducer";
+import { UI } from "./UIActions"
+import { CreateBillingReport, EditBillingReport, BillingReportCompensationEntry } from "./../interfaces/BillingReport"
+import { AnyAction } from "redux"
+import { ThunkAction, ThunkDispatch } from "redux-thunk"
+import { State } from "../reducers/IndexReducer"
 import axios, { AxiosError, AxiosResponse, AxiosRequestConfig } from 'axios'
-import { CompensationEntry } from "../interfaces/CompensationEntry";
+import { CompensationEntry } from "../interfaces/CompensationEntry"
 import Config from '../Config'
-import { PutCollectionPoints } from "../interfaces/CollectionPoints";
-import { EditMember } from "../interfaces/Member";
-import { AddPayout } from "../interfaces/Payout";
+import { PutCollectionPoints } from "../interfaces/CollectionPoints"
+import { EditMember } from "../interfaces/Member"
+import { AddPayout } from "../interfaces/Payout"
+import { AddLogoff, AddLogoffs } from "../interfaces/Logoffs"
 
 export const DataActions = {
     FETCH_USER: 'fetch_user',
@@ -43,6 +44,7 @@ export const DataActions = {
     ADD_COMPENSATION_ENTRY: 'add_compensation_entry',
     APPROVE_COMPENSATION_ENTRY: 'approve_compensation_entry',
     DECLINE_COMPENSATION_ENTRY: 'dcline_compensation_entry',
+    DELETE_COMPENSATION_ENTRY: 'delete_compensation_entry',
 
     FETCH_USERS: 'fetch_users',
     GOT_USERS: 'got_users',
@@ -58,7 +60,15 @@ export const DataActions = {
     SENDING_PAYOUTS_MAILS: 'sending_payouts_mail',
     SENT_PAYOUTS_MAILS: 'sent_payouts_mail',
     SENDING_PAYOUTS_BEXIO: 'sending_payouts_bexio',
-    SENT_PAYOUTS_BEXIO: 'sent_payouts_bexio'
+    SENT_PAYOUTS_BEXIO: 'sent_payouts_bexio',
+
+    FETCH_LOGOFFS: 'fetch_logoffs',
+    GOT_LOGOFFS: 'got_logoffs',
+    ADD_LOGOFFS: 'add_logoffs',
+    ADD_LOGOFF: 'add_logoff',
+    APPROVE_LOGOFF: 'approve_logoff',
+    DECLINE_LOGOFF: 'dcline_logoff',
+    DELETE_LOGOFF: 'delete_logoff'
 }
 
 export class Data {
@@ -199,7 +209,7 @@ export class Data {
     public static deleteCompensationEntry(id: number): ThunkAction<Promise<void>, State, void, AnyAction> {
         return async (dispatch: ThunkDispatch<State, void, AnyAction>) => {
             dispatch({
-                type: DataActions.APPROVE_COMPENSATION_ENTRY,
+                type: DataActions.DELETE_COMPENSATION_ENTRY,
                 payload: id
             })
 
@@ -293,6 +303,74 @@ export class Data {
             await Data.sendToApi('post', Config.apiEndpoint + '/api/payouts/reclaim', { id: payoutId }, dispatch)
             dispatch(Data.fetchPayouts())
             dispatch(UI.showSuccess('Done!'))
+        }
+    }
+
+    public static fetchLogoffs(): ThunkAction<Promise<AnyAction>, State, void, AnyAction> {
+        return Data.fetchFromApi(Config.apiEndpoint + '/api/logoffs', DataActions.FETCH_LOGOFFS, DataActions.GOT_LOGOFFS)
+    }
+
+    public static addLogoff(data: AddLogoff): ThunkAction<Promise<AnyAction>, State, void, AnyAction> {
+        return async (dispatch: ThunkDispatch<State, undefined, AnyAction>) => {
+            return new Promise<AnyAction>((resolve, reject) => {
+                dispatch({
+                    type: DataActions.ADD_LOGOFF
+                })
+
+                Data.sendToApi('put', Config.apiEndpoint + '/api/logoffs/add', data, dispatch).then(() => {
+                    dispatch(Data.fetchLogoffs())
+                    dispatch(UI.showSuccess('Gespeichert!'))
+                    resolve()
+                }).catch(err => {
+                    reject(err)
+                })
+            })
+        }
+    }
+
+    public static addLogoffs(data: AddLogoffs): ThunkAction<Promise<AnyAction>, State, void, AnyAction> {
+        return async (dispatch: ThunkDispatch<State, undefined, AnyAction>) => {
+            return new Promise<AnyAction>((resolve, reject) => {
+                dispatch({
+                    type: DataActions.ADD_LOGOFFS
+                })
+
+                Data.sendToApi('put', Config.apiEndpoint + '/api/logoffs/add/bulk', data, dispatch).then(() => {
+                    dispatch(Data.fetchLogoffs())
+                    dispatch(UI.showSuccess('Gespeichert!'))
+                    resolve()
+                }).catch(err => {
+                    reject(err)
+                })
+            })
+        }
+    }
+
+    public static approveLogoff(id: number): ThunkAction<Promise<void>, State, void, AnyAction> {
+        return async (dispatch: ThunkDispatch<State, void, AnyAction>) => {
+            dispatch({
+                type: DataActions.APPROVE_LOGOFF,
+                payload: id
+            })
+
+            return Data.sendToApi('post', Config.apiEndpoint + '/api/logoffs/approve', { 'id': id }, dispatch, () => {
+                dispatch(Data.fetchCompensationEntries())
+                dispatch(UI.showSuccess('Genehmigt!'))
+            })
+        }
+    }
+
+    public static deleteLogoff(id: number): ThunkAction<Promise<void>, State, void, AnyAction> {
+        return async (dispatch: ThunkDispatch<State, void, AnyAction>) => {
+            dispatch({
+                type: DataActions.DELETE_LOGOFF,
+                payload: id
+            })
+
+            return Data.sendToApi('delete', `${Config.apiEndpoint}/api/logoffs/${id}`, dispatch, () => {
+                dispatch(Data.fetchCompensationEntries())
+                dispatch(UI.showSuccess('Gelöscht!'))
+            })
         }
     }
 

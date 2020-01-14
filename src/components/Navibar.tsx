@@ -1,11 +1,11 @@
-import React, { Component } from "react";
-import { NavibarElement } from "./NavibarElement";
-import { connect } from "react-redux";
+import React, { Component } from "react"
+import { NavibarElement } from "./NavibarElement"
+import { connect } from "react-redux"
 import { State } from '../reducers/IndexReducer'
-import { NavibarLevelHeader } from "./NavibarLevelHeader";
-import { AuthRoles } from "../interfaces/AuthRoles";
-import User from "../entities/User";
-import Config from "../Config";
+import { NavibarLevelHeader } from "./NavibarLevelHeader"
+import { AuthRoles } from "../interfaces/AuthRoles"
+import User from "../entities/User"
+import Config from "../Config"
 
 export class _Navibar extends Component<{ open: boolean, user?: User }> {
     public renderElement(element: JSX.Element, roles?: Array<AuthRoles>) {
@@ -35,9 +35,10 @@ export class _Navibar extends Component<{ open: boolean, user?: User }> {
                         {this.renderElement(<NavibarElement to="/mailing-lists" text="Verteiler" leftIcon="mail-bulk" />, [AuthRoles.MEMBERS_READ])}
                         {this.renderElement(
                             <NavibarLevelHeader text="Aufgebot" leftIcon="address-book" id="draft" level={1}>
-                                <NavibarElement to="/draft/collection-points" leftIcon="map-marker-alt" text="Abholpunkte" />
+                                {this.renderElement(<NavibarElement to="/draft/collection-points" leftIcon="map-marker-alt" text="Abholpunkte" />, [AuthRoles.DRAFT_READ])}
+                                {this.renderElement(<NavibarElement to="/draft/logoffs" leftIcon="user-times" text="Abmeldungen" />, [AuthRoles.LOGOFFS_READ])}
                             </NavibarLevelHeader>
-                            , [AuthRoles.DRAFT_READ, AuthRoles.DRAFT_CREATE]
+                            , [AuthRoles.DRAFT_READ, AuthRoles.LOGOFFS_READ]
                         )}
                         {this.renderElement(<NavibarElement to="/orders" text="Aufträge" leftIcon="file-alt" />, [AuthRoles.ORDERS_READ])}
                         {this.renderElement(

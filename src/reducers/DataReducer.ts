@@ -1,17 +1,18 @@
-import { DataActions } from "./../actions/DataActions";
-import { AnyAction, combineReducers } from "redux";
-import StringIndexed from "../interfaces/StringIndexed";
-import { UIActions } from "../actions/UIActions";
-import User from "../entities/User";
-import Contact from "../entities/Contact";
-import ContactGroup from "../entities/ContactGroup";
-import Order from "../entities/Order";
-import BillingReport from "../entities/BillingReport";
-import Compensation from "../entities/Compensation";
-import CollectionPoint from "../entities/CollectionPoint";
-import Payout from "../entities/Payout";
-import CustomCompensation from "../entities/CustomCompensation";
-import OrderCompensation from "../entities/OrderCompensation";
+import { DataActions } from "./../actions/DataActions"
+import { AnyAction, combineReducers } from "redux"
+import StringIndexed from "../interfaces/StringIndexed"
+import { UIActions } from "../actions/UIActions"
+import User from "../entities/User"
+import Contact from "../entities/Contact"
+import ContactGroup from "../entities/ContactGroup"
+import Order from "../entities/Order"
+import BillingReport from "../entities/BillingReport"
+import Compensation from "../entities/Compensation"
+import CollectionPoint from "../entities/CollectionPoint"
+import Payout from "../entities/Payout"
+import CustomCompensation from "../entities/CustomCompensation"
+import OrderCompensation from "../entities/OrderCompensation"
+import Logoff from "../entities/Logoff"
 
 export interface Data {
     users: DataInterface<User>
@@ -25,7 +26,8 @@ export interface Data {
     compensationEntries: DataInterface<Compensation>,
     mailingLists: StringIndexed<Array<string>>,
     collectionPoints: DataInterface<CollectionPoint>,
-    payouts: DataInterface<Payout>
+    payouts: DataInterface<Payout>,
+    logoffs: DataInterface<Logoff>
 }
 
 export interface SingleDataInterface<T> {
@@ -250,6 +252,8 @@ function CompensationEntries(state: DataInterface<Compensation> = { loading: fal
         case DataActions.APPROVE_COMPENSATION_ENTRY:
             byId = Object.assign({}, state.byId, Object.assign({}, state.byId[action.payload], { status: 'approved' }))
             return Object.assign({}, state, { byId: byId })
+        case DataActions.DELETE_COMPENSATION_ENTRY:
+            return Object.assign({}, state, { ids: state.ids.filter(el => el !== action.payload) })
         default:
             return state
     }
@@ -395,4 +399,32 @@ function Payouts(state: DataInterface<Payout> = { loading: false, byId: {}, ids:
     }
 }
 
-export default combineReducers({ payouts: Payouts, collectionPoints: CollectionPoints, user: UserReducer, users: Users, contacts: Contacts, members: Members, ranks: Ranks, orders: Orders, openOrders: OpenOrders, billingReports: BillingReports, compensationEntries: CompensationEntries, mailingLists: MailingLists })
+function Logoffs(state: DataInterface<Logoff> = { loading: false, byId: {}, ids: [], sort: { keys: ['from', 'until'], direction: 'desc' } }, action: AnyAction): DataInterface<Logoff> {
+    let byId: StringIndexed<Logoff> = {}
+    let ids: Array<number> = []
+
+    switch (action.type) {
+        case DataActions.FETCH_LOGOFFS:
+            if (state.ids.length === 0) {
+                return Object.assign({}, state, { loading: true })
+            }
+            return Object.assign({}, state, { loading: false })
+        case DataActions.GOT_LOGOFFS:
+            if (Object.keys(action.payload).length < 1) return state
+            for (let logoff of action.payload) {
+                byId[logoff.id] = logoff
+                ids.push(logoff.id)
+            }
+
+            return Object.assign({}, state, { loading: false, byId: byId, ids: ids })
+        case DataActions.APPROVE_LOGOFF:
+            byId = Object.assign({}, state.byId, Object.assign({}, state.byId[action.payload], { approved: true }))
+            return Object.assign({}, state, { byId: byId })
+        case DataActions.DECLINE_LOGOFF:
+            return Object.assign({}, state, { ids: state.ids.filter(el => el !== action.payload) })
+        default:
+            return state
+    }
+}
+
+export default combineReducers({ logoffs: Logoffs, payouts: Payouts, collectionPoints: CollectionPoints, user: UserReducer, users: Users, contacts: Contacts, members: Members, ranks: Ranks, orders: Orders, openOrders: OpenOrders, billingReports: BillingReports, compensationEntries: CompensationEntries, mailingLists: MailingLists })

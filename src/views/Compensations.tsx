@@ -1,7 +1,6 @@
 import { State } from "../reducers/IndexReducer";
 import { connect } from "react-redux";
 import { Data } from "../actions/DataActions";
-import { UI } from "../actions/UIActions";
 import { ThunkDispatch } from "redux-thunk";
 import { AnyAction } from "redux";
 import { DataList, DataListProps } from "../components/DataList";
@@ -11,7 +10,6 @@ import Compensation from "../entities/Compensation";
 import { RouteComponentProps } from "react-router-dom";
 import Modal from "../components/Modal";
 import { Button, ButtonGroup } from "react-bootstrap";
-import StringIndexed from "../interfaces/StringIndexed";
 
 interface CompensationsProps extends DataListProps<Compensation> {
     delete: (id: number) => void
