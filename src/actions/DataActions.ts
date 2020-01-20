@@ -360,6 +360,20 @@ export class Data {
         }
     }
 
+    public static declineLogoff(id: number): ThunkAction<Promise<void>, State, void, AnyAction> {
+        return async (dispatch: ThunkDispatch<State, void, AnyAction>) => {
+            dispatch({
+                type: DataActions.DECLINE_LOGOFF,
+                payload: id
+            })
+
+            return Data.sendToApi('post', Config.apiEndpoint + '/api/logoffs/decline', { 'id': id }, dispatch, () => {
+                dispatch(Data.fetchLogoffs())
+                dispatch(UI.showSuccess('Genehmigt!'))
+            })
+        }
+    }
+
     public static deleteLogoff(id: number): ThunkAction<Promise<void>, State, void, AnyAction> {
         return async (dispatch: ThunkDispatch<State, void, AnyAction>) => {
             dispatch({

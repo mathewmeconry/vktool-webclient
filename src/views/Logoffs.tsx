@@ -105,9 +105,9 @@ export class _Logoffs extends Component<LogoffsProps & RouteComponentProps, { mo
                 ]}
                 tableColumns={[
                     { text: 'Mitglied', keys: { 'contact': ['firstname', 'lastname'] }, sortable: true, searchable: true },
-                    { text: 'Von', keys: ['from'], sortable: true },
-                    { text: 'Bis', keys: ['until'], sortable: true },
-                    { text: 'Genehmigt', keys: ['approved'], sortable: true },
+                    { text: 'Von', keys: ['from'], sortable: true, format: 'toLocaleString' },
+                    { text: 'Bis', keys: ['until'], sortable: true, format: 'toLocaleString' },
+                    { text: 'Status', keys: ['state'], sortable: true },
                 ]}
                 data={this.props.data}
                 fetchData={this.props.fetchData}

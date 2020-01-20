@@ -399,7 +399,7 @@ function Payouts(state: DataInterface<Payout> = { loading: false, byId: {}, ids:
     }
 }
 
-function Logoffs(state: DataInterface<Logoff> = { loading: false, byId: {}, ids: [], sort: { keys: ['from', 'until'], direction: 'desc' } }, action: AnyAction): DataInterface<Logoff> {
+function Logoffs(state: DataInterface<Logoff> = { loading: false, byId: {}, ids: [], sort: { keys: ['from'], direction: 'desc' } }, action: AnyAction): DataInterface<Logoff> {
     let byId: StringIndexed<Logoff> = {}
     let ids: Array<number> = []
 

@@ -1,6 +1,6 @@
 import React, { Component } from "react"
-import { RouteComponentProps } from "react-router";
-import { default as LogoffEntity } from '../entities/Logoff'
+import { RouteComponentProps } from "react-router"
+import { default as LogoffEntity, LogoffState } from '../entities/Logoff'
 import { AnyAction } from "redux"
 import Button from "../components/Button"
 import { Error404 } from "../components/Errors/404"
@@ -21,7 +21,8 @@ interface LogoffProps extends RouteComponentProps<{ id: string }> {
     logoffIds: Array<number>,
     loading: boolean,
     fetchLogoffs: () => Promise<AnyAction>,
-    approve: (id: number) => Promise<void>
+    approve: (id: number) => Promise<void>,
+    decline: (id: number) => Promise<void>
 }
 
 export class _Logoff extends Component<LogoffProps> {
@@ -30,6 +31,7 @@ export class _Logoff extends Component<LogoffProps> {
         super(props)
 
         this.approve = this.approve.bind(this)
+        this.decline = this.decline.bind(this)
         this.renderActions = this.renderActions.bind(this)
 
         this.props.fetchLogoffs()
@@ -39,9 +41,16 @@ export class _Logoff extends Component<LogoffProps> {
         return this.props.approve(this.props.logoff.id)
     }
 
+    private decline(): Promise<void> {
+        return this.props.decline(this.props.logoff.id)
+    }
+
     private renderActions() {
-        if (!this.props.logoff.approved) {
-            return <Button id="approve" block={true} variant="outline-success" onClick={this.approve}>Genehmigen</Button>
+        if (this.props.logoff.state === LogoffState.PENDING) {
+            return [
+                <Button id="approve" block={true} variant="outline-success" onClick={this.approve}>Genehmigen</Button>,
+                <Button id="decline" block={true} variant="outline-danger" onClick={this.decline}>Ablehnen</Button>
+            ]
         }
     }
 
@@ -54,9 +63,17 @@ export class _Logoff extends Component<LogoffProps> {
             return (<Page title="Abmeldung"><Loading /></Page>)
         }
 
-        let statusBadgeClass = 'badge-success'
-        if (!this.props.logoff.approved) {
-            statusBadgeClass = 'badge-warning'
+        let statusBadgeClass = ''
+        switch (this.props.logoff.state) {
+            case LogoffState.PENDING:
+                statusBadgeClass = 'badge-warning'
+                break
+            case LogoffState.APPROVED:
+                statusBadgeClass = 'badge-success'
+                break
+            case LogoffState.DECLINED:
+                statusBadgeClass = 'badge-danger'
+                break
         }
 
         return (
@@ -67,8 +84,10 @@ export class _Logoff extends Component<LogoffProps> {
                             <FormEntry id="contact" title="Mitglied">{this.props.logoff.contact.firstname} {this.props.logoff.contact.lastname}</FormEntry>
                             <FormEntry id="from" title="Von">{this.props.logoff.from.toLocaleDateString()}</FormEntry>
                             <FormEntry id="until" title="Bis">{this.props.logoff.until.toLocaleDateString()}</FormEntry>
-                            <FormEntry id="state" title="Status"><div className={"badge " + statusBadgeClass}>{(this.props.logoff.approved) ? 'Bewilligt' : 'Ausstehend'}</div></FormEntry>
+                            <FormEntry id="state" title="Status"><div className={"badge " + statusBadgeClass}>{this.props.logoff.state}</div></FormEntry>
                             <FormEntry id="creator" title="Ersteller">{this.props.logoff.createdBy.displayName}</FormEntry>
+                            <FormEntry id="changedStateBy" title="Status geändert von">{this.props.logoff?.changedStateBy?.displayName}</FormEntry>
+                            <FormEntry id="remarks" title="Bemerkungen">{this.props.logoff.remarks}</FormEntry>
                         </Panel>
                     </Column>
                     <Column className="col-md-6">
@@ -97,6 +116,9 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>
         },
         approve: (id: number) => {
             return dispatch(Data.approveLogoff(id))
+        },
+        decline: (id: number) => {
+            return dispatch(Data.declineLogoff(id))
         },
     }
 }

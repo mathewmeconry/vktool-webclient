@@ -15,18 +15,36 @@ import { AnyAction } from "redux"
 import { Data } from "../actions/DataActions"
 import { AddLogoffs, LogoffBase } from "../interfaces/Logoffs"
 import { MemberSelect } from "../components/MemberSelect"
+import Table from "../components/Table"
+import { UI } from "../actions/UIActions"
+import { LogoffState } from "../entities/Logoff"
 
-export interface AddLogoffState { member?: Contact, logoffs: LogoffBase[] }
+export interface AddLogoffState { contact?: Contact, logoffs: Array<ExtendedLogoffBase> }
 
-export class _AddLogoff extends Component<{ history: History, members: DataInterface<Contact>, loading: boolean, fetchMembers: Function, save: Function }, AddLogoffState> {
-    private formEl?: HTMLFormElement
+interface ExtendedLogoffBase extends LogoffBase {
+    id: string,
+    [index: string]: any
+}
 
-    constructor(props: { history: History, members: DataInterface<Contact>, loading: boolean, fetchMembers: Function, save: Function }) {
+interface AddLogoffProps {
+    history: History
+    members: DataInterface<Contact>
+    loading: boolean
+    fetchMembers: Function
+    save: Function
+    error: (message: string) => void
+}
+
+export class _AddLogoff extends Component<AddLogoffProps, AddLogoffState> {
+    private formEl: HTMLFormElement
+
+    constructor(props: AddLogoffProps) {
         super(props)
 
         this.onSelectChange = this.onSelectChange.bind(this)
         this.onInputChange = this.onInputChange.bind(this)
         this.onSave = this.onSave.bind(this)
+        this.onLogoffChange = this.onLogoffChange.bind(this)
 
         this.state = {
             logoffs: []
@@ -50,11 +68,11 @@ export class _AddLogoff extends Component<{ history: History, members: DataInter
     private onSelectChange(opt: Contact) {
         if (opt) {
             this.setState({
-                member: opt
+                contact: opt
             })
         } else {
             this.setState({
-                member: undefined
+                contact: undefined
             })
         }
     }
@@ -73,14 +91,35 @@ export class _AddLogoff extends Component<{ history: History, members: DataInter
     private async onSave(event: React.MouseEvent<HTMLButtonElement>): Promise<void> {
         event.preventDefault()
         if (this.formEl) {
-            if (this.validate()) {
+            if (this.validate() && this.state.contact) {
                 await this.props.save({
-                    member: this.state.member,
+                    contact: this.state.contact.id,
                     logoffs: this.state.logoffs
                 })
-                this.props.history.push('/logoffs')
+                this.props.history.push('/draft/logoffs')
             }
         }
+    }
+
+    private onLogoffChange(id: string | number | null, name: string, value: any, newly: boolean): void {
+        const logoffs = this.state.logoffs
+        if (newly) {
+            const logoff: Partial<ExtendedLogoffBase> = {
+                id: logoffs.length.toString()
+            }
+            // @ts-ignore
+            logoff[name] = value
+            logoff.state = LogoffState.APPROVED
+            logoffs.push(logoff as ExtendedLogoffBase)
+        } else {
+            if (!id) {
+                this.props.error('Something failed... Refresh and please try again!')
+                return
+            }
+            logoffs[parseInt(id.toString())][name] = value
+        }
+
+        this.setState({ logoffs })
     }
 
     public render() {
@@ -99,9 +138,18 @@ export class _AddLogoff extends Component<{ history: History, members: DataInter
                         <Panel>
                             <form id="addLogoffs" ref={(ref: HTMLFormElement) => { this.formEl = ref }}>
                                 <h5>Mitglied</h5>
-                                <MemberSelect onChange={this.onSelectChange} />
+                                <MemberSelect onChange={this.onSelectChange} required={true} />
                                 <br></br>
-
+                                <Table<ExtendedLogoffBase>
+                                    columns={[
+                                        { keys: ['from'], text: 'Von', editable: true, type: 'datetime', onChange: this.onLogoffChange, required: true },
+                                        { keys: ['until'], text: 'Bis', editable: true, type: 'datetime', onChange: this.onLogoffChange, required: true },
+                                        { keys: ['state'], text: 'Status', editable: true, type: 'select', options: ['approve', 'pending', 'decline'], onChange: this.onLogoffChange, required: true },
+                                        { keys: ['remarks'], text: 'Bemerkungen', editable: true, type: 'text', onChange: this.onLogoffChange, required: false },
+                                    ]}
+                                    addNew={true}
+                                    data={this.state.logoffs}
+                                />
                                 <Button variant="primary" block={true} onClick={this.onSave}>Speichern</Button>
                             </form>
                         </Panel>
@@ -126,6 +174,9 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>
         },
         save: (data: AddLogoffs) => {
             dispatch(Data.addLogoffs(data))
+        },
+        error: (message: string) => {
+            dispatch(UI.showError(message))
         }
     }
 }

@@ -1,7 +1,8 @@
-import React, { Component, MouseEvent } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import StringIndexed from "../interfaces/StringIndexed";
-import Checkbox from "../components/Checkbox";
+import React, { Component, MouseEvent } from "react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import StringIndexed from "../interfaces/StringIndexed"
+import Checkbox from "../components/Checkbox"
+import Input from "./Input"
 
 export interface TableColumn {
     text: string
@@ -15,6 +16,11 @@ export interface TableColumn {
     suffix?: string
     format?: string
     className?: string
+    editable?: boolean,
+    type?: string,
+    options?: string[],
+    required?: boolean,
+    onChange?: (id: string | number | null, field: string, value: any, newly: boolean) => void
 }
 
 interface TableProps<T> {
@@ -27,6 +33,7 @@ interface TableProps<T> {
     className?: string,
     checkable?: boolean,
     onCheck?: (event: React.ChangeEvent<HTMLInputElement>) => void
+    addNew?: boolean
 }
 
 interface TableState<T> {
@@ -41,6 +48,7 @@ export default class Table<T extends { id: string | number }> extends Component<
         this.sortClick = this.sortClick.bind(this)
         this.search = this.search.bind(this)
         this.ref = this.ref.bind(this)
+        this.onColumnDataChange = this.onColumnDataChange.bind(this)
 
         if (this.props.defaultSort) {
             this.state = {
@@ -54,6 +62,24 @@ export default class Table<T extends { id: string | number }> extends Component<
                 sortDirection: 'asc',
                 searchableKeys: this.genSearchKeys(this.props.columns)
             }
+        }
+    }
+
+    private onColumnDataChange(columnKey: string, id: string | number | null, value: any, newly = false): void {
+        const column = this.props.columns.find(column => {
+            let colKey = ''
+            if (column.keys instanceof Array) {
+                colKey = column.keys.join('-')
+            } else {
+                for (let k in column.keys) {
+                    colKey += '_' + k + '.' + column.keys[k].join('-')
+                }
+            }
+            return colKey === columnKey
+        })
+        if (column && column.onChange) {
+            column.onChange(id, columnKey, value, newly)
+
         }
     }
 
@@ -120,10 +146,10 @@ export default class Table<T extends { id: string | number }> extends Component<
             }
 
             if (aValue < bValue)
-                return (direction === 'asc') ? -1 : 1;
+                return (direction === 'asc') ? -1 : 1
             if (aValue > bValue)
-                return (direction === 'asc') ? 1 : -1;
-            return 0;
+                return (direction === 'asc') ? 1 : -1
+            return 0
         })
 
         let sorted = {}
@@ -156,7 +182,7 @@ export default class Table<T extends { id: string | number }> extends Component<
     private sortClick(event: MouseEvent<HTMLTableHeaderCellElement>) {
         let dataKey = (event.target as HTMLElement).dataset.key as string
         if (!dataKey) dataKey = ((event.target as HTMLElement).parentElement as HTMLElement).dataset.key as string
-        let direction: 'asc' | 'desc' = 'asc';
+        let direction: 'asc' | 'desc' = 'asc'
 
         if (this.state.sortKey === dataKey) {
             if (this.state.sortDirection === 'asc') {
@@ -258,7 +284,7 @@ export default class Table<T extends { id: string | number }> extends Component<
                     let content: Array<string> = []
                     if (column.keys instanceof Array) {
                         content = column.keys.map((key) => {
-                            tdKey = `-${key}`
+                            tdKey = key
                             //@ts-ignore
                             if (dataEntry[key] instanceof Date) {
                                 if (column.format) {
@@ -275,7 +301,7 @@ export default class Table<T extends { id: string | number }> extends Component<
                                     return dataEntry[key][command](param)
                                 }
                                 //@ts-ignore
-                                return dataEntry[key].toLocaleDateString()
+                                return dataEntry[key]
                                 //@ts-ignore
                             } else if (typeof dataEntry[key] === 'boolean') {
                                 //@ts-ignore
@@ -301,7 +327,7 @@ export default class Table<T extends { id: string | number }> extends Component<
                                             //@ts-ignore
                                             return entry[command](param)
                                         }
-                                        return entry.toLocaleDateString()
+                                        return entry
                                     } else if (typeof entry === 'boolean') {
                                         if (entry) {
                                             return '✓'
@@ -346,7 +372,7 @@ export default class Table<T extends { id: string | number }> extends Component<
                         })
                     } else {
                         for (let k in column.keys) {
-                            tdKey = `-${tdKey}${k}`
+                            tdKey = `${tdKey}${k}`
                             content = content.concat(column.keys[k].map((key) => {
                                 //@ts-ignore
                                 if (dataEntry.hasOwnProperty(k) && dataEntry[k]) {
@@ -366,7 +392,7 @@ export default class Table<T extends { id: string | number }> extends Component<
                                             return dataEntry[k][key][command](param)
                                         }
                                         //@ts-ignore
-                                        return dataEntry[k][key].toLocaleDateString()
+                                        return dataEntry[k][key]
                                         //@ts-ignore
                                     } else if (typeof dataEntry[k][key] === 'boolean') {
                                         //@ts-ignore
@@ -399,9 +425,11 @@ export default class Table<T extends { id: string | number }> extends Component<
                     }
 
                     if (column.link) {
-                        row.push(<td className={column.className || ''} key={dataEntry.id + tdKey}><a key={dataEntry.id + [...(content || [Math.random().toString()]), 'a'].join(' ')} href={((column.linkPrefix) ? column.linkPrefix : '') + content.join(' ')} target={(column.linkPrefix && (column.linkPrefix.match(/w+:/i) || []).length > 0) ? "" : "_blank"}>{((column.prefix) ? column.prefix : '') + content.join(' ') + ((column.suffix) ? column.suffix : '')}</a></td>)
+                        row.push(<td className={column.className || ''} key={`${dataEntry.id}-${tdKey}`}><a key={dataEntry.id + [...(content || [Math.random().toString()]), 'a'].join(' ')} href={((column.linkPrefix) ? column.linkPrefix : '') + content.join(' ')} target={(column.linkPrefix && (column.linkPrefix.match(/w+:/i) || []).length > 0) ? "" : "_blank"}>{((column.prefix) ? column.prefix : '') + content.join(' ') + ((column.suffix) ? column.suffix : '')}</a></td>)
+                    } else if (column.editable) {
+                        row.push(<td className={column.className || ''} key={`${dataEntry.id}-${tdKey}`}><Input name={tdKey} value={content.join(' ')} editable={true} type={column.type} onChange={(name, value) => this.onColumnDataChange(tdKey, dataEntry.id, value)} options={column.options} required={column.required} /></td>)
                     } else {
-                        row.push(<td className={column.className || ''} key={dataEntry.id + tdKey}>{((column.prefix) ? column.prefix : '') + content.join(' ') + ((column.suffix) ? column.suffix : '')}</td>)
+                        row.push(<td className={column.className || ''} key={`${dataEntry.id}-${tdKey}`}>{((column.prefix) ? column.prefix : '') + content.join(' ') + ((column.suffix) ? column.suffix : '')}</td>)
                     }
                 }
             }
@@ -410,6 +438,26 @@ export default class Table<T extends { id: string | number }> extends Component<
             rows.push(<tr key={trKey} data-key={trKey.replace(/^_/, '')}>{row}</tr>)
         }
 
+        if (this.props.addNew) {
+            const trKey = Object.keys(this.props.data).length
+            const newRow = []
+            for (const column of this.props.columns) {
+                let tdKey = ''
+                if (column.keys instanceof Array) {
+                    tdKey = column.keys.join('-')
+                } else {
+                    tdKey = Object.keys(column.keys).join('-')
+                }
+
+
+                if (column.editable) {
+                    newRow.push(<td className={column.className || ''} key={`${trKey}-${tdKey}`}><Input name={`${trKey}-${tdKey}`} value={''} editable={true} type={column.type} onChange={(name, value) => this.onColumnDataChange(tdKey, null, value, true)} options={column.options} /></td>)
+                } else {
+                    newRow.push(<td className={column.className || ''} key={`${trKey}-${tdKey}`}></td>)
+                }
+            }
+            rows.push(<tr key={trKey}>{newRow}</tr>)
+        }
         return rows
     }
 
@@ -429,7 +477,7 @@ export default class Table<T extends { id: string | number }> extends Component<
                                         columnKey += '_' + k + '.' + column.keys[k].join('-')
                                     }
                                 }
-                                let sortIndicator;
+                                let sortIndicator
                                 if (columnKey === this.state.sortKey) {
                                     if (this.state.sortDirection === 'asc') {
                                         sortIndicator = <FontAwesomeIcon icon="sort-down" className="float-right" />

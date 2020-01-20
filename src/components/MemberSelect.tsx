@@ -16,7 +16,8 @@ interface MemberSelectProps {
     members: DataInterface<Contact>,
     loading: boolean,
     ref?: Function,
-    fetchMembers: Function
+    fetchMembers: Function,
+    required?: boolean
 }
 
 export class _MemberSelect extends Component<MemberSelectProps, { value?: Array<{ label: string, value: string }> }> {
@@ -127,6 +128,7 @@ export class _MemberSelect extends Component<MemberSelectProps, { value?: Array<
                 isMulti={this.props.isMulti || false}
                 onChange={this.onChange.bind(this)}
                 value={this.prepareValue()}
+                required={!!this.props.required}
             />)
         }
 
