@@ -23,6 +23,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Button } from "react-bootstrap"
 import { ContactCompensation } from "../components/ContactCompensation"
 import { Error403 } from "../components/Errors/403"
+import { ContactLogoff } from "../components/ContactLogoffs"
 
 export interface ContactProps extends RouteComponentProps<{ id: string }> {
     user: User,
@@ -287,6 +288,9 @@ export default class _Contact extends Component<ContactProps, ContactState> {
                 <Row>
                     <Column className="col-md-6">
                         <ContactCompensation contact={this.props.contact}  {...this.props} />
+                    </Column>
+                    <Column className="col-md-6">
+                        <ContactLogoff contact={this.props.contact}  {...this.props} />
                     </Column>
                 </Row>
             </Page>
