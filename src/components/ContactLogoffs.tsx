@@ -40,8 +40,11 @@ export class _ContactLogoff extends Component<ContactLogoffProps, ContactLogoffS
         }
     }
 
-    private getContactLogoffs(): Array<Logoff> {
-        if (this.props.logoffs.ids.length <= 0) return []
+    private getContactLogoffs(): void {
+        if (this.props.logoffs.ids.length <= 0) {
+            this.setState({ logoffs: [] })
+            return
+        }
 
         const logoffs: Array<Logoff> = []
         this.props.logoffs.ids.forEach(id => {
@@ -51,7 +54,7 @@ export class _ContactLogoff extends Component<ContactLogoffProps, ContactLogoffS
             }
 
         })
-        return logoffs
+        this.setState({ logoffs })
     }
 
     public logoffView(event: React.MouseEvent<HTMLButtonElement>) {
