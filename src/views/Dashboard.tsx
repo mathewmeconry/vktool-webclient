@@ -1,18 +1,19 @@
-import React, { Component } from "react";
+import React, { Component } from "react"
 import { Page } from '../components/Page'
-import Panel from "../components/Panel";
-import Column from "../components/Column";
-import Row from "../components/Row";
-import { Link } from "react-router-dom";
-import { State } from "../reducers/IndexReducer";
-import { ThunkDispatch } from "redux-thunk";
-import { AnyAction } from "redux";
+import Panel from "../components/Panel"
+import Column from "../components/Column"
+import Row from "../components/Row"
+import { Link } from "react-router-dom"
+import { State } from "../reducers/IndexReducer"
+import { ThunkDispatch } from "redux-thunk"
+import { AnyAction } from "redux"
 import { connect } from 'react-redux'
-import { Data } from "../actions/DataActions";
-import Loading from "../components/Loading";
-import User from "../entities/User";
-import { ContactCompensation } from "../components/ContactCompensation";
-import { AuthRoles } from "../interfaces/AuthRoles";
+import { Data } from "../actions/DataActions"
+import Loading from "../components/Loading"
+import User from "../entities/User"
+import { ContactCompensation } from "../components/ContactCompensation"
+import { AuthRoles } from "../interfaces/AuthRoles"
+import { ContactLogoff } from "../components/ContactLogoffs"
 
 export class _Dashboard extends Component<{ user: User, loading: boolean, fetchUser: Function }> {
 
@@ -22,7 +23,7 @@ export class _Dashboard extends Component<{ user: User, loading: boolean, fetchU
 
     public renderShortcuts() {
         const shortcuts = []
-        if(this.props.user.roles.indexOf(AuthRoles.BILLINGREPORTS_CREATE) > -1) {
+        if (this.props.user.roles.indexOf(AuthRoles.BILLINGREPORTS_CREATE) > -1) {
             shortcuts.push(<Link key="billingreport" to="/billing-reports/add/" className="btn btn-block btn-outline-primary">Verrechnungsrapport erstellen</Link>)
         }
 
@@ -36,7 +37,17 @@ export class _Dashboard extends Component<{ user: User, loading: boolean, fetchU
         if (this.props.user.bexioContact) {
             return (
                 <Column className="col-md-6">
-                    <ContactCompensation contact={this.props.user.bexioContact} {...this.props}/>
+                    <ContactCompensation contact={this.props.user.bexioContact} {...this.props} />
+                </Column>
+            )
+        }
+    }
+
+    public renderLogoffs() {
+        if (this.props.user.bexioContact) {
+            return (
+                <Column className="col-md-6">
+                    <ContactLogoff contact={this.props.user.bexioContact} {...this.props} />
                 </Column>
             )
         }
@@ -60,6 +71,9 @@ export class _Dashboard extends Component<{ user: User, loading: boolean, fetchU
                         </Panel>
                     </Column>
                     {this.renderCompensations()}
+                </Row>
+                <Row>
+                    {this.renderLogoffs()}
                 </Row>
             </Page>
         )

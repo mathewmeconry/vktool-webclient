@@ -14,6 +14,7 @@ import { State } from "../reducers/IndexReducer"
 import { ThunkDispatch } from "redux-thunk"
 import { Data } from "../actions/DataActions"
 import { connect } from "react-redux"
+import { Link } from "react-router-dom"
 
 
 interface LogoffProps extends RouteComponentProps<{ id: string }> {
@@ -46,12 +47,15 @@ export class _Logoff extends Component<LogoffProps> {
     }
 
     private renderActions() {
+        let actions = [<Link to={"/contact/" + this.props.logoff.contact.id} className="btn btn-block btn-outline-primary">Kontakt öffnen</Link>]
+
         if (this.props.logoff.state === LogoffState.PENDING) {
-            return [
-                <Button id="approve" block={true} variant="outline-success" onClick={this.approve}>Genehmigen</Button>,
-                <Button id="decline" block={true} variant="outline-danger" onClick={this.decline}>Ablehnen</Button>
+            actions = [...actions,
+            <Button id="approve" block={true} variant="outline-success" onClick={this.approve}>Genehmigen</Button>,
+            <Button id="decline" block={true} variant="outline-danger" onClick={this.decline}>Ablehnen</Button>
             ]
         }
+        return actions
     }
 
     public render() {
