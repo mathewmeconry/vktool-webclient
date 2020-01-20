@@ -12,7 +12,7 @@ const mapStateToProps = (state: State) => {
         title: 'Verrechnungsrapporte',
         viewLocation: '/billing-report/',
         tableColumns: [
-            { text: 'Datum', keys: ['date'], sortable: true },
+            { text: 'Datum', keys: ['date'], sortable: true, format: 'toLocaleDateString' },
             { text: 'Auftrag Nr', keys: { 'order': ['documentNr'] }, sortable: true, searchable: true },
             { text: 'Auftrag Titel', keys: { 'order': ['title'] }, sortable: true, searchable: true },
             { text: 'Ersteller', keys: { 'creator': ['displayName'] }, sortable: true, searchable: true },

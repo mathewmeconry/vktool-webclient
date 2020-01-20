@@ -1,13 +1,13 @@
 import React from 'react'
-import { connect } from "react-redux";
-import { State } from "../reducers/IndexReducer";
-import { ThunkDispatch } from "redux-thunk";
-import { AnyAction } from "redux";
-import { Data } from "../actions/DataActions";
+import { connect } from "react-redux"
+import { State } from "../reducers/IndexReducer"
+import { ThunkDispatch } from "redux-thunk"
+import { AnyAction } from "redux"
+import { Data } from "../actions/DataActions"
 
 
 import { DataList } from '../components/DataList'
-import Action from "../components/Action";
+import Action from "../components/Action"
 
 const mapStateToProps = (state: State) => {
     return {
@@ -16,8 +16,8 @@ const mapStateToProps = (state: State) => {
         viewLocation: '/payout/',
         title: 'Auszahlungen',
         tableColumns: [
-            { text: 'Von', keys: ['from'], sortable: true },
-            { text: 'Bis', keys: ['until'], sortable: true },
+            { text: 'Von', keys: ['from'], sortable: true, format: 'toLocaleDateString' },
+            { text: 'Bis', keys: ['until'], sortable: true, format: 'toLocaleDateString' },
             { text: 'Total', keys: ['totalWithoutMinus'], sortable: true, prefix: 'CHF ', format: 'toFixed(2)' }
         ]
     }

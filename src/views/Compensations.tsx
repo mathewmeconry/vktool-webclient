@@ -1,15 +1,15 @@
-import { State } from "../reducers/IndexReducer";
-import { connect } from "react-redux";
-import { Data } from "../actions/DataActions";
-import { ThunkDispatch } from "redux-thunk";
-import { AnyAction } from "redux";
-import { DataList, DataListProps } from "../components/DataList";
-import React, { Component } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import Compensation from "../entities/Compensation";
-import { RouteComponentProps } from "react-router-dom";
-import Modal from "../components/Modal";
-import { Button, ButtonGroup } from "react-bootstrap";
+import { State } from "../reducers/IndexReducer"
+import { connect } from "react-redux"
+import { Data } from "../actions/DataActions"
+import { ThunkDispatch } from "redux-thunk"
+import { AnyAction } from "redux"
+import { DataList, DataListProps } from "../components/DataList"
+import React, { Component } from "react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import Compensation from "../entities/Compensation"
+import { RouteComponentProps } from "react-router-dom"
+import Modal from "../components/Modal"
+import { Button, ButtonGroup } from "react-bootstrap"
 
 interface CompensationsProps extends DataListProps<Compensation> {
     delete: (id: number) => void
@@ -102,7 +102,7 @@ export class _Compensations extends Component<CompensationsProps & RouteComponen
                 ]}
                 tableColumns={[
                     { text: 'Mitglied', keys: { 'member': ['firstname', 'lastname'] }, sortable: true, searchable: true },
-                    { text: 'Datum', keys: ['date'], sortable: true },
+                    { text: 'Datum', keys: ['date'], sortable: true, format: 'toLocaleDateString' },
                     { text: 'Betrag', keys: ['amount'], sortable: true, prefix: 'CHF ', format: 'toFixed(2)' },
                     { text: 'Beschreibung', keys: ['description'], sortable: false, searchable: true },
                     { text: 'Ersteller', keys: { 'creator': ['displayName'] }, sortable: true },
