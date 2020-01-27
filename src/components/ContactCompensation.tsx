@@ -1,20 +1,20 @@
-import React, { Component } from "react";
-import { State } from "../reducers/IndexReducer";
-import { connect } from "react-redux";
-import { Data } from "../actions/DataActions";
-import Panel from "./Panel";
-import Loading from "./Loading";
-import { AuthRoles } from "../interfaces/AuthRoles";
-import Compensation from "../entities/Compensation";
-import { RouteComponentProps } from "react-router";
+import React, { Component } from "react"
+import { State } from "../reducers/IndexReducer"
+import { connect } from "react-redux"
+import { Data } from "../actions/DataActions"
+import Panel from "./Panel"
+import Loading from "./Loading"
+import { AuthRoles } from "../interfaces/AuthRoles"
+import Compensation from "../entities/Compensation"
+import { RouteComponentProps } from "react-router"
 import User from '../entities/User'
 import Contact from '../entities/Contact'
-import Table from "./Table";
-import { Button } from "react-bootstrap";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { ThunkDispatch } from "redux-thunk";
-import { AnyAction } from "redux";
-import { DataInterface } from "../reducers/DataReducer";
+import Table from "./Table"
+import { Button } from "react-bootstrap"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { ThunkDispatch } from "redux-thunk"
+import { AnyAction } from "redux"
+import { DataInterface } from "../reducers/DataReducer"
 
 export interface ContactCompensationProps extends RouteComponentProps<{ id: string }> {
     user: User,
@@ -97,7 +97,7 @@ export class _ContactCompensation extends Component<ContactCompensationProps, Co
             <Panel title={`Entschädigungen (Offen: ${this.state.openCompensationsSum.toFixed(2)}.-)`} scrollable={true}>
                 <Table<Compensation>
                     columns={[
-                        { text: 'Datum', keys: ['date'], sortable: true },
+                        { text: 'Datum', keys: ['date'], sortable: true, format: 'toLocaleDateString' },
                         { text: 'Beschreibung', keys: ['description'], sortable: true },
                         { text: 'Betrag', keys: ['amount'], prefix: 'CHF ', sortable: true, format: 'toFixed(2)' },
                         { text: 'Genehmigt', keys: ['approved'], sortable: true },
