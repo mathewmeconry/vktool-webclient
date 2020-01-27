@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import StringIndexed from "../interfaces/StringIndexed"
 import Checkbox from "../components/Checkbox"
 import Input from "./Input"
+import { Button, ButtonGroup } from "react-bootstrap"
 
 export interface TableColumn {
     text: string
@@ -23,6 +24,26 @@ export interface TableColumn {
     onChange?: (id: string | number | null, field: string, value: any, newly: boolean) => void
 }
 
+type FilterKey = string | { [index: string]: FilterKey }
+
+interface StringFilter {
+    type: 'eq',
+    key: FilterKey,
+    value: string
+}
+
+interface RangeFilter {
+    type: 'gt' | 'gte' | 'lt' | 'lte',
+    key: FilterKey,
+    value: number
+}
+
+export interface TableFilter {
+    id: string,
+    displayName: string,
+    filters: Array<StringFilter | RangeFilter>
+}
+
 interface TableProps<T> {
     columns: Array<TableColumn>,
     data: StringIndexed<T> | Array<T>,
@@ -34,6 +55,8 @@ interface TableProps<T> {
     checkable?: boolean,
     onCheck?: (event: React.ChangeEvent<HTMLInputElement>) => void
     addNew?: boolean
+    filters?: TableFilter[],
+    defaultFilter?: string
 }
 
 interface TableState<T> {
@@ -93,6 +116,74 @@ export default class Table<T extends { id: string | number }> extends Component<
 
     private ref(table: HTMLTableElement) {
         if (this.props.ref) this.props.ref(table)
+    }
+
+    private goDownFilterKey(obj: any, filterKey: FilterKey): any {
+        if (typeof filterKey === 'string') return obj[filterKey]
+        return this.goDownFilterKey(obj[Object.keys(filterKey)[0]], filterKey[Object.keys(filterKey)[0]])
+    }
+
+    private filterMatcher(filter: StringFilter | RangeFilter, value: string | number): boolean {
+        switch (filter.type) {
+            case 'eq':
+                return value === filter.value
+            case 'lt':
+                return value < filter.value
+            case 'lte':
+                return value <= filter.value
+            case 'gt':
+                return value > filter.value
+            case 'gte':
+                return value >= filter.value
+        }
+    }
+
+    private filter(filterId: string, data?: StringIndexed<T> | Array<T>): StringIndexed<T> | Array<T> {
+        data = data || this.props.data
+        if (data) {
+            if (this.props.filters) {
+                const filter = this.props.filters.find(filter => filter.id === filterId)
+                if (filter) {
+                    if (data instanceof Array) {
+                        return data.filter(el => {
+                            let matches = true
+                            let index = 0
+                            let maxIndex = filter.filters.length
+                            while (matches && index < maxIndex) {
+                                const currentFilter: StringFilter | RangeFilter = filter.filters[index]
+                                const compareableData = this.goDownFilterKey(el, currentFilter.key)
+                                matches = this.filterMatcher(currentFilter, compareableData)
+                                index += 1
+                            }
+                            return matches
+                        })
+                    } else {
+                        const matchedKeys = Object.keys(data).filter(k => {
+                            // @ts-ignore
+                            const el = data[k]
+                            let matches = true
+                            let index = 0
+                            let maxIndex = filter.filters.length
+                            while (matches && index < maxIndex) {
+                                const currentFilter: StringFilter | RangeFilter = filter.filters[index]
+                                const compareableData = this.goDownFilterKey(el, currentFilter.key)
+                                matches = this.filterMatcher(currentFilter, compareableData)
+                                index += 1
+                            }
+                            return matches
+                        })
+                        const result: StringIndexed<T> = {}
+                        matchedKeys.forEach(key => {
+                            // @ts-ignore
+                            result[key] = data[key]
+                        })
+                        return result
+                    }
+                }
+            }
+            return data
+        }
+        return []
     }
 
     private sort(sortKey: string, direction: 'asc' | 'desc', data?: StringIndexed<T> | Array<T>): StringIndexed<T> | Array<T> {
@@ -260,6 +351,18 @@ export default class Table<T extends { id: string | number }> extends Component<
         return data
     }
 
+    private renderFilters() {
+        if (this.props.filters) {
+            return (
+                <ButtonGroup>
+                    {this.props.filters.map((filter: TableFilter) => {
+                        return <Button>{filter.displayName}</Button>
+                    })}
+                </ButtonGroup>)
+        }
+        return <></>
+    }
+
     private renderColumnValues(value: any, column: TableColumn): string {
         if (typeof value === 'boolean') {
             if (value) {
@@ -289,7 +392,7 @@ export default class Table<T extends { id: string | number }> extends Component<
 
     private renderRows() {
         let rows = []
-        let data = this.props.data
+        let data = this.filter('2020')
         data = this.sort(this.state.sortKey, this.state.sortDirection, data)
         data = this.search(this.props.searchString || '', data)
 
@@ -361,6 +464,7 @@ export default class Table<T extends { id: string | number }> extends Component<
     public render() {
         return (
             <div className="table-responsive">
+                {this.renderFilters()}
                 <table className={`table table-striped ${this.props.className || ''}`} ref={this.ref}>
                     <thead key="table-head">
                         <tr key="table-head-row">
