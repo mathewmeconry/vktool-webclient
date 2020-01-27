@@ -18,7 +18,7 @@ const mapStateToProps = (state: State) => {
             { text: 'Titel', keys: ['title'], sortable: true, searchable: true },
             { text: 'Kunde', keys: { 'contact': ['firstname', 'lastname'] }, sortable: true, searchable: true },
             { text: 'Total', keys: ['total'], sortable: true, prefix: 'CHF ', searchable: true },
-            { text: 'Auftragsdaten', keys: ['execDates']}
+            { text: 'Auftragsdaten', keys: ['execDates'], format: 'toLocaleDateString'}
         ]
     }
 }

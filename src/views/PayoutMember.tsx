@@ -84,7 +84,7 @@ export class _PayoutMember extends Component<PayoutMemberProps> {
                         <Panel title="Entschädigungen">
                             <Table<Compensation>
                                 columns={[
-                                    { text: 'Datum', keys: ['date'], sortable: true },
+                                    { text: 'Datum', keys: ['date'], sortable: true, format: 'toLocaleDateString' },
                                     { text: 'Beschreibung', keys: ['description'], sortable: true },
                                     { text: 'Betrag', keys: ['amount'], prefix: 'CHF ', sortable: true, format: 'toFixed(2)' },
                                     { text: 'Genehmigt', keys: ['approved'], sortable: true },

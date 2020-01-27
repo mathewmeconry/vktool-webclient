@@ -86,8 +86,8 @@ export class _Logoff extends Component<LogoffProps> {
                     <Column className="col-md-6">
                         <Panel title="Informationen">
                             <FormEntry id="contact" title="Mitglied">{this.props.logoff.contact.firstname} {this.props.logoff.contact.lastname}</FormEntry>
-                            <FormEntry id="from" title="Von">{this.props.logoff.from.toLocaleDateString()}</FormEntry>
-                            <FormEntry id="until" title="Bis">{this.props.logoff.until.toLocaleDateString()}</FormEntry>
+                            <FormEntry id="from" title="Von">{this.props.logoff.from.toLocaleString()}</FormEntry>
+                            <FormEntry id="until" title="Bis">{this.props.logoff.until.toLocaleString()}</FormEntry>
                             <FormEntry id="state" title="Status"><div className={"badge " + statusBadgeClass}>{this.props.logoff.state}</div></FormEntry>
                             <FormEntry id="creator" title="Ersteller">{this.props.logoff.createdBy.displayName}</FormEntry>
                             <FormEntry id="changedStateBy" title="Status geändert von">{this.props.logoff?.changedStateBy?.displayName}</FormEntry>
