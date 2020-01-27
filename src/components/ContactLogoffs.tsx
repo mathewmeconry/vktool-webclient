@@ -75,7 +75,6 @@ export class _ContactLogoff extends Component<ContactLogoffProps, ContactLogoffS
         this.getContactLogoffs()
     }
 
-
     public componentDidUpdate(prevProps: ContactLogoffProps) {
         if (this.props.logoffs.ids.length > 0 && this.props.loading === false && prevProps.logoffs.ids.length !== this.props.logoffs.ids.length) {
             this.getContactLogoffs()
