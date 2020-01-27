@@ -260,6 +260,33 @@ export default class Table<T extends { id: string | number }> extends Component<
         return data
     }
 
+    private renderColumnValues(value: any, column: TableColumn): string {
+        if (typeof value === 'boolean') {
+            if (value) {
+                return '✓'
+            }
+            return '⨯'
+        }
+
+        if (value instanceof Array) {
+            return value.map(el => this.renderColumnValues(el, column)).join('')
+        }
+
+        if (column.format) {
+            let param
+            let command = column.format
+            if (column.format.indexOf('(') > -1 && column.format.indexOf(')') > -1) {
+                const match = column.format.match(/(\w+)\((.*)\)/)
+                if (match && match.length > 2) {
+                    command = match[1]
+                    param = match[2]
+                }
+            }
+            return value[command](param)
+        }
+        return (value || '').toString()
+    }
+
     private renderRows() {
         let rows = []
         let data = this.props.data
@@ -283,142 +310,12 @@ export default class Table<T extends { id: string | number }> extends Component<
                 } else {
                     let content: Array<string> = []
                     if (column.keys instanceof Array) {
-                        content = column.keys.map((key) => {
-                            tdKey = key
-                            //@ts-ignore
-                            if (dataEntry[key] instanceof Date) {
-                                if (column.format) {
-                                    let param
-                                    let command = column.format
-                                    if (column.format.indexOf('(') > -1 && column.format.indexOf(')') > -1) {
-                                        const match = column.format.match(/(\w+)\((.*)\)/)
-                                        if (match && match.length > 2) {
-                                            command = match[1]
-                                            param = match[2]
-                                        }
-                                    }
-                                    //@ts-ignore
-                                    return dataEntry[key][command](param)
-                                }
-                                //@ts-ignore
-                                return dataEntry[key]
-                                //@ts-ignore
-                            } else if (typeof dataEntry[key] === 'boolean') {
-                                //@ts-ignore
-                                if (dataEntry[key]) {
-                                    return '✓'
-                                }
-                                return '⨯'
-                                //@ts-ignore
-                            } else if (dataEntry[key] instanceof Array) {
-                                //@ts-ignore
-                                return dataEntry[key].map((entry: any) => {
-                                    if (entry instanceof Date) {
-                                        if (column.format) {
-                                            let param
-                                            let command = column.format
-                                            if (column.format.indexOf('(') > -1 && column.format.indexOf(')') > -1) {
-                                                const match = column.format.match(/(\w+)\((.*)\)/)
-                                                if (match && match.length > 2) {
-                                                    command = match[1]
-                                                    param = match[2]
-                                                }
-                                            }
-                                            //@ts-ignore
-                                            return entry[command](param)
-                                        }
-                                        return entry
-                                    } else if (typeof entry === 'boolean') {
-                                        if (entry) {
-                                            return '✓'
-                                        }
-                                        return '⨯'
-                                    }
-
-                                    if (column.format) {
-                                        let param
-                                        let command = column.format
-                                        if (column.format.indexOf('(') > -1 && column.format.indexOf(')') > -1) {
-                                            const match = column.format.match(/(\w+)\((.*)\)/)
-                                            if (match && match.length > 2) {
-                                                command = match[1]
-                                                param = match[2]
-                                            }
-                                        }
-                                        //@ts-ignore
-                                        return entry[command](param)
-                                    }
-
-                                    return entry
-                                })
-                            }
-
-                            if (column.format) {
-                                let param
-                                let command = column.format
-                                if (column.format.indexOf('(') > -1 && column.format.indexOf(')') > -1) {
-                                    const match = column.format.match(/(\w+)\((.*)\)/)
-                                    if (match && match.length > 2) {
-                                        command = match[1]
-                                        param = match[2]
-                                    }
-                                }
-                                //@ts-ignore
-                                return dataEntry[key][command](param)
-                            }
-
-                            //@ts-ignore
-                            return dataEntry[key]
-                        })
+                        content = column.keys.map((key) => this.renderColumnValues(dataEntry[key], column))
                     } else {
                         for (let k in column.keys) {
                             tdKey = `${tdKey}${k}`
                             content = content.concat(column.keys[k].map((key) => {
-                                //@ts-ignore
-                                if (dataEntry.hasOwnProperty(k) && dataEntry[k]) {
-                                    //@ts-ignore
-                                    if (dataEntry[k][key] instanceof Date) {
-                                        if (column.format) {
-                                            let param
-                                            let command = column.format
-                                            if (column.format.indexOf('(') > -1 && column.format.indexOf(')') > -1) {
-                                                const match = column.format.match(/(\w+)\((.*)\)/)
-                                                if (match && match.length > 2) {
-                                                    command = match[1]
-                                                    param = match[2]
-                                                }
-                                            }
-                                            //@ts-ignore
-                                            return dataEntry[k][key][command](param)
-                                        }
-                                        //@ts-ignore
-                                        return dataEntry[k][key]
-                                        //@ts-ignore
-                                    } else if (typeof dataEntry[k][key] === 'boolean') {
-                                        //@ts-ignore
-                                        if (dataEntry[k][key]) {
-                                            return '✓'
-                                        }
-                                        return '⨯'
-                                    }
-
-                                    if (column.format) {
-                                        let param
-                                        let command = column.format
-                                        if (column.format.indexOf('(') > -1 && column.format.indexOf(')') > -1) {
-                                            const match = column.format.match(/(\w+)\((.*)\)/)
-                                            if (match && match.length > 2) {
-                                                command = match[1]
-                                                param = match[2]
-                                            }
-                                        }
-                                        //@ts-ignore
-                                        return dataEntry[k][key][command](param)
-                                    }
-
-                                    //@ts-ignore
-                                    return dataEntry[k][key]
-                                }
+                                if (dataEntry.hasOwnProperty(k) && dataEntry[k]) return this.renderColumnValues(dataEntry[k][key], column)
                                 return ''
                             }))
                         }
