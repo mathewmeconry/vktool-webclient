@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import StringIndexed from "../interfaces/StringIndexed"
 import Checkbox from "../components/Checkbox"
 import Input from "./Input"
-import { Button, ButtonGroup } from "react-bootstrap"
+import { Button, ButtonToolbar } from "react-bootstrap"
 
 export interface TableColumn {
     text: string
@@ -24,15 +24,15 @@ export interface TableColumn {
     onChange?: (id: string | number | null, field: string, value: any, newly: boolean) => void
 }
 
-type FilterKey = string | { [index: string]: FilterKey }
+export type FilterKey = string | { [index: string]: FilterKey }
 
-interface StringFilter {
+export interface StringFilter {
     type: 'eq',
     key: FilterKey,
-    value: string
+    value: string | RegExp
 }
 
-interface RangeFilter {
+export interface RangeFilter {
     type: 'gt' | 'gte' | 'lt' | 'lte',
     key: FilterKey,
     value: number
@@ -44,7 +44,7 @@ export interface TableFilter {
     filters: Array<StringFilter | RangeFilter>
 }
 
-interface TableProps<T> {
+export interface TableProps<T> {
     columns: Array<TableColumn>,
     data: StringIndexed<T> | Array<T>,
     onSort?: (event: MouseEvent<HTMLTableHeaderCellElement>, clickedKeys: Array<string> | StringIndexed<any>, sortDirection: 'asc' | 'desc') => void,
@@ -62,7 +62,8 @@ interface TableProps<T> {
 interface TableState<T> {
     sortKey: string,
     sortDirection: 'asc' | 'desc',
-    searchableKeys: Array<string | { [index: string]: Array<string> }>
+    searchableKeys: Array<string | { [index: string]: Array<string> }>,
+    filter?: string
 }
 
 export default class Table<T extends { id: string | number }> extends Component<TableProps<T>, TableState<T>> {
@@ -77,13 +78,15 @@ export default class Table<T extends { id: string | number }> extends Component<
             this.state = {
                 sortKey: this.props.defaultSort.keys.join('-'),
                 sortDirection: this.props.defaultSort.direction,
-                searchableKeys: this.genSearchKeys(this.props.columns)
+                searchableKeys: this.genSearchKeys(this.props.columns),
+                filter: this.props.defaultFilter || (this.props.filters || [{ id: '' }])[0].id
             }
         } else {
             this.state = {
                 sortKey: '',
                 sortDirection: 'asc',
-                searchableKeys: this.genSearchKeys(this.props.columns)
+                searchableKeys: this.genSearchKeys(this.props.columns),
+                filter: this.props.defaultFilter || (this.props.filters || [{ id: '' }])[0].id
             }
         }
     }
@@ -109,7 +112,8 @@ export default class Table<T extends { id: string | number }> extends Component<
     public componentDidUpdate(prevProps: TableProps<T>) {
         if (prevProps !== this.props) {
             this.setState({
-                searchableKeys: this.genSearchKeys(this.props.columns)
+                searchableKeys: this.genSearchKeys(this.props.columns),
+                filter: this.props.defaultFilter
             })
         }
     }
@@ -126,6 +130,7 @@ export default class Table<T extends { id: string | number }> extends Component<
     private filterMatcher(filter: StringFilter | RangeFilter, value: string | number): boolean {
         switch (filter.type) {
             case 'eq':
+                if (filter.value instanceof RegExp) return filter.value.test(value.toString())
                 return value === filter.value
             case 'lt':
                 return value < filter.value
@@ -351,18 +356,6 @@ export default class Table<T extends { id: string | number }> extends Component<
         return data
     }
 
-    private renderFilters() {
-        if (this.props.filters) {
-            return (
-                <ButtonGroup>
-                    {this.props.filters.map((filter: TableFilter) => {
-                        return <Button>{filter.displayName}</Button>
-                    })}
-                </ButtonGroup>)
-        }
-        return <></>
-    }
-
     private renderColumnValues(value: any, column: TableColumn): string {
         if (typeof value === 'boolean') {
             if (value) {
@@ -392,7 +385,7 @@ export default class Table<T extends { id: string | number }> extends Component<
 
     private renderRows() {
         let rows = []
-        let data = this.filter('2020')
+        let data = this.filter(this.state.filter || '')
         data = this.sort(this.state.sortKey, this.state.sortDirection, data)
         data = this.search(this.props.searchString || '', data)
 
@@ -464,7 +457,6 @@ export default class Table<T extends { id: string | number }> extends Component<
     public render() {
         return (
             <div className="table-responsive">
-                {this.renderFilters()}
                 <table className={`table table-striped ${this.props.className || ''}`} ref={this.ref}>
                     <thead key="table-head">
                         <tr key="table-head-row">
