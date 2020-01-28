@@ -1,16 +1,26 @@
 #search {
-    width: calc(100% - 20px);
-    margin: 10px 10px 0 0;
+  width: calc(100% - 20px);
+  margin: 10px 10px 0 0;
 }
 
-@include media-breakpoint-up(sm) {}
+div.filters {
+  @extend .form-control;
+  @extend .form-control-sm;
+  border: 0px;
+  width: auto;
+}
+
+@include media-breakpoint-up(sm) {
+}
 
 @include media-breakpoint-up(md) {
-    #search {
-        width: 200px;
-    }
+  #search {
+    width: 200px;
+  }
 }
 
-@include media-breakpoint-up(lg) {}
+@include media-breakpoint-up(lg) {
+}
 
-@include media-breakpoint-up(xl) {}
+@include media-breakpoint-up(xl) {
+}
