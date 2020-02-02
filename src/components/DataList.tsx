@@ -23,7 +23,8 @@ export interface DataListProps<T> {
     panelActions?: Array<any>
     rowActions?: Array<any>,
     filters?: TableFilter[],
-    defaultFilter?: string
+    defaultFilter?: string,
+    additionalTitleStuff?: JSX.Element[]
 }
 
 export interface DataListState {
@@ -161,6 +162,7 @@ export class DataList<T extends { id: string | number }> extends Component<DataL
                             title={
                                 <ButtonToolbar className="justify-content-between align-items-center">
                                     {this.renderFilters()}
+                                    {this.props.additionalTitleStuff || []}
                                     <input id="search" value={this.state.searchString} placeholder="Search..." className="form-control form-control-sm" onChange={(event) => this.textSearch(event)} />
                                 </ButtonToolbar>
                             }>
