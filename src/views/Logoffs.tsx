@@ -8,9 +8,10 @@ import React, { Component } from "react"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { RouteComponentProps } from "react-router-dom"
 import Modal from "../components/Modal"
-import { Button, ButtonGroup } from "react-bootstrap"
+import { Button, ButtonGroup, InputGroup } from "react-bootstrap"
 import Logoff from "../entities/Logoff"
 import Action from "../components/Action"
+import Input from "../components/Input"
 
 interface LogoffsProps extends DataListProps<Logoff> {
     delete: (id: number) => void
@@ -112,6 +113,24 @@ export class _Logoffs extends Component<LogoffsProps & RouteComponentProps, { mo
                 data={this.props.data}
                 fetchData={this.props.fetchData}
                 history={this.props.history}
+                defaultFilter='pending'
+                filters={[
+                    {
+                        id: 'all',
+                        displayName: 'Alle',
+                        filters: [{ type: 'any' }]
+                    },
+                    {
+                        id: 'pending',
+                        displayName: 'Offen',
+                        filters: [{ type: 'eq', value: 'pending', key: 'state' }]
+                    },
+                    {
+                        id: 'approved',
+                        displayName: 'Genehmigt',
+                        filters: [{ type: 'eq', value: 'approved', key: 'state' }]
+                    }
+                ]}
             >
                 {this.renderModal()}
             </DataList>

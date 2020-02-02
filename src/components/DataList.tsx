@@ -22,7 +22,8 @@ export interface DataListProps<T> {
     history: History
     panelActions?: Array<any>
     rowActions?: Array<any>,
-    filters?: TableFilter[]
+    filters?: TableFilter[],
+    defaultFilter?: string
 }
 
 export interface DataListState {
@@ -53,7 +54,7 @@ export class DataList<T extends { id: string | number }> extends Component<DataL
                 keys: this.props.data.sort.keys,
                 direction: this.props.data.sort.direction
             },
-            filter: (this.props.filters || [{ id: '' }])[0].id
+            filter: this.props.defaultFilter || (this.props.filters || [{ id: '' }])[0].id
         }
     }
 

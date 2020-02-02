@@ -112,6 +112,34 @@ export class _Compensations extends Component<CompensationsProps & RouteComponen
                 data={this.props.data}
                 fetchData={this.props.fetchData}
                 history={this.props.history}
+                defaultFilter='all'
+                filters={[
+                    {
+                        id: 'all',
+                        displayName: 'Alle',
+                        filters: [{ type: 'any' }]
+                    },
+                    {
+                        id: 'notApproved',
+                        displayName: 'Nicht bewilligt',
+                        filters: [{ type: 'eq', value: 'false', key: 'approved' }]
+                    },
+                    {
+                        id: 'approved',
+                        displayName: 'Bewilligt',
+                        filters: [{ type: 'eq', value: 'true', key: 'approved' }]
+                    },
+                    {
+                        id: 'paied',
+                        displayName: 'Ausbezahlt',
+                        filters: [{ type: 'eq', value: 'true', key: 'paied' }]
+                    },
+                    {
+                        id: 'notPaied',
+                        displayName: 'Nicht Ausbezahtl',
+                        filters: [{ type: 'eq', value: 'false', key: 'paied' }]
+                    }
+                ]}
             >
                 {this.renderModal()}
             </DataList>

@@ -194,7 +194,7 @@ function OpenOrders(state: DataInterface<Order> = { loading: false, byId: {}, id
 }
 
 
-function BillingReports(state: DataInterface<BillingReport> = { loading: false, byId: {}, ids: [], sort: { keys: ['orderDate'], direction: 'desc' } }, action: AnyAction): DataInterface<BillingReport> {
+function BillingReports(state: DataInterface<BillingReport> = { loading: false, byId: {}, ids: [], sort: { keys: ['date'], direction: 'desc' } }, action: AnyAction): DataInterface<BillingReport> {
     let byId: StringIndexed<BillingReport> = {}
     let ids: Array<number> = []
 

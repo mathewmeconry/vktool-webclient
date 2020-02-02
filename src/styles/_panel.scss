@@ -14,8 +14,12 @@
             line-height: $panel_header_line_height_mobile;
         }
     }
-    .panel-header.d-flex div:first-child {
+    .panel-header.d-flex .btn-toolbar {
         @extend .flex-fill;
+    }
+    .panel-header.d-flex .btn-toolbar > div {
+        display: flex;
+        height: fit-content;
     }
     .panel-actions {
         @include float-right;

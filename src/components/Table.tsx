@@ -3,7 +3,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import StringIndexed from "../interfaces/StringIndexed"
 import Checkbox from "../components/Checkbox"
 import Input from "./Input"
-import { Button, ButtonToolbar } from "react-bootstrap"
 
 export interface TableColumn {
     text: string
@@ -26,6 +25,10 @@ export interface TableColumn {
 
 export type FilterKey = string | { [index: string]: FilterKey }
 
+export interface AnyFilter {
+    type: 'any'
+}
+
 export interface StringFilter {
     type: 'eq',
     key: FilterKey,
@@ -41,7 +44,7 @@ export interface RangeFilter {
 export interface TableFilter {
     id: string,
     displayName: string,
-    filters: Array<StringFilter | RangeFilter>
+    filters: Array<StringFilter | RangeFilter | AnyFilter>
 }
 
 export interface TableProps<T> {
@@ -131,7 +134,7 @@ export default class Table<T extends { id: string | number }> extends Component<
         switch (filter.type) {
             case 'eq':
                 if (filter.value instanceof RegExp) return filter.value.test(value.toString())
-                return value === filter.value
+                return value.toString() === filter.value
             case 'lt':
                 return value < filter.value
             case 'lte':
@@ -149,13 +152,14 @@ export default class Table<T extends { id: string | number }> extends Component<
             if (this.props.filters) {
                 const filter = this.props.filters.find(filter => filter.id === filterId)
                 if (filter) {
+                    if (filter.filters.find(f => f.type === 'any')) return data
                     if (data instanceof Array) {
                         return data.filter(el => {
                             let matches = true
                             let index = 0
                             let maxIndex = filter.filters.length
                             while (matches && index < maxIndex) {
-                                const currentFilter: StringFilter | RangeFilter = filter.filters[index]
+                                const currentFilter = filter.filters[index] as StringFilter | RangeFilter
                                 const compareableData = this.goDownFilterKey(el, currentFilter.key)
                                 matches = this.filterMatcher(currentFilter, compareableData)
                                 index += 1
@@ -170,7 +174,7 @@ export default class Table<T extends { id: string | number }> extends Component<
                             let index = 0
                             let maxIndex = filter.filters.length
                             while (matches && index < maxIndex) {
-                                const currentFilter: StringFilter | RangeFilter = filter.filters[index]
+                                const currentFilter = filter.filters[index] as StringFilter | RangeFilter
                                 const compareableData = this.goDownFilterKey(el, currentFilter.key)
                                 matches = this.filterMatcher(currentFilter, compareableData)
                                 index += 1
