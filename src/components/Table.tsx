@@ -65,6 +65,7 @@ export interface TableProps<T> {
     addNew?: boolean
     filters?: TableFilter[],
     defaultFilter?: string
+    onDataChange?: (data: StringIndexed<T>) => void
 }
 
 interface TableState<T> {
@@ -208,7 +209,7 @@ export default class Table<T extends { id: string | number }> extends Component<
         return []
     }
 
-    private sort(sortKey: string, direction: 'asc' | 'desc', data?: StringIndexed<T> | Array<T>): StringIndexed<T> | Array<T> {
+    private sort(sortKey: string, direction: 'asc' | 'desc', data?: StringIndexed<T> | Array<T>): StringIndexed<T> {
         let keys = this.genSortKeys(sortKey)
         let prepared = []
         data = data || this.props.data
@@ -403,12 +404,13 @@ export default class Table<T extends { id: string | number }> extends Component<
     private renderRows() {
         let rows = []
         let data = this.filter(this.state.filter || '')
-        data = this.sort(this.state.sortKey, this.state.sortDirection, data)
         data = this.search(this.props.searchString || '', data)
+        data = this.sort(this.state.sortKey, this.state.sortDirection, data)
+        if (this.props.onDataChange) this.props.onDataChange(data)
 
         for (let id in data) {
             //@ts-ignore
-            let dataEntry = data[id]
+            let dataEntry = data[id] as T & { [index: string]: any }
             let row = []
 
             if (this.props.checkable) {

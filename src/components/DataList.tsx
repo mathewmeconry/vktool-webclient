@@ -24,7 +24,8 @@ export interface DataListProps<T> {
     rowActions?: Array<any>,
     filters?: Array<DataListTableFilter | TableFilter>,
     defaultFilter?: string,
-    additionalTitleStuff?: JSX.Element[]
+    additionalTitleStuff?: JSX.Element[],
+    onDataChange?: (data: StringIndexed<T>) => void
 }
 
 export interface DataListState {
@@ -160,6 +161,7 @@ export class DataList<T extends { id: string | number }> extends Component<DataL
                 onSort={this.onSort}
                 filters={this.props.filters}
                 defaultFilter={this.state.filter}
+                onDataChange={this.props.onDataChange}
             />
         )
     }
