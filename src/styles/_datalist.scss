@@ -1,6 +1,6 @@
 #search {
-  width: calc(100% - 20px);
-  margin: 10px 10px 0 0;
+  width: 100%;
+  margin: 10px;
 }
 
 div.filters {
@@ -14,9 +14,6 @@ div.filters {
 }
 
 @include media-breakpoint-up(md) {
-  #search {
-    width: 200px;
-  }
 }
 
 @include media-breakpoint-up(lg) {

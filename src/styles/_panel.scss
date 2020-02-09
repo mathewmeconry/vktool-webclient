@@ -1,84 +1,162 @@
-@import 'variables';
+@import "variables";
 .panel {
-    background-color: #fff;
-    border: none;
-    border-radius: 5px;
-    position: relative;
-    margin-bottom: 24px;
-    box-shadow: 0 5px 5px 0 rgba(0, 0, 0, .25);
-    .panel-header {
-        text-transform: uppercase;
-        min-height: $panel_header_min_height_mobile;
-        .panel-title {
-            padding: $panel_content_padding_mobile;
-            line-height: $panel_header_line_height_mobile;
-        }
+  background-color: #fff;
+  border: none;
+  border-radius: 5px;
+  position: relative;
+  margin-bottom: 24px;
+  box-shadow: 0 5px 5px 0 rgba(0, 0, 0, 0.25);
+  .panel-header {
+    text-transform: uppercase;
+    min-height: $panel_header_min_height_mobile;
+    .panel-title {
+      padding: $panel_content_padding_mobile;
+      line-height: $panel_header_line_height_mobile;
     }
-    .panel-header.d-flex .btn-toolbar {
-        @extend .flex-fill;
-    }
-    .panel-header.d-flex .btn-toolbar > div {
-        display: flex;
-        height: fit-content;
-    }
-    .panel-actions {
-        @include float-right;
-        padding: 5px 10px 0 0;
-    }
-    .panel-body {
-        overflow: auto;
-        padding: $panel_content_padding_mobile;
-        clear: both;
-    }
-    .panel-body-scrollable {
-        max-height: 50vh;
-    }
+  }
+  .panel-header.d-flex .btn-toolbar {
+    @extend .flex-fill;
+    width: 100%;
+  }
+  .panel-header.d-flex .btn-toolbar .btn-group {
+    overflow-x: scroll;
+    width: 100%;
+  }
+  .panel-header.d-flex .btn-toolbar > div {
+    display: flex;
+    height: fit-content;
+  }
+  .panel-actions {
+    @include float-right;
+    padding: 5px 10px 0 0;
+    width: min-content;
+  }
+  .panel-body {
+    overflow: auto;
+    padding: $panel_content_padding_mobile;
+    clear: both;
+  }
+  .panel-body-scrollable {
+    max-height: 50vh;
+  }
 }
 
 .panel.editable {
-    .col-1, .col-2, .col-3, .col-4, .col-5, .col-6, .col-7, .col-8, .col-9, .col-10, .col-11, .col-12, .col, .col-auto, .col-sm-1, .col-sm-2, .col-sm-3, .col-sm-4, .col-sm-5, .col-sm-6, .col-sm-7, .col-sm-8, .col-sm-9, .col-sm-10, .col-sm-11, .col-sm-12, .col-sm, .col-sm-auto, .col-md-1, .col-md-2, .col-md-3, .col-md-4, .col-md-5, .col-md-6, .col-md-7, .col-md-8, .col-md-9, .col-md-10, .col-md-11, .col-md-12, .col-md, .col-md-auto, .col-lg-1, .col-lg-2, .col-lg-3, .col-lg-4, .col-lg-5, .col-lg-6, .col-lg-7, .col-lg-8, .col-lg-9, .col-lg-10, .col-lg-11, .col-lg-12, .col-lg, .col-lg-auto, .col-xl-1, .col-xl-2, .col-xl-3, .col-xl-4, .col-xl-5, .col-xl-6, .col-xl-7, .col-xl-8, .col-xl-9, .col-xl-10, .col-xl-11, .col-xl-12, .col-xl, .col-xl-auto {
-        line-height: 35px;
-        * {
-            line-height: initial
-        }
+  .col-1,
+  .col-2,
+  .col-3,
+  .col-4,
+  .col-5,
+  .col-6,
+  .col-7,
+  .col-8,
+  .col-9,
+  .col-10,
+  .col-11,
+  .col-12,
+  .col,
+  .col-auto,
+  .col-sm-1,
+  .col-sm-2,
+  .col-sm-3,
+  .col-sm-4,
+  .col-sm-5,
+  .col-sm-6,
+  .col-sm-7,
+  .col-sm-8,
+  .col-sm-9,
+  .col-sm-10,
+  .col-sm-11,
+  .col-sm-12,
+  .col-sm,
+  .col-sm-auto,
+  .col-md-1,
+  .col-md-2,
+  .col-md-3,
+  .col-md-4,
+  .col-md-5,
+  .col-md-6,
+  .col-md-7,
+  .col-md-8,
+  .col-md-9,
+  .col-md-10,
+  .col-md-11,
+  .col-md-12,
+  .col-md,
+  .col-md-auto,
+  .col-lg-1,
+  .col-lg-2,
+  .col-lg-3,
+  .col-lg-4,
+  .col-lg-5,
+  .col-lg-6,
+  .col-lg-7,
+  .col-lg-8,
+  .col-lg-9,
+  .col-lg-10,
+  .col-lg-11,
+  .col-lg-12,
+  .col-lg,
+  .col-lg-auto,
+  .col-xl-1,
+  .col-xl-2,
+  .col-xl-3,
+  .col-xl-4,
+  .col-xl-5,
+  .col-xl-6,
+  .col-xl-7,
+  .col-xl-8,
+  .col-xl-9,
+  .col-xl-10,
+  .col-xl-11,
+  .col-xl-12,
+  .col-xl,
+  .col-xl-auto {
+    line-height: 35px;
+    * {
+      line-height: initial;
     }
+  }
 }
 
 ::-webkit-scrollbar {
-    width: .6em;
-    height: .4em
+  width: 0.6em;
+  height: 0.4em;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, .5);
-    cursor: pointer
+  background: rgba(0, 0, 0, 0.5);
+  cursor: pointer;
 }
 
 ::-webkit-scrollbar-track {
-    background: #fff
+  background: #fff;
 }
 
-@include media-breakpoint-up(sm) {}
+@include media-breakpoint-up(sm) {
+}
 
 @include media-breakpoint-up(md) {
-    .panel {
-        .panel-body {
-            //max-height: calc(100vh - #{$header_height} - #{$page_padding_top} - #{$panel_header_min_height} - 100px);
-            padding: $panel_content_padding;
-        }
-        .panel-header {
-            min-height: $panel_header_min_height;
-            .panel-title {
-                padding: $panel_content_padding;
-                line-height: $panel_header_line_height;
-            }
-        }
-        .panel-actions {
-            padding: 10px 20px 0 0;
-        }
+  .panel {
+    .panel-body {
+      //max-height: calc(100vh - #{$header_height} - #{$page_padding_top} - #{$panel_header_min_height} - 100px);
+      padding: $panel_content_padding;
     }
+    .panel-header {
+      min-height: $panel_header_min_height;
+      .panel-title {
+        padding: $panel_content_padding;
+        line-height: $panel_header_line_height;
+      }
+    }
+    .panel-actions {
+      padding: 10px 20px 0 0;
+    }
+  }
 }
 
-@include media-breakpoint-up(lg) {}
+@include media-breakpoint-up(lg) {
+}
 
-@include media-breakpoint-up(xl) {}
+@include media-breakpoint-up(xl) {
+}
