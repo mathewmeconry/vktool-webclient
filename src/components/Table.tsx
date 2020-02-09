@@ -382,7 +382,7 @@ export default class Table<T extends { id: string | number }> extends Component<
         }
 
         if (value instanceof Array) {
-            return value.map(el => this.renderColumnValues(el, column)).join('')
+            return value.map(el => this.renderColumnValues(el, column)).join(',')
         }
 
         if (column.format) {
@@ -439,7 +439,7 @@ export default class Table<T extends { id: string | number }> extends Component<
                     } else if (column.editable) {
                         row.push(<td className={column.className || ''} key={`${dataEntry.id}-${tdKey}`}><Input name={tdKey} value={content.join(' ')} editable={true} type={column.type} onChange={(name, value) => this.onColumnDataChange(tdKey, dataEntry.id, value)} options={column.options} required={column.required} /></td>)
                     } else {
-                        row.push(<td className={column.className || ''} key={`${dataEntry.id}-${tdKey}`}>{((column.prefix) ? column.prefix : '') + content.join(' ') + ((column.suffix) ? column.suffix : '')}</td>)
+                        row.push(<td className={column.className || ''} key={`${dataEntry.id}-${tdKey}`}>{`${column.prefix || ''}${content.join(' ')}${column.suffix || ''}`}</td>)
                     }
                 }
             }
