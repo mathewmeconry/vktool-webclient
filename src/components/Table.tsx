@@ -41,10 +41,15 @@ export interface RangeFilter {
     value: number
 }
 
+export interface CustomFilter {
+    type: 'cu',
+    filter: (obj: any) => boolean
+}
+
 export interface TableFilter {
     id: string,
     displayName: string,
-    filters: Array<StringFilter | RangeFilter | AnyFilter>
+    filters: Array<StringFilter | RangeFilter | AnyFilter | CustomFilter>
 }
 
 export interface TableProps<T> {
@@ -159,9 +164,13 @@ export default class Table<T extends { id: string | number }> extends Component<
                             let index = 0
                             let maxIndex = filter.filters.length
                             while (matches && index < maxIndex) {
-                                const currentFilter = filter.filters[index] as StringFilter | RangeFilter
-                                const compareableData = this.goDownFilterKey(el, currentFilter.key)
-                                matches = this.filterMatcher(currentFilter, compareableData)
+                                const currentFilter = filter.filters[index] as StringFilter | RangeFilter | CustomFilter
+                                if (currentFilter.type === 'cu') {
+                                    matches = currentFilter.filter(el)
+                                } else {
+                                    const compareableData = this.goDownFilterKey(el, currentFilter.key)
+                                    matches = this.filterMatcher(currentFilter, compareableData)
+                                }
                                 index += 1
                             }
                             return matches
@@ -174,9 +183,13 @@ export default class Table<T extends { id: string | number }> extends Component<
                             let index = 0
                             let maxIndex = filter.filters.length
                             while (matches && index < maxIndex) {
-                                const currentFilter = filter.filters[index] as StringFilter | RangeFilter
-                                const compareableData = this.goDownFilterKey(el, currentFilter.key)
-                                matches = this.filterMatcher(currentFilter, compareableData)
+                                const currentFilter = filter.filters[index] as StringFilter | RangeFilter | CustomFilter
+                                if (currentFilter.type === 'cu') {
+                                    matches = currentFilter.filter(el)
+                                } else {
+                                    const compareableData = this.goDownFilterKey(el, currentFilter.key)
+                                    matches = this.filterMatcher(currentFilter, compareableData)
+                                }
                                 index += 1
                             }
                             return matches
@@ -403,10 +416,10 @@ export default class Table<T extends { id: string | number }> extends Component<
             }
 
             for (let column of this.props.columns) {
-                let tdKey = ''
+                let tdKey = (column.keys instanceof Array) ? column.keys.join('-') : Object.keys(column.keys).map((el: string) => ((column.keys as StringIndexed<Array<string>>)[el].join('-'))).join('-')
 
                 if (column.content) {
-                    row.push(<td key={(column.keys instanceof Array) ? column.keys.join('-') : Object.keys(column.keys).map((el: string) => ((column.keys as StringIndexed<Array<string>>)[el].join('-'))).join('-')}>{column.content || ''}</td>)
+                    row.push(<td key={tdKey}>{column.content || ''}</td>)
                 } else {
                     let content: Array<string> = []
                     if (column.keys instanceof Array) {
@@ -422,7 +435,7 @@ export default class Table<T extends { id: string | number }> extends Component<
                     }
 
                     if (column.link) {
-                        row.push(<td className={column.className || ''} key={`${dataEntry.id}-${tdKey}`}><a key={dataEntry.id + [...(content || [Math.random().toString()]), 'a'].join(' ')} href={((column.linkPrefix) ? column.linkPrefix : '') + content.join(' ')} target={(column.linkPrefix && (column.linkPrefix.match(/w+:/i) || []).length > 0) ? "" : "_blank"}>{((column.prefix) ? column.prefix : '') + content.join(' ') + ((column.suffix) ? column.suffix : '')}</a></td>)
+                        row.push(<td className={column.className || ''} key={`${dataEntry.id}-${tdKey}`}><a key={`${dataEntry.id}-${tdKey}-a`} href={((column.linkPrefix) ? column.linkPrefix : '') + content.join(' ')} target={(column.linkPrefix && (column.linkPrefix.match(/w+:/i) || []).length > 0) ? "" : "_blank"}>{((column.prefix) ? column.prefix : '') + content.join(' ') + ((column.suffix) ? column.suffix : '')}</a></td>)
                     } else if (column.editable) {
                         row.push(<td className={column.className || ''} key={`${dataEntry.id}-${tdKey}`}><Input name={tdKey} value={content.join(' ')} editable={true} type={column.type} onChange={(name, value) => this.onColumnDataChange(tdKey, dataEntry.id, value)} options={column.options} required={column.required} /></td>)
                     } else {

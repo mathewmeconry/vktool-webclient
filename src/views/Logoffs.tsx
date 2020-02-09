@@ -17,7 +17,14 @@ interface LogoffsProps extends DataListProps<Logoff> {
     delete: (id: number) => void
 }
 
-export class _Logoffs extends Component<LogoffsProps & RouteComponentProps, { modalShow: boolean, toDeleteLogoff?: Logoff }> {
+interface LogoffState {
+    modalShow: boolean
+    toDeleteLogoff?: Logoff,
+    from: Date,
+    until: Date
+}
+
+export class _Logoffs extends Component<LogoffsProps & RouteComponentProps, LogoffState> {
     constructor(props: LogoffsProps & RouteComponentProps) {
         super(props)
 
@@ -26,7 +33,7 @@ export class _Logoffs extends Component<LogoffsProps & RouteComponentProps, { mo
         this.showModal = this.showModal.bind(this)
         this.hideModal = this.hideModal.bind(this)
 
-        this.state = { modalShow: false }
+        this.state = { modalShow: false, from: new Date(), until: new Date() }
     }
 
     private deleteLogoff(event: React.MouseEvent<HTMLButtonElement>) {
@@ -129,6 +136,22 @@ export class _Logoffs extends Component<LogoffsProps & RouteComponentProps, { mo
                         id: 'approved',
                         displayName: 'Genehmigt',
                         filters: [{ type: 'eq', value: 'approved', key: 'state' }]
+                    },
+                    {
+                        id: 'custom',
+                        displayName: 'Custom',
+                        filterComponents: [
+                            <InputGroup size="sm" >
+                                <InputGroup.Prepend>
+                                    <InputGroup.Text>Von/Bis</InputGroup.Text>
+                                </InputGroup.Prepend>
+                                <Input type="date" value={this.state.from} name="from" editable={true} onChange={(name: string, value: Date) => { this.setState({ from: value }) }}></Input>
+                                <Input type="date" value={this.state.until} name="until" editable={true} onChange={(name: string, value: Date) => { this.setState({ until: value }) }}></Input>
+                            </InputGroup>
+                        ],
+                        filters: [{
+                            type: 'cu', filter: (obj: Logoff) => { return obj.from <= this.state.until && obj.until >= this.state.from  }
+                        }]
                     }
                 ]}
             >

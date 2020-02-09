@@ -22,7 +22,7 @@ export interface DataListProps<T> {
     history: History
     panelActions?: Array<any>
     rowActions?: Array<any>,
-    filters?: TableFilter[],
+    filters?: Array<DataListTableFilter | TableFilter>,
     defaultFilter?: string,
     additionalTitleStuff?: JSX.Element[]
 }
@@ -34,6 +34,10 @@ export interface DataListState {
         keys: Array<string> | StringIndexed<string>,
         direction: 'asc' | 'desc'
     }
+}
+
+export interface DataListTableFilter extends TableFilter {
+    filterComponents: JSX.Element[]
 }
 
 export class DataList<T extends { id: string | number }> extends Component<DataListProps<T>, DataListState> {
@@ -106,14 +110,22 @@ export class DataList<T extends { id: string | number }> extends Component<DataL
 
     private renderFilters() {
         if (this.props.filters) {
+            const activeFilter = this.props.filters.find(f => f.id === this.state.filter)
+            let activeFilterComponents: JSX.Element[] = []
+            if (activeFilter && 'filterComponents' in activeFilter) {
+                activeFilterComponents = activeFilter.filterComponents
+            }
             return (
-                <ButtonGroup className="filters">
-                    {
-                        this.props.filters.map((filter: TableFilter) => {
-                            return <Button variant='outline-secondary' active={filter.id === this.state.filter} onClick={() => this.onFilter(filter.id)}>{filter.displayName}</Button>
-                        })
-                    }
-                </ButtonGroup>
+                <>
+                    <ButtonGroup className="filters">
+                        {
+                            this.props.filters.map((filter: TableFilter | DataListTableFilter) => {
+                                return <Button variant='outline-secondary' active={filter.id === this.state.filter} onClick={() => this.onFilter(filter.id)}>{filter.displayName}</Button>
+                            })
+                        }
+                    </ButtonGroup>
+                    {activeFilterComponents}
+                </>
             )
         }
         return <ButtonGroup></ButtonGroup>
