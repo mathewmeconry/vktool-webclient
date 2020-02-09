@@ -136,7 +136,7 @@ export class _Compensations extends Component<CompensationsProps & RouteComponen
                     },
                     {
                         id: 'notPaied',
-                        displayName: 'Nicht Ausbezahtl',
+                        displayName: 'Nicht Ausbezahlt',
                         filters: [{ type: 'eq', value: 'false', key: 'paied' }]
                     }
                 ]}
