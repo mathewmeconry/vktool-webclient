@@ -1,8 +1,8 @@
-import { Component } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React from "react";
-import { IconProp } from "@fortawesome/fontawesome-svg-core";
-import { Link } from "react-router-dom";
+import { Component } from "react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import React from "react"
+import { IconProp } from "@fortawesome/fontawesome-svg-core"
+import { Link } from "react-router-dom"
 import Button from './Button'
 
 export interface ActionProps {
@@ -10,6 +10,8 @@ export interface ActionProps {
     to?: string,
     onClick?: (event: React.MouseEvent<HTMLButtonElement>) => Promise<void>,
     state?: any
+    disabled?: boolean
+    loading?: boolean
 }
 
 export default class Action extends Component<ActionProps> {
@@ -23,9 +25,9 @@ export default class Action extends Component<ActionProps> {
         event.preventDefault()
         if (this.props.onClick) await this.props.onClick(event)
     }
-
+    
     public render() {
-        if (this.props.to) {
+        if (this.props.to && !this.props.disabled) {
             return (
                 <Link to={{
                     pathname: this.props.to,
@@ -39,7 +41,7 @@ export default class Action extends Component<ActionProps> {
         }
 
         return (
-            <Button onClick={this.onClick} variant="outline-dark" className="action-button">
+            <Button onClick={this.onClick} variant="outline-dark" className="action-button" disabled={this.props.disabled || false} loading={this.props.loading || false}>
                 <FontAwesomeIcon icon={this.props.icon} />
             </Button>
         )

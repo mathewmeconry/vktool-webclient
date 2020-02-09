@@ -3,28 +3,38 @@ import { connect } from "react-redux"
 import { Data } from "../actions/DataActions"
 import { ThunkDispatch } from "redux-thunk"
 import { AnyAction } from "redux"
-import { DataList, DataListProps } from "../components/DataList"
+import { DataList, DataListProps, DataListTableFilter } from "../components/DataList"
 import React, { Component } from "react"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { RouteComponentProps } from "react-router-dom"
 import Modal from "../components/Modal"
-import { Button, ButtonGroup, InputGroup } from "react-bootstrap"
+import { Button, ButtonGroup, InputGroup, Table } from "react-bootstrap"
 import Logoff from "../entities/Logoff"
 import Action from "../components/Action"
 import Input from "../components/Input"
+import { DataInterface } from "../reducers/DataReducer"
+import Contact from "../entities/Contact"
+import Xlsx from 'xlsx'
+import { TableFilter } from "../components/Table"
+import StringIndexed from "../interfaces/StringIndexed"
 
 interface LogoffsProps extends DataListProps<Logoff> {
-    delete: (id: number) => void
+    delete: (id: number) => void,
+    loading: boolean,
+    members: DataInterface<Contact>
 }
 
-interface LogoffState {
+interface LogoffsState {
     modalShow: boolean
     toDeleteLogoff?: Logoff,
     from: Date,
-    until: Date
+    until: Date,
+    filter: string,
 }
 
-export class _Logoffs extends Component<LogoffsProps & RouteComponentProps, LogoffState> {
+export class _Logoffs extends Component<LogoffsProps & RouteComponentProps, LogoffsState> {
+    private tableData: StringIndexed<Logoff>
+
     constructor(props: LogoffsProps & RouteComponentProps) {
         super(props)
 
@@ -32,8 +42,12 @@ export class _Logoffs extends Component<LogoffsProps & RouteComponentProps, Logo
         this.deleteLogoffConfirmed = this.deleteLogoffConfirmed.bind(this)
         this.showModal = this.showModal.bind(this)
         this.hideModal = this.hideModal.bind(this)
+        this.excelExport = this.excelExport.bind(this)
+        this.onFilter = this.onFilter.bind(this)
+        this.getFilters = this.getFilters.bind(this)
+        this.onTableDataChange = this.onTableDataChange.bind(this)
 
-        this.state = { modalShow: false, from: new Date(), until: new Date() }
+        this.state = { modalShow: false, from: new Date(), until: new Date(), filter: 'pending' }
     }
 
     private deleteLogoff(event: React.MouseEvent<HTMLButtonElement>) {
@@ -102,12 +116,158 @@ export class _Logoffs extends Component<LogoffsProps & RouteComponentProps, Logo
         return null
     }
 
+    private async excelExport(event: React.MouseEvent<HTMLButtonElement>) {
+        const filter = this.getFilters().find(f => f.id === this.state.filter)
+        const logoffsArray = Object.keys(this.tableData).map(key => this.tableData[key])
+        function addDays(date: Date, days: number) {
+            date = new Date(date.getTime())
+            date.setDate(date.getDate() + days)
+            return date
+        }
+
+        if (filter) {
+            let membersAsArray = []
+            let logoffDates: string[] = []
+            if (filter.id !== 'custom') {
+                // get all possible dates in logoffs
+                logoffDates = logoffsArray.map(l => {
+                    const dates = []
+                    let currentDate = new Date(l.from.getTime())
+
+                    while (currentDate <= l.until) {
+                        dates.push(currentDate)
+                        currentDate = addDays(currentDate, 1)
+                    }
+                    return dates
+                })
+                    .reduce((arr, val) => arr.concat(val), [])
+                    // sort them
+                    .sort((a, b) => a.getTime() - b.getTime())
+                    // convert to text to distinct
+                    .map(d => d.toLocaleDateString())
+                    .filter((value, index, self) => self.indexOf(value) === index)
+            } else {
+                let currentDate = new Date(this.state.from.getTime())
+                while (currentDate <= this.state.until) {
+                    logoffDates.push(currentDate.toLocaleDateString())
+                    currentDate = addDays(currentDate, 1)
+                }
+            }
+
+            for (let i in this.props.members.byId) {
+                const memberLogoffs = logoffsArray.filter(l => l.contact.id.toString() === i)
+                let member = this.props.members.byId[i]
+                let germanizedMember: StringIndexed<string> = {
+                    Nachname: member.lastname,
+                    Vorname: member.firstname,
+                    Rang: (member.rank || ''),
+                    Funktionen: (member.functions || []).join(','),
+                    Adresse: `${member.address}, ${member.postcode} ${member.city}`,
+                    Abholpunkt: '',
+                }
+                logoffDates.forEach(d => {
+                    germanizedMember[d] = ''
+                })
+
+                if (member.collectionPoint) germanizedMember.Abholpunkt = `(${member.collectionPoint.name}) ${member.collectionPoint.address}, ${member.collectionPoint.postcode} ${member.collectionPoint.city}`
+                memberLogoffs.forEach(l => {
+                    let currentDate = new Date(l.from.getTime())
+                    let dates = []
+                    while (currentDate <= l.until) {
+                        dates.push(currentDate)
+                        // reset date if it wasn't already at midnight
+                        currentDate = addDays(currentDate, 1)
+                        currentDate.setHours(0, 0, 0, 0)
+                    }
+
+                    if (l.until.getHours() > 0 || l.until.getMinutes() > 0) {
+                        dates.pop()
+                        dates.push(l.until)
+                    }
+
+                    dates.forEach(d => {
+                        if (d.getHours() > 0 || d.getMinutes() > 0) {
+                            if (germanizedMember[d.toLocaleDateString()]) {
+                                germanizedMember[d.toLocaleDateString()] = `${germanizedMember[d.toLocaleDateString()]} - ${d.toLocaleTimeString()}`
+                            } else {
+                                germanizedMember[d.toLocaleDateString()] = d.toLocaleTimeString()
+                            }
+                        } else {
+                            germanizedMember[d.toLocaleDateString()] = 'x'
+                        }
+                    })
+                })
+
+
+                membersAsArray.push(germanizedMember)
+            }
+            let sheet = Xlsx.utils.json_to_sheet(membersAsArray)
+            let book = Xlsx.utils.book_new()
+            Xlsx.utils.book_append_sheet(book, sheet, `Abmeldungen`)
+
+            if (filter.id === 'custom') {
+                Xlsx.writeFile(book, `Abmeldungen ${this.state.from.toLocaleDateString().replace(/\./g, '_')}-${this.state.until.toLocaleDateString().replace(/\./g, '_')}.xlsx`)
+            } else {
+                Xlsx.writeFile(book, `Abmeldungen ${filter.displayName}.xlsx`)
+            }
+        } else {
+            console.error(`Couldn't find filter ${this.state.filter}`)
+        }
+    }
+
+    private onFilter(id: string) {
+        this.setState({ filter: id })
+    }
+
+    private getFilters(): Array<TableFilter | DataListTableFilter> {
+        return [
+            {
+                id: 'all',
+                displayName: 'Alle',
+                filters: [{ type: 'any' }]
+            },
+            {
+                id: 'pending',
+                displayName: 'Offen',
+                filters: [{ type: 'eq', value: 'pending', key: 'state' }]
+            },
+            {
+                id: 'approved',
+                displayName: 'Genehmigt',
+                filters: [{ type: 'eq', value: 'approved', key: 'state' }]
+            },
+            {
+                id: 'custom',
+                displayName: 'Custom',
+                filterComponents: [
+                    <InputGroup size="sm" >
+                        <InputGroup.Prepend>
+                            <InputGroup.Text>Von/Bis</InputGroup.Text>
+                        </InputGroup.Prepend>
+                        <Input type="date" value={this.state.from} name="from" editable={true} onChange={(name: string, value: Date) => { this.setState({ from: value }) }}></Input>
+                        <Input type="date" value={this.state.until} name="until" editable={true} onChange={(name: string, value: Date) => { this.setState({ until: value }) }}></Input>
+                    </InputGroup>
+                ],
+                filters: [{
+                    type: 'cu', filter: (obj: Logoff) => { return obj.from <= this.state.until && obj.until >= this.state.from }
+                }]
+            }
+        ]
+    }
+
+    private onTableDataChange(data: StringIndexed<Logoff>): void {
+        this.tableData = data
+    }
+
     public render() {
         return (
             <DataList<Logoff>
                 title='Abmeldungen'
                 viewLocation='/draft/logoff/'
-                panelActions={[<Action icon="plus" to="/draft/logoff/add" />]}
+                panelActions={[
+                    <Action icon="plus" to="/draft/logoff/add" />,
+                    <Action key="excel-export" icon="file-excel" onClick={this.excelExport} disabled={this.props.members.loading} loading={this.props.members.loading} />,
+                ]}
                 rowActions={[
                     <button className="btn btn-danger delete" onMouseUp={this.deleteLogoff}><FontAwesomeIcon icon="trash" /></button>
                 ]}
@@ -121,39 +281,9 @@ export class _Logoffs extends Component<LogoffsProps & RouteComponentProps, Logo
                 fetchData={this.props.fetchData}
                 history={this.props.history}
                 defaultFilter='pending'
-                filters={[
-                    {
-                        id: 'all',
-                        displayName: 'Alle',
-                        filters: [{ type: 'any' }]
-                    },
-                    {
-                        id: 'pending',
-                        displayName: 'Offen',
-                        filters: [{ type: 'eq', value: 'pending', key: 'state' }]
-                    },
-                    {
-                        id: 'approved',
-                        displayName: 'Genehmigt',
-                        filters: [{ type: 'eq', value: 'approved', key: 'state' }]
-                    },
-                    {
-                        id: 'custom',
-                        displayName: 'Custom',
-                        filterComponents: [
-                            <InputGroup size="sm" >
-                                <InputGroup.Prepend>
-                                    <InputGroup.Text>Von/Bis</InputGroup.Text>
-                                </InputGroup.Prepend>
-                                <Input type="date" value={this.state.from} name="from" editable={true} onChange={(name: string, value: Date) => { this.setState({ from: value }) }}></Input>
-                                <Input type="date" value={this.state.until} name="until" editable={true} onChange={(name: string, value: Date) => { this.setState({ until: value }) }}></Input>
-                            </InputGroup>
-                        ],
-                        filters: [{
-                            type: 'cu', filter: (obj: Logoff) => { return obj.from <= this.state.until && obj.until >= this.state.from  }
-                        }]
-                    }
-                ]}
+                filters={this.getFilters()}
+                onFilter={this.onFilter}
+                onDataChange={this.onTableDataChange}
             >
                 {this.renderModal()}
             </DataList>
@@ -164,6 +294,7 @@ export class _Logoffs extends Component<LogoffsProps & RouteComponentProps, Logo
 const mapStateToProps = (state: State) => {
     return {
         data: state.data.logoffs,
+        members: state.data.members,
     }
 }
 
@@ -171,6 +302,7 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>
     return {
         fetchData: () => {
             dispatch(Data.fetchLogoffs())
+            dispatch(Data.fetchMembers())
         },
         delete: (id: number) => {
             dispatch(Data.deleteLogoff(id))

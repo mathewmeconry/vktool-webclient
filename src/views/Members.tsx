@@ -1,7 +1,6 @@
 import { State } from "../reducers/IndexReducer"
 import { connect } from "react-redux"
 import { Data } from "../actions/DataActions"
-import { UI } from "../actions/UIActions"
 import { ThunkDispatch } from "redux-thunk"
 import { AnyAction } from "redux"
 import { DataList, DataListProps } from "../components/DataList"
