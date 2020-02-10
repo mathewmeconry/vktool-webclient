@@ -8,6 +8,7 @@ interface CheckboxProps {
     id?: string
     required?: boolean
     className?: string
+    editable?: boolean
 }
 
 export default class Checkbox extends Component<CheckboxProps, { checked: boolean }> {
@@ -20,11 +21,13 @@ export default class Checkbox extends Component<CheckboxProps, { checked: boolea
     }
 
     private onCheck(event: React.ChangeEvent<HTMLInputElement>): void {
-        this.setState({
-            checked: !this.state.checked
-        })
+        if (this.props.editable) {
+            this.setState({
+                checked: !this.state.checked
+            })
 
-        this.props.onChange(event)
+            this.props.onChange(event)
+        }
     }
 
     public componentDidUpdate(prevProps: CheckboxProps) {
@@ -40,7 +43,7 @@ export default class Checkbox extends Component<CheckboxProps, { checked: boolea
     public render() {
         return (
             <span className={this.props.className}>
-                <input id={this.props.id || ''} type="checkbox" checked={this.state.checked || false} onChange={this.onCheck} required={!!this.props.required}/>
+                <input id={this.props.id || ''} type="checkbox" checked={this.state.checked || false} onChange={this.onCheck} required={!!this.props.required} />
                 <label htmlFor="food">{this.props.label || ''}</label>
             </span>
         )

@@ -23,8 +23,7 @@ export default class Input extends Component<InputProps> {
 
         switch (this.props.type) {
             case 'checkbox':
-                if (!!this.props.editable) onChange = () => { return false }
-                return <Checkbox checked={this.props.value} onChange={(event) => onChange(this.props.name, event.target.checked)} label='' required={!!this.props.required} aria-describedby={this.props.name} className={this.props.className} />
+                return <Checkbox checked={this.props.value} editable={this.props.editable} onChange={(event) => onChange(this.props.name, event.target.checked)} label='' required={!!this.props.required} aria-describedby={this.props.name} className={this.props.className} />
             case 'textarea':
                 return <textarea name={this.props.name} value={this.props.value} onChange={(event) => onChange(this.props.name, event.target.value)} className={'form-entry form-control' + ((!this.props.editable) ? '-plaintext' : '') + ` ${this.props.className}`} readOnly={!this.props.editable} required={!!this.props.required} aria-describedby={this.props.name} />
             case 'date':
