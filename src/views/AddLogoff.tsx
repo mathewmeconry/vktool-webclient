@@ -18,8 +18,9 @@ import { MemberSelect } from "../components/MemberSelect"
 import Table from "../components/Table"
 import { UI } from "../actions/UIActions"
 import { LogoffState } from "../entities/Logoff"
+import Input from "../components/Input"
 
-export interface AddLogoffState { contact?: Contact, logoffs: Array<ExtendedLogoffBase> }
+export interface AddLogoffState { contact?: Contact, logoffs: Array<ExtendedLogoffBase>, notify: boolean }
 
 interface ExtendedLogoffBase extends LogoffBase {
     id: string,
@@ -45,9 +46,11 @@ export class _AddLogoff extends Component<AddLogoffProps, AddLogoffState> {
         this.onInputChange = this.onInputChange.bind(this)
         this.onSave = this.onSave.bind(this)
         this.onLogoffChange = this.onLogoffChange.bind(this)
+        this.onNotifyChange = this.onNotifyChange.bind(this)
 
         this.state = {
-            logoffs: []
+            logoffs: [],
+            notify: true
         }
     }
 
@@ -88,13 +91,19 @@ export class _AddLogoff extends Component<AddLogoffProps, AddLogoffState> {
         })
     }
 
+    private onNotifyChange(name: string, value: boolean): void {
+        //@ts-ignore
+        this.setState({ [name]: value })
+    }
+
     private async onSave(event: React.MouseEvent<HTMLButtonElement>): Promise<void> {
         event.preventDefault()
         if (this.formEl) {
             if (this.validate() && this.state.contact) {
                 await this.props.save({
                     contact: this.state.contact.id,
-                    logoffs: this.state.logoffs
+                    logoffs: this.state.logoffs,
+                    notify: this.state.notify
                 })
                 this.props.history.push('/draft/logoffs')
             }
@@ -137,8 +146,16 @@ export class _AddLogoff extends Component<AddLogoffProps, AddLogoffState> {
                     <Column>
                         <Panel>
                             <form id="addLogoffs" ref={(ref: HTMLFormElement) => { this.formEl = ref }}>
-                                <h5>Mitglied</h5>
-                                <MemberSelect onChange={this.onSelectChange} required={true} />
+                                <div className="row">
+                                    <div className="col">
+                                        <h5>Mitglied</h5>
+                                        <MemberSelect onChange={this.onSelectChange} required={true} />
+                                    </div>
+                                    <div className="col-1">
+                                        <h5>Benachrichtigen</h5>
+                                        <Input type="checkbox" className="d-flex justify-content-center" name="notify" key="notify" value={this.state.notify} onChange={this.onNotifyChange} editable={true} />
+                                    </div>
+                                </div>
                                 <br></br>
                                 <Table<ExtendedLogoffBase>
                                     columns={[

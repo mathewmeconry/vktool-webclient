@@ -2,6 +2,7 @@ import { LogoffState } from "../entities/Logoff"
 
 export interface AddLogoff extends LogoffBase {
     contact: number
+    notify: boolean
 }
 
 export interface AddLogoffs {
