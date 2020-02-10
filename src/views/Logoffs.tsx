@@ -47,7 +47,9 @@ export class _Logoffs extends Component<LogoffsProps & RouteComponentProps, Logo
         this.getFilters = this.getFilters.bind(this)
         this.onTableDataChange = this.onTableDataChange.bind(this)
 
-        this.state = { modalShow: false, from: new Date(), until: new Date(), filter: 'pending' }
+        const today = new Date()
+        today.setHours(0,0,0,0)
+        this.state = { modalShow: false, from: today, until: today, filter: 'pending' }
     }
 
     private deleteLogoff(event: React.MouseEvent<HTMLButtonElement>) {
@@ -174,14 +176,13 @@ export class _Logoffs extends Component<LogoffsProps & RouteComponentProps, Logo
                     let currentDate = new Date(l.from.getTime())
                     let dates = []
                     while (currentDate <= l.until) {
-                        dates.push(currentDate)
-                        // reset date if it wasn't already at midnight
+                        if(logoffDates.indexOf(currentDate.toLocaleDateString()) > -1) dates.push(currentDate)
                         currentDate = addDays(currentDate, 1)
+                        // reset date if it wasn't already at midnight
                         currentDate.setHours(0, 0, 0, 0)
                     }
 
                     if (l.until.getHours() > 0 || l.until.getMinutes() > 0) {
-                        dates.pop()
                         dates.push(l.until)
                     }
 
@@ -249,7 +250,9 @@ export class _Logoffs extends Component<LogoffsProps & RouteComponentProps, Logo
                     </InputGroup>
                 ],
                 filters: [{
-                    type: 'cu', filter: (obj: Logoff) => { return obj.from <= this.state.until && obj.until >= this.state.from }
+                    type: 'cu', filter: (obj: Logoff) => {
+                        return obj.from <= this.state.until && obj.until >= this.state.from
+                    }
                 }]
             }
         ]
