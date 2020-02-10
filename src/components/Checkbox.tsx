@@ -7,6 +7,7 @@ interface CheckboxProps {
     label?: string
     id?: string
     required?: boolean
+    className?: string
 }
 
 export default class Checkbox extends Component<CheckboxProps, { checked: boolean }> {
@@ -38,8 +39,8 @@ export default class Checkbox extends Component<CheckboxProps, { checked: boolea
 
     public render() {
         return (
-            <span>
-                <input id={this.props.id || ''} type="checkbox" checked={this.state.checked || false} onChange={this.onCheck} required={!!this.props.required} />
+            <span className={this.props.className}>
+                <input id={this.props.id || ''} type="checkbox" checked={this.state.checked || false} onChange={this.onCheck} required={!!this.props.required}/>
                 <label htmlFor="food">{this.props.label || ''}</label>
             </span>
         )
