@@ -30,11 +30,10 @@ interface LogoffsState {
     from: Date,
     until: Date,
     filter: string,
+    tableData: StringIndexed<Logoff>
 }
 
 export class _Logoffs extends Component<LogoffsProps & RouteComponentProps, LogoffsState> {
-    private tableData: StringIndexed<Logoff>
-
     constructor(props: LogoffsProps & RouteComponentProps) {
         super(props)
 
@@ -48,8 +47,8 @@ export class _Logoffs extends Component<LogoffsProps & RouteComponentProps, Logo
         this.onTableDataChange = this.onTableDataChange.bind(this)
 
         const today = new Date()
-        today.setHours(0,0,0,0)
-        this.state = { modalShow: false, from: today, until: today, filter: 'pending' }
+        today.setHours(0, 0, 0, 0)
+        this.state = { modalShow: false, from: today, until: today, filter: 'pending', tableData: {} }
     }
 
     private deleteLogoff(event: React.MouseEvent<HTMLButtonElement>) {
@@ -120,7 +119,7 @@ export class _Logoffs extends Component<LogoffsProps & RouteComponentProps, Logo
 
     private async excelExport(event: React.MouseEvent<HTMLButtonElement>) {
         const filter = this.getFilters().find(f => f.id === this.state.filter)
-        const logoffsArray = Object.keys(this.tableData).map(key => this.tableData[key])
+        const logoffsArray = Object.keys(this.state.tableData).map(key => this.state.tableData[key])
         function addDays(date: Date, days: number) {
             date = new Date(date.getTime())
             date.setDate(date.getDate() + days)
@@ -157,51 +156,59 @@ export class _Logoffs extends Component<LogoffsProps & RouteComponentProps, Logo
             }
 
             for (let i in this.props.members.byId) {
-                const memberLogoffs = logoffsArray.filter(l => l.contact.id.toString() === i)
                 let member = this.props.members.byId[i]
-                let germanizedMember: StringIndexed<string> = {
-                    Nachname: member.lastname,
-                    Vorname: member.firstname,
-                    Rang: (member.rank || ''),
-                    Funktionen: (member.functions || []).join(','),
-                    Adresse: `${member.address}, ${member.postcode} ${member.city}`,
-                    Abholpunkt: '',
-                }
-                logoffDates.forEach(d => {
-                    germanizedMember[d] = ''
-                })
-
-                if (member.collectionPoint) germanizedMember.Abholpunkt = `(${member.collectionPoint.name}) ${member.collectionPoint.address}, ${member.collectionPoint.postcode} ${member.collectionPoint.city}`
-                memberLogoffs.forEach(l => {
-                    let currentDate = new Date(l.from.getTime())
-                    let dates = []
-                    while (currentDate <= l.until) {
-                        if(logoffDates.indexOf(currentDate.toLocaleDateString()) > -1) dates.push(currentDate)
-                        currentDate = addDays(currentDate, 1)
-                        // reset date if it wasn't already at midnight
-                        currentDate.setHours(0, 0, 0, 0)
+                if (member.functions && ((member.functions.indexOf('FHR') > -1 && member.functions.length > 1) || member.functions.indexOf('FHR') < 0)) {
+                    const memberLogoffs = logoffsArray.filter(l => l.contact.id.toString() === i)
+                    let germanizedMember: StringIndexed<string> = {
+                        Rang: (member.rank || ''),
+                        Funktionen: (member.functions || []).join(','),
+                        Nachname: member.lastname,
+                        Vorname: member.firstname,
+                        Abholpunkt: '',
+                        AbholpunktAdresse: '',
+                        Adresse: `${member.address}, ${member.postcode} ${member.city}`
                     }
-
-                    if (l.until.getHours() > 0 || l.until.getMinutes() > 0) {
-                        dates.push(l.until)
-                    }
-
-                    dates.forEach(d => {
-                        if (d.getHours() > 0 || d.getMinutes() > 0) {
-                            if (germanizedMember[d.toLocaleDateString()]) {
-                                germanizedMember[d.toLocaleDateString()] = `${germanizedMember[d.toLocaleDateString()]} - ${d.toLocaleTimeString()}`
-                            } else {
-                                germanizedMember[d.toLocaleDateString()] = d.toLocaleTimeString()
-                            }
-                        } else {
-                            germanizedMember[d.toLocaleDateString()] = 'x'
-                        }
+                    logoffDates.forEach(d => {
+                        germanizedMember[d] = ''
                     })
-                })
+
+                    if (member.collectionPoint) {
+                        germanizedMember.Abholpunkt = member.collectionPoint.name
+                        germanizedMember.AbholpunktAdresse = `${member.collectionPoint.address}, ${member.collectionPoint.postcode} ${member.collectionPoint.city}`
+                    }
+
+                    memberLogoffs.forEach(l => {
+                        let currentDate = new Date(l.from.getTime())
+                        let dates = []
+                        while (currentDate <= l.until) {
+                            if (logoffDates.indexOf(currentDate.toLocaleDateString()) > -1) dates.push(currentDate)
+                            currentDate = addDays(currentDate, 1)
+                            // reset date if it wasn't already at midnight
+                            currentDate.setHours(0, 0, 0, 0)
+                        }
+
+                        if (l.until.getHours() > 0 || l.until.getMinutes() > 0) {
+                            dates.push(l.until)
+                        }
+
+                        dates.forEach(d => {
+                            if (d.getHours() > 0 || d.getMinutes() > 0) {
+                                if (germanizedMember[d.toLocaleDateString()]) {
+                                    germanizedMember[d.toLocaleDateString()] = `${germanizedMember[d.toLocaleDateString()]} - ${d.toLocaleTimeString()}`
+                                } else {
+                                    germanizedMember[d.toLocaleDateString()] = d.toLocaleTimeString()
+                                }
+                            } else {
+                                germanizedMember[d.toLocaleDateString()] = 'x'
+                            }
+                        })
+                    })
 
 
-                membersAsArray.push(germanizedMember)
+                    membersAsArray.push(germanizedMember)
+                }
             }
+
             let sheet = Xlsx.utils.json_to_sheet(membersAsArray)
             let book = Xlsx.utils.book_new()
             Xlsx.utils.book_append_sheet(book, sheet, `Abmeldungen`)
@@ -224,22 +231,27 @@ export class _Logoffs extends Component<LogoffsProps & RouteComponentProps, Logo
         return [
             {
                 id: 'all',
-                displayName: 'Alle',
+                displayName: `Alle ${(this.state.filter === 'all') ? `(${Object.keys(this.state.tableData).length})` : ``}`,
                 filters: [{ type: 'any' }]
             },
             {
                 id: 'pending',
-                displayName: 'Offen',
+                displayName: `Offen ${(this.state.filter === 'pending') ? `(${Object.keys(this.state.tableData).length})` : ``}`,
                 filters: [{ type: 'eq', value: 'pending', key: 'state' }]
             },
             {
                 id: 'approved',
-                displayName: 'Genehmigt',
+                displayName: `Genehmigt ${(this.state.filter === 'approved') ? `(${Object.keys(this.state.tableData).length})` : ``}`,
                 filters: [{ type: 'eq', value: 'approved', key: 'state' }]
             },
             {
+                id: 'declined',
+                displayName: `Abgelehnt ${(this.state.filter === 'declined') ? `(${Object.keys(this.state.tableData).length})` : ``}`,
+                filters: [{ type: 'eq', value: 'declined', key: 'state' }]
+            },
+            {
                 id: 'custom',
-                displayName: 'Custom',
+                displayName: `Custom ${(this.state.filter === 'custom') ? `(${Object.keys(this.state.tableData).length})` : ``}`,
                 filterComponents: [
                     <InputGroup size="sm" >
                         <InputGroup.Prepend>
@@ -259,7 +271,13 @@ export class _Logoffs extends Component<LogoffsProps & RouteComponentProps, Logo
     }
 
     private onTableDataChange(data: StringIndexed<Logoff>): void {
-        this.tableData = data
+        this.setState({
+            tableData: data
+        })
+    }
+
+    public shouldComponentUpdate(nextProps: LogoffsProps, nextState: LogoffsState): boolean {
+        return JSON.stringify(this.state) !== JSON.stringify(nextState) || JSON.stringify(this.props) !== JSON.stringify(nextProps)
     }
 
     public render() {
