@@ -6,7 +6,7 @@ export class Error404 extends Component {
         return (
             <Page title="">
                 <div id="page-404">
-                    <img src="/404.png" />
+                    <img src="/webapp/404.png" />
                 </div>
             </Page>
         )

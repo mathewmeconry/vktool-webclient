@@ -1,28 +1,29 @@
-import React, { Component } from "react";
-import { Page } from "../components/Page";
-import { ThunkDispatch } from "redux-thunk";
-import { State } from "../reducers/IndexReducer";
-import { AnyAction } from "redux";
-import { connect } from "react-redux";
-import { Data } from "../actions/DataActions";
-import Row from "../components/Row";
-import Column from "../components/Column";
-import Panel from "../components/Panel";
-import FormEntry from "../components/FormEntry";
-import Loading from "../components/Loading";
-import * as ContactEntity from "../entities/Contact";
-import ContactGroup from "../entities/ContactGroup";
-import Action from "../components/Action";
-import CollectionPoint from "../entities/CollectionPoint";
-import { CollectionPointSelect } from "../components/CollectionPointSelect";
-import { EditMember } from "../interfaces/Member";
-import User from "../entities/User";
-import { AuthRoles } from "../interfaces/AuthRoles";
-import { RouteComponentProps } from "react-router";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Button } from "react-bootstrap";
-import { ContactCompensation } from "../components/ContactCompensation";
-import { Error403 } from "../components/Errors/403";
+import React, { Component } from "react"
+import { Page } from "../components/Page"
+import { ThunkDispatch } from "redux-thunk"
+import { State } from "../reducers/IndexReducer"
+import { AnyAction } from "redux"
+import { connect } from "react-redux"
+import { Data } from "../actions/DataActions"
+import Row from "../components/Row"
+import Column from "../components/Column"
+import Panel from "../components/Panel"
+import FormEntry from "../components/FormEntry"
+import Loading from "../components/Loading"
+import * as ContactEntity from "../entities/Contact"
+import ContactGroup from "../entities/ContactGroup"
+import Action from "../components/Action"
+import CollectionPoint from "../entities/CollectionPoint"
+import { CollectionPointSelect } from "../components/CollectionPointSelect"
+import { EditMember } from "../interfaces/Member"
+import User from "../entities/User"
+import { AuthRoles } from "../interfaces/AuthRoles"
+import { RouteComponentProps } from "react-router"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { Button } from "react-bootstrap"
+import { ContactCompensation } from "../components/ContactCompensation"
+import { Error403 } from "../components/Errors/403"
+import { ContactLogoff } from "../components/ContactLogoffs"
 
 export interface ContactProps extends RouteComponentProps<{ id: string }> {
     user: User,
@@ -76,21 +77,17 @@ export default class _Contact extends Component<ContactProps, ContactState> {
         }
     }
 
-    private onInputChange(event: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) {
-        const target = event.target;
-        const value = target.value;
-        const name = target.name;
-
+    private onInputChange(name: string, value: any) {
         //@ts-ignore
         this.setState({
             [name]: value
-        });
+        })
     }
 
     private onMoreMailsChange(event: React.ChangeEvent<HTMLInputElement>) {
-        const target = event.target;
-        const value = target.value;
-        const name = target.name;
+        const target = event.target
+        const value = target.value
+        const name = target.name
 
         this.setState({
             moreMails: Object.assign([], this.state.moreMails, { [name]: value })
@@ -291,6 +288,9 @@ export default class _Contact extends Component<ContactProps, ContactState> {
                 <Row>
                     <Column className="col-md-6">
                         <ContactCompensation contact={this.props.contact}  {...this.props} />
+                    </Column>
+                    <Column className="col-md-6">
+                        <ContactLogoff contact={this.props.contact}  {...this.props} />
                     </Column>
                 </Row>
             </Page>

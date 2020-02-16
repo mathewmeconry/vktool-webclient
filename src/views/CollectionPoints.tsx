@@ -12,7 +12,7 @@ const mapStateToProps = (state: State) => {
     return {
         data: state.data.collectionPoints,
         title: 'Abholpunkte',
-        panelActions: [<Action icon="plus" to="/draft/collection-points/add" />],
+        panelActions: [<Action icon="plus" to="/draft/collection-point/add" />],
         viewLocation: '/collection-point/',
         tableColumns: [
             { text: 'Name', keys: ['name'], sortable: true, searchable: true },

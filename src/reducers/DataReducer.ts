@@ -1,17 +1,18 @@
-import { DataActions } from "./../actions/DataActions";
-import { AnyAction, combineReducers } from "redux";
-import StringIndexed from "../interfaces/StringIndexed";
-import { UIActions } from "../actions/UIActions";
-import User from "../entities/User";
-import Contact from "../entities/Contact";
-import ContactGroup from "../entities/ContactGroup";
-import Order from "../entities/Order";
-import BillingReport from "../entities/BillingReport";
-import Compensation from "../entities/Compensation";
-import CollectionPoint from "../entities/CollectionPoint";
-import Payout from "../entities/Payout";
-import CustomCompensation from "../entities/CustomCompensation";
-import OrderCompensation from "../entities/OrderCompensation";
+import { DataActions } from "./../actions/DataActions"
+import { AnyAction, combineReducers } from "redux"
+import StringIndexed from "../interfaces/StringIndexed"
+import { UIActions } from "../actions/UIActions"
+import User from "../entities/User"
+import Contact from "../entities/Contact"
+import ContactGroup from "../entities/ContactGroup"
+import Order from "../entities/Order"
+import BillingReport from "../entities/BillingReport"
+import Compensation from "../entities/Compensation"
+import CollectionPoint from "../entities/CollectionPoint"
+import Payout from "../entities/Payout"
+import CustomCompensation from "../entities/CustomCompensation"
+import OrderCompensation from "../entities/OrderCompensation"
+import Logoff from "../entities/Logoff"
 
 export interface Data {
     users: DataInterface<User>
@@ -25,7 +26,8 @@ export interface Data {
     compensationEntries: DataInterface<Compensation>,
     mailingLists: StringIndexed<Array<string>>,
     collectionPoints: DataInterface<CollectionPoint>,
-    payouts: DataInterface<Payout>
+    payouts: DataInterface<Payout>,
+    logoffs: DataInterface<Logoff>
 }
 
 export interface SingleDataInterface<T> {
@@ -68,7 +70,7 @@ function Users(state: DataInterface<User> = { loading: false, byId: {}, ids: [],
             }
             return Object.assign({}, state, { loading: false })
         case DataActions.GOT_USERS:
-            if (Object.keys(action.payload).length < 1) return state
+            if (Object.keys(action.payload).length < 1) return Object.assign({}, state, { loading: false })
             for (let contact of action.payload) {
                 byId[contact.id] = contact
                 ids.push(contact.id)
@@ -90,7 +92,7 @@ function Ranks(state: DataInterface<ContactGroup> = { loading: false, byId: {}, 
             }
             return Object.assign({}, state, { loading: false })
         case DataActions.GOT_RANKS:
-            if (Object.keys(action.payload).length < 1) return state
+            if (Object.keys(action.payload).length < 1) return Object.assign({}, state, { loading: false })
             for (let rank of action.payload) {
                 byId[rank.id] = rank
                 ids.push(rank.id)
@@ -111,7 +113,7 @@ function Contacts(state: DataInterface<Contact> = { loading: false, byId: {}, id
             }
             return Object.assign({}, state, { loading: false })
         case DataActions.GOT_CONTACTS:
-            if (Object.keys(action.payload).length < 1) return state
+            if (Object.keys(action.payload).length < 1) return Object.assign({}, state, { loading: false })
             for (let contact of action.payload) {
                 byId[contact.id] = contact
                 ids.push(contact.id)
@@ -133,7 +135,7 @@ function Members(state: DataInterface<Contact> = { loading: false, byId: {}, ids
             }
             return Object.assign({}, state, { loading: false })
         case DataActions.GOT_MEMBERS:
-            if (Object.keys(action.payload).length < 1) return state
+            if (Object.keys(action.payload).length < 1) return Object.assign({}, state, { loading: false })
             for (let contact of action.payload) {
                 byId[contact.id] = contact
                 ids.push(contact.id)
@@ -156,7 +158,7 @@ function Orders(state: DataInterface<Order> = { loading: false, byId: {}, ids: [
             }
             return Object.assign({}, state, { loading: false })
         case DataActions.GOT_ORDERS:
-            if (Object.keys(action.payload).length < 1) return state
+            if (Object.keys(action.payload).length < 1) return Object.assign({}, state, { loading: false })
             for (let order of action.payload) {
                 byId[order.id] = order
                 ids.push(order.id)
@@ -179,7 +181,7 @@ function OpenOrders(state: DataInterface<Order> = { loading: false, byId: {}, id
             }
             return Object.assign({}, state, { loading: false })
         case DataActions.GOT_OPEN_ORDERS:
-            if (Object.keys(action.payload).length < 1) return state
+            if (Object.keys(action.payload).length < 1) return Object.assign({}, state, { loading: false })
             for (let order of action.payload) {
                 byId[order.id] = order
                 ids.push(order.id)
@@ -192,7 +194,7 @@ function OpenOrders(state: DataInterface<Order> = { loading: false, byId: {}, id
 }
 
 
-function BillingReports(state: DataInterface<BillingReport> = { loading: false, byId: {}, ids: [], sort: { keys: ['orderDate'], direction: 'desc' } }, action: AnyAction): DataInterface<BillingReport> {
+function BillingReports(state: DataInterface<BillingReport> = { loading: false, byId: {}, ids: [], sort: { keys: ['date'], direction: 'desc' } }, action: AnyAction): DataInterface<BillingReport> {
     let byId: StringIndexed<BillingReport> = {}
     let ids: Array<number> = []
 
@@ -203,7 +205,7 @@ function BillingReports(state: DataInterface<BillingReport> = { loading: false, 
             }
             return Object.assign({}, state, { loading: false })
         case DataActions.GOT_BILLING_REPORTS:
-            if (Object.keys(action.payload).length < 1) return state
+            if (Object.keys(action.payload).length < 1) return Object.assign({}, state, { loading: false })
             for (let report of action.payload) {
                 byId[report.id] = report
                 ids.push(report.id)
@@ -229,7 +231,7 @@ function CompensationEntries(state: DataInterface<Compensation> = { loading: fal
             }
             return Object.assign({}, state, { loading: false })
         case DataActions.GOT_COMPENSATION_ENTRIES:
-            if (Object.keys(action.payload).length < 0) return state
+            if (Object.keys(action.payload).length < 1) return Object.assign({}, state, { loading: false })
             for (let entry of action.payload) {
                 byId[entry.id] = entry
                 ids.push(entry.id)
@@ -250,6 +252,8 @@ function CompensationEntries(state: DataInterface<Compensation> = { loading: fal
         case DataActions.APPROVE_COMPENSATION_ENTRY:
             byId = Object.assign({}, state.byId, Object.assign({}, state.byId[action.payload], { status: 'approved' }))
             return Object.assign({}, state, { byId: byId })
+        case DataActions.DELETE_COMPENSATION_ENTRY:
+            return Object.assign({}, state, { ids: state.ids.filter(el => el !== action.payload) })
         default:
             return state
     }
@@ -265,7 +269,7 @@ function CollectionPoints(state: DataInterface<CollectionPoint> = { loading: fal
             }
             return Object.assign({}, state, { loading: false })
         case DataActions.GOT_COLLECTION_POINTS:
-            if (Object.keys(action.payload).length < 1) return state
+            if (Object.keys(action.payload).length < 1) return Object.assign({}, state, { loading: false })
             for (let entry of action.payload) {
                 byId[entry.id] = entry
                 ids.push(entry.id)
@@ -357,7 +361,7 @@ function Payouts(state: DataInterface<Payout> = { loading: false, byId: {}, ids:
             }
             return Object.assign({}, state, { loading: false })
         case DataActions.GOT_PAYOUTS:
-            if (Object.keys(action.payload).length < 1) return state
+            if (Object.keys(action.payload).length < 1) return Object.assign({}, state, { loading: false })
 
             for (let entry of action.payload as Array<Payout>) {
                 let byMember: StringIndexed<Array<Compensation>> = {}
@@ -395,4 +399,32 @@ function Payouts(state: DataInterface<Payout> = { loading: false, byId: {}, ids:
     }
 }
 
-export default combineReducers({ payouts: Payouts, collectionPoints: CollectionPoints, user: UserReducer, users: Users, contacts: Contacts, members: Members, ranks: Ranks, orders: Orders, openOrders: OpenOrders, billingReports: BillingReports, compensationEntries: CompensationEntries, mailingLists: MailingLists })
+function Logoffs(state: DataInterface<Logoff> = { loading: false, byId: {}, ids: [], sort: { keys: ['from'], direction: 'desc' } }, action: AnyAction): DataInterface<Logoff> {
+    let byId: StringIndexed<Logoff> = {}
+    let ids: Array<number> = []
+
+    switch (action.type) {
+        case DataActions.FETCH_LOGOFFS:
+            if (state.ids.length === 0) {
+                return Object.assign({}, state, { loading: true })
+            }
+            return Object.assign({}, state, { loading: false })
+        case DataActions.GOT_LOGOFFS:
+            if (Object.keys(action.payload).length < 1) return Object.assign({}, state, { loading: false })
+            for (let logoff of action.payload) {
+                byId[logoff.id] = logoff
+                ids.push(logoff.id)
+            }
+
+            return Object.assign({}, state, { loading: false, byId: byId, ids: ids })
+        case DataActions.APPROVE_LOGOFF:
+            byId = Object.assign({}, state.byId, Object.assign({}, state.byId[action.payload], { approved: true }))
+            return Object.assign({}, state, { byId: byId })
+        case DataActions.DECLINE_LOGOFF:
+            return Object.assign({}, state, { ids: state.ids.filter(el => el !== action.payload) })
+        default:
+            return state
+    }
+}
+
+export default combineReducers({ logoffs: Logoffs, payouts: Payouts, collectionPoints: CollectionPoints, user: UserReducer, users: Users, contacts: Contacts, members: Members, ranks: Ranks, orders: Orders, openOrders: OpenOrders, billingReports: BillingReports, compensationEntries: CompensationEntries, mailingLists: MailingLists })

@@ -33,5 +33,10 @@ export enum AuthRoles {
     PAYOUTS_CREATE = 'payouts_create',
     PAYOUTS_SEND = 'payouts_send',
 
+    LOGOFFS_READ = 'logoffs_read',
+    LOGOFFS_CREATE = 'logoffs_create',
+    LOGOFFS_EDIT = 'logoffs_edit',
+    LOGOFFS_APPROVE = 'logoffs_approve',
+
     ADMIN = 'admin'
 }

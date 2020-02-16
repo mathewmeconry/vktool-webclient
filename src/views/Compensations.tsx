@@ -1,17 +1,15 @@
-import { State } from "../reducers/IndexReducer";
-import { connect } from "react-redux";
-import { Data } from "../actions/DataActions";
-import { UI } from "../actions/UIActions";
-import { ThunkDispatch } from "redux-thunk";
-import { AnyAction } from "redux";
-import { DataList, DataListProps } from "../components/DataList";
-import React, { Component } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import Compensation from "../entities/Compensation";
-import { RouteComponentProps } from "react-router-dom";
-import Modal from "../components/Modal";
-import { Button, ButtonGroup } from "react-bootstrap";
-import StringIndexed from "../interfaces/StringIndexed";
+import { State } from "../reducers/IndexReducer"
+import { connect } from "react-redux"
+import { Data } from "../actions/DataActions"
+import { ThunkDispatch } from "redux-thunk"
+import { AnyAction } from "redux"
+import { DataList, DataListProps } from "../components/DataList"
+import React, { Component } from "react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import Compensation from "../entities/Compensation"
+import { RouteComponentProps } from "react-router-dom"
+import Modal from "../components/Modal"
+import { Button, ButtonGroup } from "react-bootstrap"
 
 interface CompensationsProps extends DataListProps<Compensation> {
     delete: (id: number) => void
@@ -104,7 +102,7 @@ export class _Compensations extends Component<CompensationsProps & RouteComponen
                 ]}
                 tableColumns={[
                     { text: 'Mitglied', keys: { 'member': ['firstname', 'lastname'] }, sortable: true, searchable: true },
-                    { text: 'Datum', keys: ['date'], sortable: true },
+                    { text: 'Datum', keys: ['date'], sortable: true, format: 'toLocaleDateString' },
                     { text: 'Betrag', keys: ['amount'], sortable: true, prefix: 'CHF ', format: 'toFixed(2)' },
                     { text: 'Beschreibung', keys: ['description'], sortable: false, searchable: true },
                     { text: 'Ersteller', keys: { 'creator': ['displayName'] }, sortable: true },
@@ -114,6 +112,34 @@ export class _Compensations extends Component<CompensationsProps & RouteComponen
                 data={this.props.data}
                 fetchData={this.props.fetchData}
                 history={this.props.history}
+                defaultFilter='all'
+                filters={[
+                    {
+                        id: 'all',
+                        displayName: 'Alle',
+                        filters: [{ type: 'any' }]
+                    },
+                    {
+                        id: 'notApproved',
+                        displayName: 'Nicht bewilligt',
+                        filters: [{ type: 'eq', value: 'false', key: 'approved' }]
+                    },
+                    {
+                        id: 'approved',
+                        displayName: 'Bewilligt',
+                        filters: [{ type: 'eq', value: 'true', key: 'approved' }]
+                    },
+                    {
+                        id: 'paied',
+                        displayName: 'Ausbezahlt',
+                        filters: [{ type: 'eq', value: 'true', key: 'paied' }]
+                    },
+                    {
+                        id: 'notPaied',
+                        displayName: 'Nicht Ausbezahlt',
+                        filters: [{ type: 'eq', value: 'false', key: 'paied' }]
+                    }
+                ]}
             >
                 {this.renderModal()}
             </DataList>

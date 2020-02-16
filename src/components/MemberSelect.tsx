@@ -1,13 +1,13 @@
-import React, { Component } from "react";
-import { Data } from "../actions/DataActions";
-import { ThunkDispatch } from "redux-thunk";
-import { State } from "../reducers/IndexReducer";
-import { AnyAction } from "redux";
+import React, { Component } from "react"
+import { Data } from "../actions/DataActions"
+import { ThunkDispatch } from "redux-thunk"
+import { State } from "../reducers/IndexReducer"
+import { AnyAction } from "redux"
 import Select from 'react-select'
-import { DataInterface } from "../reducers/DataReducer";
-import { ValueType } from "react-select/lib/types";
-import { connect } from 'react-redux';
-import Contact from "../entities/Contact";
+import { DataInterface } from "../reducers/DataReducer"
+import { ValueType } from "react-select/lib/types"
+import { connect } from 'react-redux'
+import Contact from "../entities/Contact"
 
 interface MemberSelectProps {
     defaultValue?: Array<Contact>,
@@ -16,7 +16,8 @@ interface MemberSelectProps {
     members: DataInterface<Contact>,
     loading: boolean,
     ref?: Function,
-    fetchMembers: Function
+    fetchMembers: Function,
+    required?: boolean
 }
 
 export class _MemberSelect extends Component<MemberSelectProps, { value?: Array<{ label: string, value: string }> }> {
@@ -91,7 +92,11 @@ export class _MemberSelect extends Component<MemberSelectProps, { value?: Array<
 
         let members = []
         for (let o of ops) {
-            members.push(this.props.members.byId[o.value])
+            if (o) {
+                members.push(this.props.members.byId[o.value])
+            } else {
+                members.push(undefined)
+            }
         }
 
         if (this.props.onChange) {
@@ -123,6 +128,7 @@ export class _MemberSelect extends Component<MemberSelectProps, { value?: Array<
                 isMulti={this.props.isMulti || false}
                 onChange={this.onChange.bind(this)}
                 value={this.prepareValue()}
+                required={!!this.props.required}
             />)
         }
 

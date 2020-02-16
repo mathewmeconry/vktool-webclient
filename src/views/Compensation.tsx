@@ -1,22 +1,22 @@
-import { Component } from "react";
-import { connect } from "react-redux";
-import { State } from "../reducers/IndexReducer";
-import { ThunkDispatch } from "redux-thunk";
-import { AnyAction } from "redux";
-import { Data } from "../actions/DataActions";
-import * as CompensationEntity from "../entities/Compensation";
-import { RouteComponentProps } from "react-router";
-import * as React from "react";
-import { Page } from "../components/Page";
-import Loading from "../components/Loading";
-import Row from "../components/Row";
-import Column from "../components/Column";
-import Panel from "../components/Panel";
-import FormEntry from "../components/FormEntry";
-import { Link } from "react-router-dom";
-import { Error404 } from "../components/Errors/404";
-import Payout from "../entities/Payout";
-import Button from "../components/Button";
+import { Component } from "react"
+import { connect } from "react-redux"
+import { State } from "../reducers/IndexReducer"
+import { ThunkDispatch } from "redux-thunk"
+import { AnyAction } from "redux"
+import { Data } from "../actions/DataActions"
+import * as CompensationEntity from "../entities/Compensation"
+import { RouteComponentProps } from "react-router"
+import * as React from "react"
+import { Page } from "../components/Page"
+import Loading from "../components/Loading"
+import Row from "../components/Row"
+import Column from "../components/Column"
+import Panel from "../components/Panel"
+import FormEntry from "../components/FormEntry"
+import { Link } from "react-router-dom"
+import { Error404 } from "../components/Errors/404"
+import Payout from "../entities/Payout"
+import Button from "../components/Button"
 
 interface CompensationProps extends RouteComponentProps<{ id: string }> {
     compensation: CompensationEntity.default,
@@ -43,9 +43,13 @@ export class _Compensation extends Component<CompensationProps> {
     }
 
     private renderActions() {
+        const actions = [<Link to={"/contact/" + this.props.compensation.member.id} className="btn btn-block btn-outline-primary">Kontakt öffnen</Link>]
+
         if (!this.props.compensation.approved) {
-            return <Button id="approve" block={true} variant="outline-success" onClick={this.approve}>Genehmigen</Button>
+            actions.push(<Button id="approve" block={true} variant="outline-success" onClick={this.approve}>Genehmigen</Button>)
         }
+
+        return actions
     }
 
     private renderBillingReport() {
