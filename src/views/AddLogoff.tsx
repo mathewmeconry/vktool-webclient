@@ -161,7 +161,7 @@ export class _AddLogoff extends Component<AddLogoffProps, AddLogoffState> {
                                     columns={[
                                         { keys: ['from'], text: 'Von', editable: true, type: 'datetime', onChange: this.onLogoffChange, required: true },
                                         { keys: ['until'], text: 'Bis', editable: true, type: 'datetime', onChange: this.onLogoffChange, required: true },
-                                        { keys: ['state'], text: 'Status', editable: true, type: 'select', options: ['approve', 'pending', 'decline'], onChange: this.onLogoffChange, required: true },
+                                        { keys: ['state'], text: 'Status', editable: true, type: 'select', options: ['approved', 'pending', 'declined'], onChange: this.onLogoffChange, required: true },
                                         { keys: ['remarks'], text: 'Bemerkungen', editable: true, type: 'text', onChange: this.onLogoffChange, required: false },
                                     ]}
                                     addNew={true}
