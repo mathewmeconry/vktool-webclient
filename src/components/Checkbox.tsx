@@ -21,7 +21,7 @@ export default class Checkbox extends Component<CheckboxProps, { checked: boolea
     }
 
     private onCheck(event: React.ChangeEvent<HTMLInputElement>): void {
-        if (this.props.editable) {
+        if (this.props.editable === true || this.props.editable === undefined) {
             this.setState({
                 checked: !this.state.checked
             })
