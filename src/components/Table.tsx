@@ -396,7 +396,9 @@ export default class Table<T extends { id: string | number }> extends Component<
                     param = match[2]
                 }
             }
-            return value[command](param)
+            if (value[command]) {
+                return value[command](param)
+            }
         }
         return (value || '').toString()
     }
