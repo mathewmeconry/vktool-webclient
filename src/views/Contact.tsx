@@ -178,11 +178,7 @@ export default class _Contact extends Component<ContactProps, ContactState> {
             ]
         }
 
-        if (!!this.props.user.roles.indexOf(AuthRoles.MEMBERS_EDIT) || !!this.props.user.roles.indexOf(AuthRoles.CONTACTS_EDIT) || !!this.props.user.roles.indexOf(AuthRoles.ADMIN)) {
-            return [<Action icon="pencil-alt" key="edit" onClick={async () => { this.setState({ editable: true }) }} />]
-        }
-
-        return []
+        return [<Action icon="pencil-alt" key="edit" onClick={async () => { this.setState({ editable: true }) }} roles={[AuthRoles.CONTACTS_EDIT, AuthRoles.MEMBERS_EDIT]} />]
     }
 
     private renderActions() {

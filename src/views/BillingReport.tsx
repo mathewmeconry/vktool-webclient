@@ -1,36 +1,36 @@
 import React, { Component } from 'react'
-import { Page } from '../components/Page';
-import Panel from '../components/Panel';
-import Row from '../components/Row';
-import Column from '../components/Column';
-import FormEntry from '../components/FormEntry';
-import { connect } from 'react-redux';
-import { State } from '../reducers/IndexReducer';
-import { ThunkDispatch } from 'redux-thunk';
-import { Data } from '../actions/DataActions';
-import { AnyAction } from 'redux';
-import Loading from '../components/Loading';
-import Table from '../components/Table';
-import StringIndexed from '../interfaces/StringIndexed';
+import { Page } from '../components/Page'
+import Panel from '../components/Panel'
+import Row from '../components/Row'
+import Column from '../components/Column'
+import FormEntry from '../components/FormEntry'
+import { connect } from 'react-redux'
+import { State } from '../reducers/IndexReducer'
+import { ThunkDispatch } from 'redux-thunk'
+import { Data } from '../actions/DataActions'
+import { AnyAction } from 'redux'
+import Loading from '../components/Loading'
+import Table from '../components/Table'
+import StringIndexed from '../interfaces/StringIndexed'
 import { History } from 'history'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { DataInterface } from '../reducers/DataReducer';
-import { RouteComponentProps, Link } from 'react-router-dom';
-import * as BillingReportEntity from '../entities/BillingReport';
-import OrderCompensation from '../entities/OrderCompensation';
-import Order from '../entities/Order';
-import User from '../entities/User';
-import { AuthRoles } from '../interfaces/AuthRoles';
-import Action from '../components/Action';
-import Contact from '../entities/Contact';
-import { OrderSelect } from '../components/OrderSelect';
-import { MemberSelect } from '../components/MemberSelect';
-import { EditBillingReport, BillingReportCompensationEntry } from '../interfaces/BillingReport';
-import Compensation from '../entities/Compensation';
-import Modal from '../components/Modal';
-import { ButtonGroup } from 'react-bootstrap';
-import AddBillingReportStep2 from './AddBillingReportSteps/AddBillingReportStep2';
-import Button from '../components/Button';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { DataInterface } from '../reducers/DataReducer'
+import { RouteComponentProps, Link } from 'react-router-dom'
+import * as BillingReportEntity from '../entities/BillingReport'
+import OrderCompensation from '../entities/OrderCompensation'
+import Order from '../entities/Order'
+import User from '../entities/User'
+import { AuthRoles } from '../interfaces/AuthRoles'
+import Action from '../components/Action'
+import Contact from '../entities/Contact'
+import { OrderSelect } from '../components/OrderSelect'
+import { MemberSelect } from '../components/MemberSelect'
+import { EditBillingReport, BillingReportCompensationEntry } from '../interfaces/BillingReport'
+import Compensation from '../entities/Compensation'
+import Modal from '../components/Modal'
+import { ButtonGroup } from 'react-bootstrap'
+import AddBillingReportStep2 from './AddBillingReportSteps/AddBillingReportStep2'
+import Button from '../components/Button'
 
 export interface BillingReportProps extends RouteComponentProps<{ id: string }> {
     billingReports: DataInterface<BillingReportEntity.default>,
@@ -60,7 +60,7 @@ interface BillingReportState {
 }
 
 export class _BillingReport extends Component<BillingReportProps, BillingReportState> {
-    private billingReport: BillingReportEntity.default;
+    private billingReport: BillingReportEntity.default
 
     constructor(props: BillingReportProps) {
         super(props)
@@ -165,7 +165,7 @@ export class _BillingReport extends Component<BillingReportProps, BillingReportS
         //@ts-ignore
         this.setState({
             [name]: value
-        });
+        })
     }
 
     public onSelectChange(state: string): (opts: Array<Contact> | Order) => void {
@@ -248,23 +248,10 @@ export class _BillingReport extends Component<BillingReportProps, BillingReportS
     }
 
     public renderActions() {
-        let actions = []
-
-        if (this.billingReport.state === 'pending' && (
-            this.props.user.roles.includes(AuthRoles.BILLINGREPORTS_APPROVE) ||
-            this.props.user.roles.includes(AuthRoles.ADMIN))) {
-            actions.push(
-                <Button id="approve" block={true} variant="outline-success" onClick={this.approve}>Genehmigen</Button>
-            )
-            //TODO: Disabled because of workflow missing for declined reports
-            /* actions.push(
-                <button id="decline" block={true} variant="outline-danger" onClick={this.decline}>Ablehnen</button>
-            ) */
-        }
-
-        actions.push(<Link to={`/order/${this.billingReport.order.id}`} className="btn btn-block btn-outline-primary">Auftrag öffnen</Link>)
-
-        return actions
+        return [
+            <Button id="approve" block={true} variant="outline-success" onClick={this.approve} roles={[AuthRoles.BILLINGREPORTS_APPROVE]}>Genehmigen</Button>,
+            <Link to={`/order/${this.billingReport.order.id}`} className="btn btn-block btn-outline-primary">Auftrag öffnen</Link>
+        ]
     }
 
     public renderOrder() {
@@ -301,7 +288,7 @@ export class _BillingReport extends Component<BillingReportProps, BillingReportS
             this.props.user.roles.includes(AuthRoles.BILLINGREPORTS_EDIT) ||
             (this.billingReport.state === 'pending' && this.billingReport.creator.id === this.props.user.id)) {
             if (!this.state.informationEdit) {
-                panelActions.push(<Action icon="pencil-alt" key="edit" onClick={this.onInformationEdit} />)
+                panelActions.push(<Action icon="pencil-alt" key="edit" onClick={this.onInformationEdit} roles={[AuthRoles.BILLINGREPORTS_EDIT]} />)
             } else {
                 panelActions.push(<Action icon="save" key="save" onClick={this.onInformationSave} />)
                 panelActions.push(<Action icon="times" key="edit" onClick={this.onAbort} />)
@@ -378,13 +365,10 @@ export class _BillingReport extends Component<BillingReportProps, BillingReportS
     }
 
     public getCompensationActions() {
-        let actions = [<Button variant="success" className="view" onClick={this.elementView}><FontAwesomeIcon icon="eye" /></Button>]
-        if (this.props.user.roles.includes(AuthRoles.ADMIN) ||
-            this.props.user.roles.includes(AuthRoles.BILLINGREPORTS_EDIT) ||
-            (this.billingReport.state === 'pending' && this.billingReport.creator.id === this.props.user.id)) {
-            actions.push(<Button variant="danger" className="delete" onClick={this.deleteCompensation}><FontAwesomeIcon icon="trash" /></Button>)
-        }
-        return actions
+        return [
+            <Button variant="success" className="view" onClick={this.elementView}><FontAwesomeIcon icon="eye" /></Button>,
+            <Button variant="danger" className="delete" onClick={this.deleteCompensation} roles={[AuthRoles.BILLINGREPORTS_EDIT]}><FontAwesomeIcon icon="trash" /></Button>
+        ]
     }
 
     public render() {

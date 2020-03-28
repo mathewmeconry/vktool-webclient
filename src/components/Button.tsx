@@ -1,9 +1,13 @@
 import React, { Component, ButtonHTMLAttributes } from "react"
 import * as Bootstrap from 'react-bootstrap'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { AuthRoles } from "../interfaces/AuthRoles"
+import { State } from "../reducers/IndexReducer"
+import User from "../entities/User"
+import { connect } from 'react-redux'
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-    onClick: (event: React.MouseEvent<HTMLButtonElement>) => Promise<any>
+    onClick: (event: React.MouseEvent<HTMLButtonElement>) => any
     type?: "button" | "reset" | "submit",
     active?: boolean
     block?: boolean
@@ -29,13 +33,15 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     href?: string
     disabled?: boolean
     loading?: boolean
+    roles?: AuthRoles[]
+    user?: User
 };
 
 interface ButtonState {
     state: 'normal' | 'inProgress' | 'done'
 }
 
-export default class Button extends Component<ButtonProps, ButtonState> {
+export default class _Button extends Component<ButtonProps, ButtonState> {
     constructor(props: ButtonProps) {
         super(props)
 
@@ -65,6 +71,10 @@ export default class Button extends Component<ButtonProps, ButtonState> {
 
 
     public render() {
+        if (this.props.roles && this.props.user && !this.props.user.roles.some((value: string) => (this.props.roles || []).concat([AuthRoles.ADMIN]).includes(value as AuthRoles))) {
+            return null
+        }
+
         switch (this.state.state) {
             case 'normal':
                 return (<Bootstrap.Button {...this.props} onClick={this.onClick}>{this.props.children}</Bootstrap.Button>)
@@ -84,3 +94,13 @@ export default class Button extends Component<ButtonProps, ButtonState> {
         }
     }
 }
+
+const mapStateToProps = (state: State, props: any) => {
+    return {
+        user: state.data.user.data,
+    }
+}
+
+
+//@ts-ignore
+export const Button = connect(mapStateToProps)(_Button)

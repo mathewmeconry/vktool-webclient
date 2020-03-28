@@ -6,13 +6,14 @@ import { AnyAction } from "redux";
 import { DataList } from "../components/DataList";
 import Action from "../components/Action";
 import React from "react";
+import { AuthRoles } from "../interfaces/AuthRoles"
 
 
 const mapStateToProps = (state: State) => {
     return {
         data: state.data.collectionPoints,
         title: 'Abholpunkte',
-        panelActions: [<Action icon="plus" to="/draft/collection-point/add" />],
+        panelActions: [<Action icon="plus" to="/draft/collection-point/add" roles={[AuthRoles.DRAFT_CREATE, AuthRoles.DRAFT_EDIT]}/>],
         viewLocation: '/collection-point/',
         tableColumns: [
             { text: 'Name', keys: ['name'], sortable: true, searchable: true },

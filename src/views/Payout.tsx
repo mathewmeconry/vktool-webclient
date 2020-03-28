@@ -21,6 +21,7 @@ import { ButtonGroup } from "react-bootstrap";
 import Contact from "../entities/Contact";
 import { UI } from "../actions/UIActions";
 import StringIndexed from "../interfaces/StringIndexed";
+import { AuthRoles } from "../interfaces/AuthRoles"
 
 interface PayoutProps {
     payout: PayoutEntity.default,
@@ -259,11 +260,11 @@ export class _Payout extends Component<PayoutProps, { modalShow: boolean, modalT
                     <Column className="col-md-6">
                         <Panel title="Actions">
                             <a className="btn btn-block btn-outline-primary" target="_blank" href={`${Config.apiEndpoint}/api/payouts/${this.props.payout.id}/pdf`} >PDF</a>
-                            <Button block={true} variant="outline-primary" onClick={this.showMailModal}>Bestätigung E-Mails verschicken</Button>
-                            <Button block={true} variant="outline-primary" onClick={this.showBexioModal}>An Bexio übertragen</Button>
+                            <Button block={true} variant="outline-primary" roles={[AuthRoles.PAYOUTS_SEND]} onClick={this.showMailModal}>Bestätigung E-Mails verschicken</Button>
+                            <Button block={true} variant="outline-primary" roles={[AuthRoles.PAYOUTS_SEND]} onClick={this.showBexioModal}>An Bexio übertragen</Button>
                             <Button block={true} variant="outline-primary" onClick={() => { return this.props.getBankingXml(this.props.payout, this.state.selected) }}>Banking XML herunterladen</Button>
                             <Button block={true} variant="outline-primary" onClick={this.reclaim}>Neu Berechnen</Button>
-                            <Button block={true} variant="outline-primary" onClick={() => this.transfer()}>Übertragen</Button>
+                            <Button block={true} variant="outline-primary" roles={[AuthRoles.PAYOUTS_SEND]} onClick={() => this.transfer()}>Übertragen</Button>
                         </Panel>
                     </Column>
                 </Row>

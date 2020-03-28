@@ -49,13 +49,7 @@ export class _Navibar extends Component<{ open: boolean, user?: User }> {
                             </NavibarLevelHeader>
                             , [AuthRoles.BILLINGREPORTS_READ, AuthRoles.BILLINGREPORTS_CREATE]
                         )}
-                        {this.renderElement(
-                            <NavibarLevelHeader text="Entschädigungen" leftIcon="dollar-sign" id="compensations" level={1}>
-                                {this.renderElement(<NavibarElement to="/compensations/add" leftIcon="plus" text="Erstellen" />, [AuthRoles.COMPENSATIONS_CREATE])}
-                                <NavibarElement to="/compensations" leftIcon="list" text="Alle" />
-                            </NavibarLevelHeader>
-                            , [AuthRoles.COMPENSATIONS_READ]
-                        )}
+                        {this.renderElement(<NavibarElement to="/compensations" leftIcon="dollar-sign" text="Entschädigungen" />, [AuthRoles.COMPENSATIONS_READ])}
                         {this.renderElement(<NavibarElement to="/payouts" text="Auszahlungen" leftIcon="file-invoice-dollar" />, [AuthRoles.PAYOUTS_READ])}
                         {this.renderElement(<NavibarElement to="/users" text="Benutzer" leftIcon="user" />, [AuthRoles.ADMIN])}
                         <NavibarElement to="https://vkazu.sharepoint.com/Dokumente" text="Dokumente" leftIcon="external-link-alt" />

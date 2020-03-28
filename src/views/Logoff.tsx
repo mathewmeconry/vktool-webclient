@@ -15,6 +15,7 @@ import { ThunkDispatch } from "redux-thunk"
 import { Data } from "../actions/DataActions"
 import { connect } from "react-redux"
 import { Link } from "react-router-dom"
+import { AuthRoles } from "../interfaces/AuthRoles"
 
 
 interface LogoffProps extends RouteComponentProps<{ id: string }> {
@@ -51,8 +52,8 @@ export class _Logoff extends Component<LogoffProps> {
 
         if (this.props.logoff.state === LogoffState.PENDING) {
             actions = [...actions,
-            <Button id="approve" block={true} variant="outline-success" onClick={this.approve}>Genehmigen</Button>,
-            <Button id="decline" block={true} variant="outline-danger" onClick={this.decline}>Ablehnen</Button>
+            <Button id="approve" block={true} variant="outline-success" onClick={this.approve} roles={[AuthRoles.LOGOFFS_APPROVE]}>Genehmigen</Button>,
+            <Button id="decline" block={true} variant="outline-danger" onClick={this.decline} roles={[AuthRoles.LOGOFFS_APPROVE]}>Ablehnen</Button>
             ]
         }
         return actions

@@ -9,7 +9,10 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import Compensation from "../entities/Compensation"
 import { RouteComponentProps } from "react-router-dom"
 import Modal from "../components/Modal"
-import { Button, ButtonGroup } from "react-bootstrap"
+import { ButtonGroup } from "react-bootstrap"
+import { AuthRoles } from "../interfaces/AuthRoles"
+import Button from '../components/Button'
+import Action from "../components/Action"
 
 interface CompensationsProps extends DataListProps<Compensation> {
     delete: (id: number) => void
@@ -39,7 +42,7 @@ export class _Compensations extends Component<CompensationsProps & RouteComponen
         }
     }
 
-    private deleteCompensationConfirmed() {
+    private deleteCompensationConfirmed(event: React.MouseEvent<HTMLButtonElement>) {
         if (this.state.toDeleteCompensation) {
             this.props.delete(this.state.toDeleteCompensation.id)
             this.setState({
@@ -55,7 +58,7 @@ export class _Compensations extends Component<CompensationsProps & RouteComponen
         })
     }
 
-    private hideModal() {
+    private hideModal(event: React.MouseEvent<HTMLButtonElement>) {
         this.setState({
             modalShow: false
         })
@@ -66,6 +69,7 @@ export class _Compensations extends Component<CompensationsProps & RouteComponen
             return (
                 <Modal
                     show={this.state.modalShow}
+                    // @ts-ignore
                     onHide={this.hideModal}
                     header={<h3>{(this.state.toDeleteCompensation as Compensation).member.firstname + ' ' + (this.state.toDeleteCompensation as Compensation).member.lastname + ' vom  ' + (this.state.toDeleteCompensation as Compensation).date.toLocaleDateString()}</h3>}
                     body={
@@ -97,8 +101,11 @@ export class _Compensations extends Component<CompensationsProps & RouteComponen
             <DataList<Compensation>
                 title='Entschädigungen'
                 viewLocation='/compensation/'
+                panelActions={[
+                    <Action icon="plus" to="/compensations/add" roles={[AuthRoles.COMPENSATIONS_CREATE]}/>,
+                ]}
                 rowActions={[
-                    <button className="btn btn-danger delete" onMouseUp={this.deleteCompensation}><FontAwesomeIcon icon="trash" /></button>
+                    <Button className="btn btn-danger delete" onClick={this.deleteCompensation} roles={[AuthRoles.COMPENSATIONS_EDIT]}><FontAwesomeIcon icon="trash" /></Button>
                 ]}
                 tableColumns={[
                     { text: 'Mitglied', keys: { 'member': ['firstname', 'lastname'] }, sortable: true, searchable: true },
