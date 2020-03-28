@@ -65,10 +65,7 @@ function Users(state: DataInterface<User> = { loading: false, byId: {}, ids: [],
 
     switch (action.type) {
         case DataActions.FETCH_USERS:
-            if (state.ids.length === 0) {
-                return Object.assign({}, state, { loading: true })
-            }
-            return Object.assign({}, state, { loading: false })
+            return Object.assign({}, state, { loading: true })
         case DataActions.GOT_USERS:
             if (Object.keys(action.payload).length < 1) return Object.assign({}, state, { loading: false })
             for (let contact of action.payload) {
@@ -87,10 +84,7 @@ function Ranks(state: DataInterface<ContactGroup> = { loading: false, byId: {}, 
     let ids = []
     switch (action.type) {
         case DataActions.FETCH_RANKS:
-            if (state.ids.length === 0) {
-                return Object.assign({}, state, { loading: true })
-            }
-            return Object.assign({}, state, { loading: false })
+            return Object.assign({}, state, { loading: true })
         case DataActions.GOT_RANKS:
             if (Object.keys(action.payload).length < 1) return Object.assign({}, state, { loading: false })
             for (let rank of action.payload) {
@@ -108,10 +102,7 @@ function Contacts(state: DataInterface<Contact> = { loading: false, byId: {}, id
     let ids = []
     switch (action.type) {
         case DataActions.FETCH_CONTACTS:
-            if (state.ids.length === 0) {
-                return Object.assign({}, state, { loading: true })
-            }
-            return Object.assign({}, state, { loading: false })
+            return Object.assign({}, state, { loading: true })
         case DataActions.GOT_CONTACTS:
             if (Object.keys(action.payload).length < 1) return Object.assign({}, state, { loading: false })
             for (let contact of action.payload) {
@@ -130,10 +121,7 @@ function Members(state: DataInterface<Contact> = { loading: false, byId: {}, ids
 
     switch (action.type) {
         case DataActions.FETCH_MEMBERS:
-            if (state.ids.length === 0) {
-                return Object.assign({}, state, { loading: true })
-            }
-            return Object.assign({}, state, { loading: false })
+            return Object.assign({}, state, { loading: true })
         case DataActions.GOT_MEMBERS:
             if (Object.keys(action.payload).length < 1) return Object.assign({}, state, { loading: false })
             for (let contact of action.payload) {
@@ -153,10 +141,7 @@ function Orders(state: DataInterface<Order> = { loading: false, byId: {}, ids: [
 
     switch (action.type) {
         case DataActions.FETCH_ORDERS:
-            if (state.ids.length === 0) {
-                return Object.assign({}, state, { loading: true })
-            }
-            return Object.assign({}, state, { loading: false })
+            return Object.assign({}, state, { loading: true })
         case DataActions.GOT_ORDERS:
             if (Object.keys(action.payload).length < 1) return Object.assign({}, state, { loading: false })
             for (let order of action.payload) {
@@ -176,10 +161,7 @@ function OpenOrders(state: DataInterface<Order> = { loading: false, byId: {}, id
 
     switch (action.type) {
         case DataActions.FETCH_OPEN_ORDERS:
-            if (state.ids.length === 0) {
-                return Object.assign({}, state, { loading: true })
-            }
-            return Object.assign({}, state, { loading: false })
+            return Object.assign({}, state, { loading: true })
         case DataActions.GOT_OPEN_ORDERS:
             if (Object.keys(action.payload).length < 1) return Object.assign({}, state, { loading: false })
             for (let order of action.payload) {
@@ -200,10 +182,7 @@ function BillingReports(state: DataInterface<BillingReport> = { loading: false, 
 
     switch (action.type) {
         case DataActions.FETCH_BILLING_REPORTS:
-            if (state.ids.length === 0) {
-                return Object.assign({}, state, { loading: true })
-            }
-            return Object.assign({}, state, { loading: false })
+            return Object.assign({}, state, { loading: true })
         case DataActions.GOT_BILLING_REPORTS:
             if (Object.keys(action.payload).length < 1) return Object.assign({}, state, { loading: false })
             for (let report of action.payload) {
@@ -226,10 +205,7 @@ function CompensationEntries(state: DataInterface<Compensation> = { loading: fal
 
     switch (action.type) {
         case DataActions.FETCH_COMPENSATION_ENTRIES:
-            if (state.ids.length === 0) {
-                return Object.assign({}, state, { loading: true })
-            }
-            return Object.assign({}, state, { loading: false })
+            return Object.assign({}, state, { loading: true })
         case DataActions.GOT_COMPENSATION_ENTRIES:
             if (Object.keys(action.payload).length < 1) return Object.assign({}, state, { loading: false })
             for (let entry of action.payload) {
@@ -237,9 +213,9 @@ function CompensationEntries(state: DataInterface<Compensation> = { loading: fal
                 ids.push(entry.id)
 
                 if (!entry.hasOwnProperty('description')) {
-                    if (entry.hasOwnProperty('billingReport') && entry.billingReport.hasOwnProperty('order')) {
+                    if (entry.billingReport && entry.billingReport.order) {
                         // only show the contact if the contact is not a privat person (identified that companies doesn't have any firstname)
-                        if (entry.billingReport.order.hasOwnProperty('contact') && !entry.billingReport.order.contact.hasOwnProperty('firstname')) {
+                        if (entry.billingReport.order.contact && !entry.billingReport.order.contact.firstname) {
                             byId[entry.id] = Object.assign(byId[entry.id], { description: `${entry.billingReport.order.title} (${entry.billingReport.order.contact.lastname})` })
                         } else {
                             byId[entry.id] = Object.assign(byId[entry.id], { description: `${entry.billingReport.order.title}` })
@@ -264,10 +240,7 @@ function CollectionPoints(state: DataInterface<CollectionPoint> = { loading: fal
     let ids: Array<number> = []
     switch (action.type) {
         case DataActions.FETCH_COLLECTION_POINTS:
-            if (state.ids.length === 0) {
-                return Object.assign({}, state, { loading: true })
-            }
-            return Object.assign({}, state, { loading: false })
+            return Object.assign({}, state, { loading: true })
         case DataActions.GOT_COLLECTION_POINTS:
             if (Object.keys(action.payload).length < 1) return Object.assign({}, state, { loading: false })
             for (let entry of action.payload) {
@@ -356,10 +329,7 @@ function Payouts(state: DataInterface<Payout> = { loading: false, byId: {}, ids:
     let ids: Array<number> = []
     switch (action.type) {
         case DataActions.FETCH_PAYOUTS:
-            if (state.ids.length === 0) {
-                return Object.assign({}, state, { loading: true })
-            }
-            return Object.assign({}, state, { loading: false })
+            return Object.assign({}, state, { loading: true })
         case DataActions.GOT_PAYOUTS:
             if (Object.keys(action.payload).length < 1) return Object.assign({}, state, { loading: false })
 
@@ -405,10 +375,7 @@ function Logoffs(state: DataInterface<Logoff> = { loading: false, byId: {}, ids:
 
     switch (action.type) {
         case DataActions.FETCH_LOGOFFS:
-            if (state.ids.length === 0) {
-                return Object.assign({}, state, { loading: true })
-            }
-            return Object.assign({}, state, { loading: false })
+            return Object.assign({}, state, { loading: true })
         case DataActions.GOT_LOGOFFS:
             if (Object.keys(action.payload).length < 1) return Object.assign({}, state, { loading: false })
             for (let logoff of action.payload) {

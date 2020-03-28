@@ -36,8 +36,8 @@ export interface ContactProps extends RouteComponentProps<{ id: string }> {
 export interface ContactState {
     editable: boolean,
     collectionPoint: CollectionPoint,
-    entryDate?: string,
-    exitDate?: string,
+    entryDate?: Date,
+    exitDate?: Date,
     bankName?: string,
     iban?: string,
     accountHolder?: string,
@@ -68,8 +68,8 @@ export default class _Contact extends Component<ContactProps, ContactState> {
         this.state = {
             editable: false,
             collectionPoint: contact.collectionPoint || new CollectionPoint(),
-            entryDate: (contact.entryDate) ? contact.entryDate.toLocaleDateString() : '',
-            exitDate: (contact.exitDate) ? contact.exitDate.toLocaleDateString() : '',
+            entryDate: (contact.entryDate) ? contact.entryDate : undefined,
+            exitDate: (contact.exitDate) ? contact.exitDate : undefined,
             bankName: contact.bankName || '',
             iban: contact.iban || '',
             accountHolder: contact.accountHolder || '',
@@ -104,8 +104,8 @@ export default class _Contact extends Component<ContactProps, ContactState> {
         if (this.props.contact && !prevProps.contact) {
             this.setState({
                 collectionPoint: this.props.contact.collectionPoint || new CollectionPoint(),
-                entryDate: (this.props.contact.entryDate) ? this.props.contact.entryDate.toLocaleDateString() : '',
-                exitDate: (this.props.contact.exitDate) ? this.props.contact.exitDate.toLocaleDateString() : '',
+                entryDate: (this.props.contact.entryDate) ? this.props.contact.entryDate : undefined,
+                exitDate: (this.props.contact.exitDate) ? this.props.contact.exitDate : undefined,
                 bankName: this.props.contact.bankName || '',
                 iban: this.props.contact.iban || '',
                 accountHolder: this.props.contact.accountHolder || '',
@@ -136,8 +136,8 @@ export default class _Contact extends Component<ContactProps, ContactState> {
         this.setState({
             editable: false,
             collectionPoint: this.props.contact.collectionPoint || new CollectionPoint(),
-            entryDate: (this.props.contact.entryDate) ? this.props.contact.entryDate.toLocaleDateString() : '',
-            exitDate: (this.props.contact.exitDate) ? this.props.contact.exitDate.toLocaleDateString() : '',
+            entryDate: (this.props.contact.entryDate) ? this.props.contact.entryDate : undefined,
+            exitDate: (this.props.contact.exitDate) ? this.props.contact.exitDate : undefined,
             bankName: this.props.contact.bankName || '',
             iban: this.props.contact.iban || '',
             accountHolder: this.props.contact.accountHolder || '',
@@ -178,11 +178,7 @@ export default class _Contact extends Component<ContactProps, ContactState> {
             ]
         }
 
-        if (!!this.props.user.roles.indexOf(AuthRoles.MEMBERS_EDIT) || !!this.props.user.roles.indexOf(AuthRoles.CONTACTS_EDIT) || !!this.props.user.roles.indexOf(AuthRoles.ADMIN)) {
-            return [<Action icon="pencil-alt" key="edit" onClick={async () => { this.setState({ editable: true }) }} />]
-        }
-
-        return []
+        return [<Action icon="pencil-alt" key="edit" onClick={async () => { this.setState({ editable: true }) }} roles={[AuthRoles.CONTACTS_EDIT, AuthRoles.MEMBERS_EDIT]} />]
     }
 
     private renderActions() {

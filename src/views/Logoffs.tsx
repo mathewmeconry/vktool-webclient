@@ -17,6 +17,7 @@ import Contact from "../entities/Contact"
 import Xlsx from 'xlsx'
 import { TableFilter } from "../components/Table"
 import StringIndexed from "../interfaces/StringIndexed"
+import { AuthRoles } from "../interfaces/AuthRoles"
 
 interface LogoffsProps extends DataListProps<Logoff> {
     delete: (id: number) => void,
@@ -286,7 +287,7 @@ export class _Logoffs extends Component<LogoffsProps & RouteComponentProps, Logo
                 title='Abmeldungen'
                 viewLocation='/draft/logoff/'
                 panelActions={[
-                    <Action icon="plus" to="/draft/logoff/add" />,
+                    <Action icon="plus" to="/draft/logoff/add" roles={[AuthRoles.LOGOFFS_CREATE]} />,
                     <Action key="excel-export" icon="file-excel" onClick={this.excelExport} disabled={this.props.members.loading} loading={this.props.members.loading} />,
                 ]}
                 rowActions={[

@@ -133,7 +133,7 @@ export class DataList<T extends { id: string | number }> extends Component<DataL
     }
 
     private renderTable() {
-        if (this.props.data.loading) {
+        if (this.props.data.loading && this.props.data.ids.length === 0) {
             return (
                 <Loading />
             )

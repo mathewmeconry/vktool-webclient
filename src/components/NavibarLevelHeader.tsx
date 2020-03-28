@@ -34,11 +34,11 @@ export default class _NavibarLevelHeader extends Component<PropsWithChildren<Nav
 
     public render() {
         let openClass = ''
-        let rightIcon: IconProp = 'angle-up'
+        let rightIcon: IconProp = 'angle-down'
 
         if (this.props.id !== this.props.open_level) {
             openClass = ' level-collapsed'
-            rightIcon = 'angle-down'
+            rightIcon = 'angle-left'
         }
 
         return (

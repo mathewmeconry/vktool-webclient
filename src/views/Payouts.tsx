@@ -8,10 +8,11 @@ import { Data } from "../actions/DataActions"
 
 import { DataList } from '../components/DataList'
 import Action from "../components/Action"
+import { AuthRoles } from '../interfaces/AuthRoles'
 
 const mapStateToProps = (state: State) => {
     return {
-        panelActions: [<Action icon="plus" to="/payouts/add" />],
+        panelActions: [<Action icon="plus" to="/payouts/add" roles={[AuthRoles.PAYOUTS_CREATE]}/>],
         data: state.data.payouts,
         viewLocation: '/payout/',
         title: 'Auszahlungen',

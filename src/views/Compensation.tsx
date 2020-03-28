@@ -17,6 +17,7 @@ import { Link } from "react-router-dom"
 import { Error404 } from "../components/Errors/404"
 import Payout from "../entities/Payout"
 import Button from "../components/Button"
+import { AuthRoles } from "../interfaces/AuthRoles"
 
 interface CompensationProps extends RouteComponentProps<{ id: string }> {
     compensation: CompensationEntity.default,
@@ -46,7 +47,7 @@ export class _Compensation extends Component<CompensationProps> {
         const actions = [<Link to={"/contact/" + this.props.compensation.member.id} className="btn btn-block btn-outline-primary">Kontakt öffnen</Link>]
 
         if (!this.props.compensation.approved) {
-            actions.push(<Button id="approve" block={true} variant="outline-success" onClick={this.approve}>Genehmigen</Button>)
+            actions.push(<Button id="approve" block={true} variant="outline-success" onClick={this.approve} roles={[AuthRoles.COMPENSATIONS_APPROVE]}>Genehmigen</Button>)
         }
 
         return actions

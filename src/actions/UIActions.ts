@@ -1,7 +1,7 @@
-import { ThunkAction } from "redux-thunk";
-import { State } from "../reducers/IndexReducer";
-import { AnyAction, Dispatch } from "redux";
-import { push } from "connected-react-router";
+import { ThunkAction } from "redux-thunk"
+import { State } from "../reducers/IndexReducer"
+import { AnyAction, Dispatch } from "redux"
+import { push } from "connected-react-router"
 
 export const UIActions = {
     NAVIBAR_TOGGLE: 'navibar_toggle',
@@ -13,7 +13,9 @@ export const UIActions = {
     NOTIFICATION_SUCCESS: 'notification_success',
     NOTIFICATION_ERROR: 'notification_error',
 
-    LOGOUT: 'logout'
+    LOGOUT: 'logout',
+
+    WORKING: 'working'
 }
 
 export class UI {
@@ -66,6 +68,13 @@ export class UI {
         return async (dispatch: Dispatch) => {
             dispatch(push('/login'))
             return { type: UIActions.LOGOUT }
+        }
+    }
+
+    public static setWorking(working: string) {
+        return {
+            type: UIActions.WORKING,
+            payload: working
         }
     }
 }

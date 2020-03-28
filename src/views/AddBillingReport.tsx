@@ -138,11 +138,10 @@ const mapStateToProps = (state: State) => {
         user: state.data.user.data,
         openOrders: state.data.openOrders,
         members: state.data.members,
-        loading: state.data.openOrders.loading ||
-            state.data.members.loading ||
-            state.data.user.loading ||
-            !state.data.openOrders.ids ||
-            !state.data.members.ids ||
+        loading: state.data.openOrders.loading &&
+            state.data.members.loading &&
+            state.data.user.loading &&
+            state.data.members.ids.length === 0 &&
             Object.keys(state.data.user.data as User).length < 0
     }
 }

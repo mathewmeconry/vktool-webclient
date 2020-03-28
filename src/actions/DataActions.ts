@@ -427,6 +427,7 @@ export class Data {
     }
 
     public static sendToApi<T>(method: 'post' | 'put' | 'delete', route: string, data: any, dispatch: ThunkDispatch<State, undefined, AnyAction>, callback?: (data?: T) => void, axiosSettings?: AxiosRequestConfig, deepParse = true): Promise<T> {
+        dispatch(UI.setWorking('fixed'))
         return new Promise<T>((resolve, reject) => {
             axios({
                 ...axiosSettings,
@@ -439,6 +440,7 @@ export class Data {
                 let data = response.data
                 if (deepParse) data = Data.deepParser(data)
                 if (callback) callback(data)
+                dispatch(UI.setWorking('nop'))
                 resolve(data)
             }).catch((error: AxiosError) => {
                 if (error.response && (error.response as AxiosResponse).status === 403) {
@@ -448,6 +450,7 @@ export class Data {
                 } else {
                     dispatch(UI.showError('Ooops... Da ist ein Fehler passiert!'))
                 }
+                dispatch(UI.setWorking('nop'))
                 reject(error)
             })
         })

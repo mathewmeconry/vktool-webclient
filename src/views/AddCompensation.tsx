@@ -102,7 +102,7 @@ export class _AddCompensation extends Component<{ history: History, members: Dat
     }
 
     public render() {
-        if (this.props.loading || this.props.members.ids.length < 1) {
+        if (this.props.loading && this.props.members.ids.length < 1) {
             return (
                 <Page title="Entschädigung hinzufügen">
                     <Loading />

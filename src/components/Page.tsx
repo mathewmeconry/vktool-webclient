@@ -1,13 +1,14 @@
-import React, { Component, PropsWithChildren } from "react";
-import { State } from "../reducers/IndexReducer";
-import { connect } from "react-redux";
-import { Dispatch } from "redux";
-import { UI } from "../actions/UIActions";
-import Swipe from "./Swipe";
-import { Header } from "./Header";
-import { Navibar } from "./Navibar";
+import React, { Component, PropsWithChildren } from "react"
+import { State } from "../reducers/IndexReducer"
+import { connect } from "react-redux"
+import { Dispatch } from "redux"
+import { UI } from "../actions/UIActions"
+import Swipe from "./Swipe"
+import { Header } from "./Header"
+import { Navibar } from "./Navibar"
+import { WorkingIndicator } from "./WorkingIndicator"
 
-export interface PageProps  {
+export interface PageProps {
     title: string,
     open: boolean,
     openNavibar?: () => void,
@@ -48,6 +49,7 @@ export class _Page extends Component<PropsWithChildren<PageProps>> {
                         {this.props.children}
                     </div>
                 </Swipe>
+                <WorkingIndicator />
             </div>
         )
     }
