@@ -1,21 +1,21 @@
-import React, { Component } from "react";
-import { connect } from "react-redux";
-import { State } from '../reducers/IndexReducer';
-import { History, Location } from "history";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { ThunkDispatch } from "redux-thunk";
-import { AnyAction } from "redux";
-import { Data } from "../actions/DataActions";
-import { SingleDataInterface } from "../reducers/DataReducer";
-import Loading from "../components/Loading";
-import { UI } from "../actions/UIActions";
-import Config from "../Config";
-import User from "../entities/User";
+import React, { Component } from "react"
+import { connect } from "react-redux"
+import { State } from '../reducers/IndexReducer'
+import { History, Location } from "history"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { ThunkDispatch } from "redux-thunk"
+import { AnyAction } from "redux"
+import { Data } from "../actions/DataActions"
+import { SingleDataInterface } from "../reducers/DataReducer"
+import Loading from "../components/Loading"
+import { UI } from "../actions/UIActions"
+import Config from "../Config"
+import User from "../entities/User"
 
 export interface LoginProps {
     user: SingleDataInterface<User>,
     history: History,
-    location: Location,
+    location: Location<{ prevLocation: string, errorShown: boolean }>,
     fetchUser: Function,
     showError: (message?: string) => void,
     showSuccess: (message?: string) => void
