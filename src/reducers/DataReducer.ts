@@ -237,9 +237,9 @@ function CompensationEntries(state: DataInterface<Compensation> = { loading: fal
                 ids.push(entry.id)
 
                 if (!entry.hasOwnProperty('description')) {
-                    if (entry.hasOwnProperty('billingReport') && entry.billingReport.hasOwnProperty('order')) {
+                    if (entry.billingReport && entry.billingReport.order) {
                         // only show the contact if the contact is not a privat person (identified that companies doesn't have any firstname)
-                        if (entry.billingReport.order.hasOwnProperty('contact') && !entry.billingReport.order.contact.hasOwnProperty('firstname')) {
+                        if (entry.billingReport.order.contact && !entry.billingReport.order.contact.firstname) {
                             byId[entry.id] = Object.assign(byId[entry.id], { description: `${entry.billingReport.order.title} (${entry.billingReport.order.contact.lastname})` })
                         } else {
                             byId[entry.id] = Object.assign(byId[entry.id], { description: `${entry.billingReport.order.title}` })
