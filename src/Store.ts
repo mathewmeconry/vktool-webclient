@@ -4,29 +4,19 @@ import thunkMiddleware from 'redux-thunk'
 import { connectRouter, routerMiddleware } from 'connected-react-router'
 import { History } from "history"
 import { composeWithDevTools } from "redux-devtools-extension"
-import { persistStore, persistReducer } from 'redux-persist'
-import localStorage from 'redux-persist/lib/storage'
 import { UI } from "./actions/UIActions"
 import { State } from "./reducers/IndexReducer"
 
-const persistConfig = {
-    key: 'root',
-    storage: localStorage,
-    blacklist: ['router']
-}
-
 export default function configureStore(history: History<any>) {
-    const persistedReducer = persistReducer(persistConfig, combineReducers({ ...IndexReducer, router: connectRouter(history) }))
-
     const store = createStore(
-        persistedReducer,
+        combineReducers({ ...IndexReducer, router: connectRouter(history) }),
         composeWithDevTools(
             applyMiddleware(thunkMiddleware, routerMiddleware(history))
         )
     )
 
     store.subscribe(workingSubscriber(store))
-    return { store, persistor: persistStore(store) }
+    return { store }
 }
 
 function workingSubscriber(store: Store<State, AnyAction>) {

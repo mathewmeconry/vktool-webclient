@@ -46,23 +46,20 @@ import { AddLogoff } from "./views/AddLogoff"
 
 export default class Root extends Component<{}, {}> {
     private store: Store<any, AnyAction>
-    private persistor: Persistor
     private history: History
 
     constructor(props: {}, state: {}) {
         super(props, state)
         Config.loadConfig()
         this.history = createBrowserHistory({ basename: '/webapp/' })
-        const { store, persistor } = configureStore(this.history)
+        const { store } = configureStore(this.history)
         this.store = store
-        this.persistor = persistor
         this.store.getState()
     }
 
     render() {
         return (
             <Provider store={this.store}>
-                <PersistGate persistor={this.persistor} loading={<Loading />}>
                     <div className="body">
                         <ToastContainer
                             position="top-center"
@@ -106,7 +103,6 @@ export default class Root extends Component<{}, {}> {
                             </Switch>
                         </ConnectedRouter>
                     </div>
-                </PersistGate>
             </Provider>
         )
     }
