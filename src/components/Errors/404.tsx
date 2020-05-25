@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { Page } from "../Page";
 
-export class Error404 extends Component {
+export default class Error404 extends Component {
     public render() {
         return (
             <Page title="">

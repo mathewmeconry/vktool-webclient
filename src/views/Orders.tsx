@@ -1,53 +1,23 @@
-import { connect } from "react-redux"
-import { State } from "../reducers/IndexReducer"
-import { ThunkDispatch } from "redux-thunk"
-import { AnyAction } from "redux"
-import { Data } from "../actions/DataActions"
+import { RouteComponentProps } from "react-router"
+import React from "react"
+import GraphQLDataList from "../components/GraphQLDataList"
+import { GET_ORDERS } from "../graphql/OrderQueries"
 
 
-import { DataList, DataListProps } from '../components/DataList'
-import Order from "../entities/Order"
-
-const mapStateToProps = (state: State) => {
-    return {
-        data: state.data.orders,
-        viewLocation: '/order/',
-        title: 'Aufträge',
-        tableColumns: [
-            { text: 'Auftragsnummer', keys: ['documentNr'], sortable: true, searchable: true },
-            { text: 'Titel', keys: ['title'], sortable: true, searchable: true },
-            { text: 'Kunde', keys: { 'contact': ['firstname', 'lastname'] }, sortable: true, searchable: true },
-            { text: 'Total', keys: ['total'], sortable: true, prefix: 'CHF ', searchable: true },
-            { text: 'Auftragsdaten', keys: ['execDates'], format: 'toLocaleDateString' }
-        ],
-        defaultFilter: 'upcomming',
-        filters: [
-            {
-                id: 'all',
-                displayName: 'Alle',
-                filters: [{ type: 'any' }]
-            },
-            {
-                id: 'upcomming',
-                displayName: 'Kommende',
-                filters: [{ type: 'gte', key: 'execDates', value: Date.now() }]
-            },
-            {
-                id: 'passed',
-                displayName: 'Vergangene',
-                filters: [{ type: 'lt', key: 'execDates', value: Date.now() }]
-            }
-        ]
-    }
+export default function Orders(props: RouteComponentProps) {
+    return (
+        <GraphQLDataList
+            query={GET_ORDERS}
+            title='Aufträge'
+            viewLocation='/order/'
+            tableColumns={[
+                { text: 'Auftragsnummer', keys: ['documentNr'], sortable: true, searchable: true },
+                { text: 'Titel', keys: ['title'], sortable: true, searchable: true },
+                { text: 'Kunde', keys: { 'contact': ['firstname', 'lastname'] }, sortable: true, searchable: true },
+                { text: 'Total', keys: ['total'], sortable: true, prefix: 'CHF ', searchable: true },
+                { text: 'Auftragsdaten', keys: ['execDates'], format: 'toLocaleDateString' }
+            ]}
+            {...props}
+        />
+    )
 }
-
-const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>) => {
-    return {
-        fetchData: () => {
-            dispatch(Data.fetchOrders())
-        }
-    }
-}
-
-// @ts-ignore
-export const Orders = connect(mapStateToProps, mapDispatchToProps)(DataList)

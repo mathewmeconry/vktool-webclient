@@ -1,131 +1,81 @@
-import React, { Component } from "react"
+import React from "react"
 import { RouteComponentProps } from "react-router"
 import { default as LogoffEntity, LogoffState } from '../entities/Logoff'
-import { AnyAction } from "redux"
 import Button from "../components/Button"
-import { Error404 } from "../components/Errors/404"
+import Error404 from "../components/Errors/404"
 import { Page } from "../components/Page"
 import Loading from "../components/Loading"
 import Row from "../components/Row"
 import Column from "../components/Column"
 import Panel from "../components/Panel"
 import FormEntry from "../components/FormEntry"
-import { State } from "../reducers/IndexReducer"
-import { ThunkDispatch } from "redux-thunk"
-import { Data } from "../actions/DataActions"
-import { connect } from "react-redux"
 import { Link } from "react-router-dom"
 import { AuthRoles } from "../interfaces/AuthRoles"
+import { useQuery, useMutation } from "react-apollo"
+import { GET_LOGOFF, CHANGE_LOGOFF_STATE } from "../graphql/LogoffQueries"
 
+export default function Logoff(props: RouteComponentProps<{ id: string }>) {
+    const logoff = useQuery<{ getLogoff: LogoffEntity }>(GET_LOGOFF, { variables: { id: parseInt(props.match.params.id) } })
+    const [changeStateMutation] = useMutation(CHANGE_LOGOFF_STATE)
 
-interface LogoffProps extends RouteComponentProps<{ id: string }> {
-    logoff: LogoffEntity
-    logoffIds: Array<number>,
-    loading: boolean,
-    fetchLogoffs: () => Promise<AnyAction>,
-    approve: (id: number) => Promise<void>,
-    decline: (id: number) => Promise<void>
-}
-
-export class _Logoff extends Component<LogoffProps> {
-
-    constructor(props: LogoffProps) {
-        super(props)
-
-        this.approve = this.approve.bind(this)
-        this.decline = this.decline.bind(this)
-        this.renderActions = this.renderActions.bind(this)
-
-        this.props.fetchLogoffs()
+    async function changeState(state: LogoffState) {
+        await changeStateMutation({ variables: { id: logoff.data?.getLogoff.id, state, notify: true } })
+        logoff.refetch()
     }
 
-    private approve(): Promise<void> {
-        return this.props.approve(this.props.logoff.id)
-    }
+    function renderActions() {
+        let actions = [<Link to={"/contact/" + logoff.data?.getLogoff.contact.id} className="btn btn-block btn-outline-primary">Kontakt öffnen</Link>]
 
-    private decline(): Promise<void> {
-        return this.props.decline(this.props.logoff.id)
-    }
-
-    private renderActions() {
-        let actions = [<Link to={"/contact/" + this.props.logoff.contact.id} className="btn btn-block btn-outline-primary">Kontakt öffnen</Link>]
-
-        if (this.props.logoff.state === LogoffState.PENDING) {
+        if (logoff.data?.getLogoff.state === LogoffState.PENDING) {
             actions = [...actions,
-            <Button id="approve" block={true} variant="outline-success" onClick={this.approve} roles={[AuthRoles.LOGOFFS_APPROVE]}>Genehmigen</Button>,
-            <Button id="decline" block={true} variant="outline-danger" onClick={this.decline} roles={[AuthRoles.LOGOFFS_APPROVE]}>Ablehnen</Button>
+            <Button id="approve" block={true} variant="outline-success" onClick={() => { changeState(LogoffState.APPROVED) }} roles={[AuthRoles.LOGOFFS_APPROVE]}>Genehmigen</Button>,
+            <Button id="decline" block={true} variant="outline-danger" onClick={() => { changeState(LogoffState.DECLINED) }} roles={[AuthRoles.LOGOFFS_APPROVE]}>Ablehnen</Button>
             ]
         }
         return actions
     }
 
-    public render() {
-        if (!this.props.loading && !this.props.logoff && this.props.logoffIds.length > 0) {
-            return <Error404 />
-        }
-
-        if (this.props.loading || !this.props.logoff) {
-            return (<Page title="Abmeldung"><Loading /></Page>)
-        }
-
-        let statusBadgeClass = ''
-        switch (this.props.logoff.state) {
-            case LogoffState.PENDING:
-                statusBadgeClass = 'badge-warning'
-                break
-            case LogoffState.APPROVED:
-                statusBadgeClass = 'badge-success'
-                break
-            case LogoffState.DECLINED:
-                statusBadgeClass = 'badge-danger'
-                break
-        }
-
-        return (
-            <Page title="Abmeldung">
-                <Row>
-                    <Column className="col-md-6">
-                        <Panel title="Informationen">
-                            <FormEntry id="contact" title="Mitglied">{this.props.logoff.contact.firstname} {this.props.logoff.contact.lastname}</FormEntry>
-                            <FormEntry id="from" title="Von">{this.props.logoff.from.toLocaleString()}</FormEntry>
-                            <FormEntry id="until" title="Bis">{this.props.logoff.until.toLocaleString()}</FormEntry>
-                            <FormEntry id="state" title="Status"><div className={"badge " + statusBadgeClass}>{this.props.logoff.state}</div></FormEntry>
-                            <FormEntry id="creator" title="Ersteller">{this.props.logoff.createdBy.displayName}</FormEntry>
-                            <FormEntry id="changedStateBy" title="Status geändert von">{this.props.logoff?.changedStateBy?.displayName}</FormEntry>
-                            <FormEntry id="remarks" title="Bemerkungen">{this.props.logoff.remarks}</FormEntry>
-                        </Panel>
-                    </Column>
-                    <Column className="col-md-6">
-                        <Panel title="Actions">
-                            {this.renderActions()}
-                        </Panel>
-                    </Column>
-                </Row>
-            </Page >
-        )
+    if (logoff.loading) {
+        return (<Page title="Abmeldung"><Loading /></Page>)
     }
-}
 
-const mapStateToProps = (state: State, props: RouteComponentProps<{ id: string }>) => {
-    return {
-        logoff: state.data.logoffs.byId[props.match.params.id],
-        logoffIds: state.data.logoffs.ids,
-        loading: state.data.logoffs.loading
+    if (!logoff.data) {
+        return <Error404 />
     }
-}
 
-const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>) => {
-    return {
-        fetchLogoffs: () => {
-            return dispatch(Data.fetchLogoffs())
-        },
-        approve: (id: number) => {
-            return dispatch(Data.approveLogoff(id))
-        },
-        decline: (id: number) => {
-            return dispatch(Data.declineLogoff(id))
-        },
+    let statusBadgeClass = ''
+    switch (logoff.data?.getLogoff.state) {
+        case LogoffState.PENDING:
+            statusBadgeClass = 'badge-warning'
+            break
+        case LogoffState.APPROVED:
+            statusBadgeClass = 'badge-success'
+            break
+        case LogoffState.DECLINED:
+            statusBadgeClass = 'badge-danger'
+            break
     }
-}
 
-export const Logoff = connect(mapStateToProps, mapDispatchToProps)(_Logoff)
+    return (
+        <Page title="Abmeldung">
+            <Row>
+                <Column className="col-md-6">
+                    <Panel title="Informationen">
+                        <FormEntry id="contact" title="Mitglied">{logoff.data?.getLogoff.contact.firstname} {logoff.data?.getLogoff.contact.lastname}</FormEntry>
+                        <FormEntry id="from" title="Von">{new Date(logoff.data?.getLogoff.from).toLocaleString()}</FormEntry>
+                        <FormEntry id="until" title="Bis">{new Date(logoff.data?.getLogoff.until).toLocaleString()}</FormEntry>
+                        <FormEntry id="state" title="Status"><div className={"badge " + statusBadgeClass}>{logoff.data?.getLogoff.state}</div></FormEntry>
+                        <FormEntry id="creator" title="Ersteller">{logoff.data?.getLogoff.createdBy.displayName}</FormEntry>
+                        <FormEntry id="changedStateBy" title="Status geändert von">{logoff.data?.getLogoff?.changedStateBy?.displayName}</FormEntry>
+                        <FormEntry id="remarks" title="Bemerkungen">{logoff.data?.getLogoff.remarks}</FormEntry>
+                    </Panel>
+                </Column>
+                <Column className="col-md-6">
+                    <Panel title="Actions">
+                        {renderActions()}
+                    </Panel>
+                </Column>
+            </Row>
+        </Page >
+    )
+}

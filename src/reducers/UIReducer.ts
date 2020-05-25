@@ -54,13 +54,4 @@ function Notify(state = null, action: AnyAction): null {
     }
 }
 
-function Working(state: 'nop' | 'dynamic' | 'fixed' = 'dynamic', action: AnyAction) {
-    switch (action.type) {
-        case UIActions.WORKING:
-            return action.payload
-        default:
-            return state
-    }
-}
-
-export default combineReducers({ navibar_open: NavibarToggle, navibar_level: NavibarLevel, notification: Notify, working: Working })
+export default combineReducers({ navibar_open: NavibarToggle, navibar_level: NavibarLevel, notification: Notify })

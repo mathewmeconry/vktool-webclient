@@ -3,9 +3,9 @@ import Base from "./Base"
 import User from "./User"
 
 export enum LogoffState {
-    APPROVED = 'approved',
-    PENDING = 'pending',
-    DECLINED = 'declined'
+    APPROVED = 'APPROVED',
+    PENDING = 'PENDING',
+    DECLINED = 'DECLINED'
 }
 
 export default class Logoff extends Base {

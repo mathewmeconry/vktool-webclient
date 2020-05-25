@@ -1,10 +1,5 @@
-import React, { Component } from "react"
+import React, { useState } from "react"
 import { Page } from "../components/Page"
-import { ThunkDispatch } from "redux-thunk"
-import { State } from "../reducers/IndexReducer"
-import { AnyAction } from "redux"
-import { connect } from "react-redux"
-import { Data } from "../actions/DataActions"
 import Row from "../components/Row"
 import Column from "../components/Column"
 import Panel from "../components/Panel"
@@ -12,307 +7,213 @@ import FormEntry from "../components/FormEntry"
 import Loading from "../components/Loading"
 import * as ContactEntity from "../entities/Contact"
 import ContactGroup from "../entities/ContactGroup"
+import User from "../entities/User"
 import Action from "../components/Action"
 import CollectionPoint from "../entities/CollectionPoint"
-import { CollectionPointSelect } from "../components/CollectionPointSelect"
-import { EditMember } from "../interfaces/Member"
-import User from "../entities/User"
+import CollectionPointSelect from "../components/CollectionPointSelect"
 import { AuthRoles } from "../interfaces/AuthRoles"
 import { RouteComponentProps } from "react-router"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Button } from "react-bootstrap"
 import { ContactCompensation } from "../components/ContactCompensation"
-import { Error403 } from "../components/Errors/403"
-import { ContactLogoff } from "../components/ContactLogoffs"
+import ContactLogoff from "../components/ContactLogoffs"
+import { useQuery, useMutation } from "react-apollo"
+import { GET_CONTACT, EDIT_CONTACT } from "../graphql/ContactQueries"
+import { GET_MY_ROLES } from "../graphql/UserQueries"
 
-export interface ContactProps extends RouteComponentProps<{ id: string }> {
-    user: User,
-    contact: ContactEntity.default,
-    loading: boolean,
-    loadContacts: () => Promise<void>,
-    editMember: (data: EditMember) => Promise<void>
-}
+export default function Contact(props: RouteComponentProps<{ id: string }>) {
+    const [editable, setEditable] = useState(false)
+    const [editContactMutation] = useMutation(EDIT_CONTACT)
+    const myroles = useQuery<{ me: User }>(GET_MY_ROLES)
+    const { loading, error, data } = useQuery<{ getContact: ContactEntity.default }>(GET_CONTACT, { variables: { id: parseInt(props.match.params.id) } })
+    const [contact, setContact] = useState<ContactEntity.default>(data?.getContact as ContactEntity.default)
+    if (loading) {
+        return (
+            <Page title="Kontakt">
+                <Loading />
+            </Page>
+        )
+    }
 
-export interface ContactState {
-    editable: boolean,
-    collectionPoint: CollectionPoint,
-    entryDate?: Date,
-    exitDate?: Date,
-    bankName?: string,
-    iban?: string,
-    accountHolder?: string,
-    moreMails: Array<string>,
-}
+    if (!contact && data?.getContact) {
+        setContact(data?.getContact as ContactEntity.default)
+        return (
+            <Page title="Kontakt">
+                <Loading />
+            </Page>
+        )
+    }
 
-export default class _Contact extends Component<ContactProps, ContactState> {
-    private groups: Array<ContactGroup>
-
-    constructor(props: ContactProps) {
-        super(props)
-        this.groups = []
-
-        if (!this.props.contact && !this.props.loading) {
-            this.props.loadContacts()
-        }
-
-        this.onInputChange = this.onInputChange.bind(this)
-        this.onSave = this.onSave.bind(this)
-        this.onAbort = this.onAbort.bind(this)
-        this.onSelectChange = this.onSelectChange.bind(this)
-        this.renderCollectionPoint = this.renderCollectionPoint.bind(this)
-        this.renderPanelActions = this.renderPanelActions.bind(this)
-        this.onMoreMailsChange = this.onMoreMailsChange.bind(this)
-
-        const contact = this.props.contact || {}
-
-        this.state = {
-            editable: false,
-            collectionPoint: contact.collectionPoint || new CollectionPoint(),
-            entryDate: (contact.entryDate) ? contact.entryDate : undefined,
-            exitDate: (contact.exitDate) ? contact.exitDate : undefined,
-            bankName: contact.bankName || '',
-            iban: contact.iban || '',
-            accountHolder: contact.accountHolder || '',
-            moreMails: contact.moreMails || [],
+    function onSelectChange(state: string): (opts: CollectionPoint) => void {
+        return (opts: CollectionPoint) => {
+            onInputChange(state, opts)
         }
     }
 
-    private onInputChange(name: string, value: any) {
-        //@ts-ignore
-        this.setState({
-            [name]: value
-        })
+    function onInputChange(name: string, value: any) {
+        const clone = { ...contact }
+        // @ts-ignore
+        clone[name] = value
+        setContact(clone)
     }
 
-    private onMoreMailsChange(event: React.ChangeEvent<HTMLInputElement>) {
+    function onMoreMailsChange(event: React.ChangeEvent<HTMLInputElement>) {
         const target = event.target
         const value = target.value
-        const name = target.name
+        onInputChange('moreEmails', (contact.moreMails || []).concat([value]))
+    }
 
-        this.setState({
-            moreMails: Object.assign([], this.state.moreMails, { [name]: value })
+    async function removeMoreMailEntry(index: number) {
+        onInputChange('moreEmails', [...(contact.moreMails || []).slice(0, index), ...(contact.moreMails || []).slice(index + 1)])
+    }
+
+    async function onSave() {
+        await editContactMutation({
+            variables: {
+                data: {
+                    id: contact.id,
+                    collectionPointId: (contact.collectionPoint) ? contact.collectionPoint.id : undefined,
+                    entryDate: contact.entryDate,
+                    exitDate: contact.exitDate,
+                    bankName: contact.bankName,
+                    iban: contact.iban,
+                    accountHolder: contact.accountHolder,
+                    moreMails: contact.moreMails
+                }
+            }
         })
+        setEditable(false)
     }
 
-    private removeMoreMailEntry(index: number) {
-        this.setState({
-            moreMails: [...this.state.moreMails.slice(0, index), ...this.state.moreMails.slice(index + 1)]
-        })
+    async function onAbort() {
+        setContact(data?.getContact as ContactEntity.default)
+        setEditable(false)
     }
 
-    public componentDidUpdate(prevProps: ContactProps) {
-        if (this.props.contact && !prevProps.contact) {
-            this.setState({
-                collectionPoint: this.props.contact.collectionPoint || new CollectionPoint(),
-                entryDate: (this.props.contact.entryDate) ? this.props.contact.entryDate : undefined,
-                exitDate: (this.props.contact.exitDate) ? this.props.contact.exitDate : undefined,
-                bankName: this.props.contact.bankName || '',
-                iban: this.props.contact.iban || '',
-                accountHolder: this.props.contact.accountHolder || '',
-                moreMails: this.props.contact.moreMails || []
-            })
+    function renderPanelActions() {
+        if (editable) {
+            return [
+                <Action icon="save" key="save" onClick={onSave} />,
+                <Action icon="times" key="cancel" onClick={onAbort} />
+            ]
         }
+
+        return [<Action icon="pencil-alt" key="edit" onClick={async () => { setEditable(true) }} roles={[AuthRoles.CONTACTS_EDIT, AuthRoles.MEMBERS_EDIT]} />]
     }
 
-
-    private async onSave() {
-        if (this.props.contact.contactGroups.find(group => group.bexioId === 7)) {
-            await this.props.editMember({
-                id: this.props.contact.id,
-                collectionPointId: (this.state.collectionPoint || { id: undefined }).id,
-                entryDate: (this.state.entryDate) ? new Date(this.state.entryDate) : '',
-                exitDate: (this.state.exitDate) ? new Date(this.state.exitDate) : '',
-                bankName: this.state.bankName,
-                iban: this.state.iban,
-                accountHolder: this.state.accountHolder,
-                moreMails: this.state.moreMails.filter(el => el !== "")
-            })
-
-            this.setState({ editable: false })
+    function renderCollectionPoint() {
+        if (editable) {
+            return <CollectionPointSelect isMulti={false} onChange={onSelectChange('collectionPoint')} defaultValue={(contact.collectionPoint) ? [contact.collectionPoint] : []} />
         }
-    }
-
-    public async onAbort(event: React.MouseEvent<HTMLElement>) {
-        this.setState({
-            editable: false,
-            collectionPoint: this.props.contact.collectionPoint || new CollectionPoint(),
-            entryDate: (this.props.contact.entryDate) ? this.props.contact.entryDate : undefined,
-            exitDate: (this.props.contact.exitDate) ? this.props.contact.exitDate : undefined,
-            bankName: this.props.contact.bankName || '',
-            iban: this.props.contact.iban || '',
-            accountHolder: this.props.contact.accountHolder || '',
-            moreMails: this.props.contact.moreMails || []
-        })
-    }
-
-    private onSelectChange(state: string): (opts: CollectionPoint) => void {
-        return (opts: CollectionPoint) => {
-            //@ts-ignore
-            this.setState({ [state]: opts })
-        }
-    }
-
-    private renderCollectionPoint() {
-        if (this.state.editable) {
-            return <CollectionPointSelect multi={false} onChange={this.onSelectChange('collectionPoint')} defaultValue={[this.state.collectionPoint] || undefined} />
-        }
-        if (this.state.collectionPoint &&
-            this.state.collectionPoint.hasOwnProperty('address') &&
-            this.state.collectionPoint.hasOwnProperty('postcode') &&
-            this.state.collectionPoint.hasOwnProperty('city')) {
+        if (contact.collectionPoint &&
+            contact.collectionPoint.hasOwnProperty('address') &&
+            contact.collectionPoint.hasOwnProperty('postcode') &&
+            contact.collectionPoint.hasOwnProperty('city')) {
+            const address = `${contact.collectionPoint.address}, ${contact.collectionPoint.postcode} ${contact.collectionPoint.city}`
             return <a
-                href={`https://www.google.com/maps/search/${this.state.collectionPoint.address}, ${this.state.collectionPoint.postcode} ${this.state.collectionPoint.city}`}
+                href={`https://www.google.com/maps/search/${address}`}
                 target='_blank'>
-                {`${this.state.collectionPoint.address}, ${this.state.collectionPoint.postcode} ${this.state.collectionPoint.city}`}
+                {address}
             </a>
         }
 
         return null
     }
 
-    private renderPanelActions() {
-        if (this.state.editable) {
-            return [
-                <Action icon="save" key="save" onClick={this.onSave} />,
-                <Action icon="times" key="cancel" onClick={this.onAbort} />
-            ]
-        }
+    function renderActions() {
+        if (myroles.data) {
+            const actions = []
+            const isAdmin = !!myroles.data.me.roles.indexOf(AuthRoles.ADMIN)
 
-        return [<Action icon="pencil-alt" key="edit" onClick={async () => { this.setState({ editable: true }) }} roles={[AuthRoles.CONTACTS_EDIT, AuthRoles.MEMBERS_EDIT]} />]
-    }
+            if (myroles.data.me.roles.indexOf(AuthRoles.CONTACTS_READ) > -1 || isAdmin) {
+                actions.push(<a target="_blank" href={"https://office.bexio.com/index.php/kontakt/show/id/" + contact.bexioId} className="btn btn-block btn-outline-primary">In Bexio anschauen</a>)
+            }
 
-    private renderActions() {
-        const actions = []
-        const isAdmin = !!this.props.user.roles.indexOf(AuthRoles.ADMIN)
+            if (myroles.data.me.roles.indexOf(AuthRoles.MEMBERS_READ) > -1 || isAdmin) {
+                actions.push(<a target="_blank" href={"https://vkazu.sharepoint.com/leitung/Personalakten?viewpath=/leitung/Personalakten&id=/leitung/Personalakten/" + contact.firstname + " " + contact.lastname} className="btn btn-block btn-outline-primary">Personalakte öffnen</a>)
+            }
 
-        if (this.props.user.roles.indexOf(AuthRoles.CONTACTS_READ) > -1 || isAdmin) {
-            actions.push(<a target="_blank" href={"https://office.bexio.com/index.php/kontakt/show/id/" + this.props.contact.bexioId} className="btn btn-block btn-outline-primary">In Bexio anschauen</a>)
-        }
-
-        if (this.props.user.roles.indexOf(AuthRoles.MEMBERS_READ) > -1 || isAdmin) {
-            actions.push(<a target="_blank" href={"https://vkazu.sharepoint.com/leitung/Personalakten?viewpath=/leitung/Personalakten&id=/leitung/Personalakten/" + this.props.contact.firstname + " " + this.props.contact.lastname} className="btn btn-block btn-outline-primary">Personalakte öffnen</a>)
-        }
-
-        if (actions.length > 0) {
-            return (
-                <Panel title="Actions">
-                    {actions}
-                </Panel>
-            )
+            if (actions.length > 0) {
+                return (
+                    <Panel title="Actions">
+                        {actions}
+                    </Panel>
+                )
+            }
         }
 
         return null
     }
 
+    let address = `${contact.address}, ${contact.postcode} ${contact.city}`
 
-    public render() {
-        if (parseInt(this.props.match.params.id) !== (this.props.user.bexioContact || { id: undefined }).id && (this.props.user.roles.indexOf(AuthRoles.CONTACTS_READ) < 0 && this.props.user.roles.indexOf(AuthRoles.ADMIN) < 0)) {
-            return <Error403 />
-        }
-
-        if (this.props.loading || !this.props.contact) {
-            return (
-                <Page title="Kontakt">
-                    <Loading />
-                </Page>
-            )
-        }
-
-        this.groups = this.props.contact.contactGroups as Array<ContactGroup>
-
-        let address = this.props.contact.address + ', ' + this.props.contact.postcode + ' ' + this.props.contact.city
-
-        return (
-            <Page title={this.props.contact.firstname + ' ' + this.props.contact.lastname}>
-                <Row>
-                    <Column className="col-md-6">
-                        <Panel title="Persönliche Informationen" actions={this.renderPanelActions()}>
-                            <div className="container-fluid">
-                                <FormEntry id="firstname" title="Vorname" >{this.props.contact.firstname}</FormEntry>
-                                <FormEntry id="lastname" title="Nachname" >{this.props.contact.lastname}</FormEntry>
-                                <FormEntry id="rank" title="Rang">{this.props.contact.rank}</FormEntry>
-                                <FormEntry id="birthday" title="Geburtstag">{new Date(this.props.contact.birthday).toLocaleDateString()}</FormEntry>
-                                <FormEntry id="address" title="Adresse"><a href={'https://www.google.com/maps/search/' + address} target='_blank'>{address}</a></FormEntry>
-                                <FormEntry id="collectionPoint" title="Abholpunkt">
-                                    {this.renderCollectionPoint()}
-                                </FormEntry>
-                                <FormEntry id="phoneFixed" title="Festnetz"><a href={'tel:' + this.props.contact.phoneFixed}>{this.props.contact.phoneFixed}</a></FormEntry>
-                                <FormEntry id="phoneFixedSecond" title="Festnetz 2"><a href={'tel:' + this.props.contact.phoneFixedSecond}>{this.props.contact.phoneFixedSecond}</a></FormEntry>
-                                <FormEntry id="phoneMobile" title="Mobile"><a href={'tel:' + this.props.contact.phoneMobile}>{this.props.contact.phoneMobile}</a></FormEntry>
-                                <FormEntry id="mail" title="E-Mails">
-                                    <a href={`mailto:${this.props.contact.mail}`}>{this.props.contact.mail}</a> <br />
-                                    <a href={`mailto:${this.props.contact.mailSecond}`}>{this.props.contact.mailSecond}</a> <br />
-                                    {[...this.state.moreMails].map((el, index) => {
-                                        if (this.state.editable) {
-                                            return (
-                                                <div className="input-group">
-                                                    <input type="email" className="form-control" value={el} key={index.toString()} name={index.toString()} onChange={this.onMoreMailsChange} />
-                                                    <div className="input-group-append">
-                                                        <Button className="btn-outline-secondary" onClick={this.removeMoreMailEntry.bind(this, index)}>
-                                                            <FontAwesomeIcon icon="times" />
-                                                        </Button>
-                                                    </div>
+    return (
+        <Page title={contact.firstname + ' ' + contact.lastname}>
+            <Row>
+                <Column className="col-md-6">
+                    <Panel title="Persönliche Informationen" actions={renderPanelActions()}>
+                        <div className="container-fluid">
+                            <FormEntry id="firstname" title="Vorname" >{contact.firstname}</FormEntry>
+                            <FormEntry id="lastname" title="Nachname" >{contact.lastname}</FormEntry>
+                            <FormEntry id="rank" title="Rang">{contact.rank}</FormEntry>
+                            <FormEntry id="birthday" title="Geburtstag">{new Date(contact.birthday).toLocaleDateString()}</FormEntry>
+                            <FormEntry id="address" title="Adresse"><a href={'https://www.google.com/maps/search/' + address} target='_blank'>{address}</a></FormEntry>
+                            <FormEntry id="collectionPoint" title="Abholpunkt">
+                                {renderCollectionPoint()}
+                            </FormEntry>
+                            <FormEntry id="phoneFixed" title="Festnetz"><a href={'tel:' + contact.phoneFixed}>{contact.phoneFixed}</a></FormEntry>
+                            <FormEntry id="phoneFixedSecond" title="Festnetz 2"><a href={'tel:' + contact.phoneFixedSecond}>{contact.phoneFixedSecond}</a></FormEntry>
+                            <FormEntry id="phoneMobile" title="Mobile"><a href={'tel:' + contact.phoneMobile}>{contact.phoneMobile}</a></FormEntry>
+                            <FormEntry id="mail" title="E-Mails">
+                                <a href={`mailto:${contact.mail}`}>{contact.mail}</a> <br />
+                                <a href={`mailto:${contact.mailSecond}`}>{contact.mailSecond}</a> <br />
+                                {(contact.moreMails || []).map((el, index) => {
+                                    if (editable) {
+                                        return (
+                                            <div className="input-group">
+                                                <input type="email" className="form-control" value={el} key={index.toString()} name={index.toString()} onChange={onMoreMailsChange} />
+                                                <div className="input-group-append">
+                                                    <Button className="btn-outline-secondary" onClick={() => { removeMoreMailEntry(index) }}>
+                                                        <FontAwesomeIcon icon="times" />
+                                                    </Button>
                                                 </div>
-                                            )
-                                        }
-                                        return <><a href={`mailto:${el}`}>{el}</a><br /></>
-                                    })}
-                                    {this.state.editable && <Button className="btn-outline btn-block" onClick={() => { this.setState({ moreMails: [...this.state.moreMails, ''] }) }}>Hinzufügen</Button>}
-                                </FormEntry>
-                                <FormEntry id="groups" title="Gruppen">
-                                    {(this.groups) ? this.groups.map((group: ContactGroup) => {
-                                        return <span className="badge badge-primary">{group.name}</span>
-                                    }) : ''}
-                                </FormEntry>
-                                <FormEntry id="entryDate" title="Eintrittsdatum" type="date" editable={this.state.editable} value={this.state.entryDate} onChange={this.onInputChange} />
-                                <FormEntry id="exitDate" title="Austrittsdatum" type="date" editable={this.state.editable} value={this.state.exitDate} onChange={this.onInputChange} />
-                                <FormEntry id="remarks" title="Bemerkungen" >{this.props.contact.remarks}</FormEntry>
-                            </div>
-                        </Panel>
-                    </Column>
-                    <Column className="col-md-6">
-                        <Panel title="Finanzen">
-                            <div className="container-fluid">
-                                <FormEntry id="bankName" title="Bank" value={this.state.bankName} editable={this.state.editable} onChange={this.onInputChange} />
-                                <FormEntry id="iban" title="IBAN" value={this.state.iban} editable={this.state.editable} onChange={this.onInputChange} />
-                                <FormEntry id="accountHolder" title="Kontoinhaber" value={this.state.accountHolder} editable={this.state.editable} onChange={this.onInputChange} />
-                            </div>
-                        </Panel>
-                        {this.renderActions()}
-                    </Column>
-                </Row>
-                <Row>
-                    <Column className="col-md-6">
-                        <ContactCompensation contact={this.props.contact}  {...this.props} />
-                    </Column>
-                    <Column className="col-md-6">
-                        <ContactLogoff contact={this.props.contact}  {...this.props} />
-                    </Column>
-                </Row>
-            </Page>
-        )
-    }
+                                            </div>
+                                        )
+                                    }
+                                    return <><a href={`mailto:${el}`}>{el}</a><br /></>
+                                })}
+                                {editable && <Button className="btn-outline btn-block" onClick={() => { setContact({ ...contact, moreMails: [...(contact.moreMails || []), ''] }) }}>Hinzufügen</Button>}
+                            </FormEntry>
+                            <FormEntry id="groups" title="Gruppen">
+                                {(contact.contactGroups) ? contact.contactGroups.map((group: ContactGroup) => {
+                                    return <span className="badge badge-primary">{group.name}</span>
+                                }) : ''}
+                            </FormEntry>
+                            <FormEntry id="entryDate" title="Eintrittsdatum" type="date" editable={editable} value={(contact.entryDate) ? new Date(contact.entryDate) : ''} onChange={onInputChange} />
+                            <FormEntry id="exitDate" title="Austrittsdatum" type="date" editable={editable} value={(contact.exitDate) ? new Date(contact.exitDate) : ''} onChange={onInputChange} />
+                            <FormEntry id="remarks" title="Bemerkungen" >{contact.remarks}</FormEntry>
+                        </div>
+                    </Panel>
+                </Column>
+                <Column className="col-md-6">
+                    <Panel title="Finanzen">
+                        <div className="container-fluid">
+                            <FormEntry id="bankName" title="Bank" value={contact.bankName || ''} editable={editable} onChange={onInputChange} />
+                            <FormEntry id="iban" title="IBAN" value={contact.iban || ''} editable={editable} onChange={onInputChange} />
+                            <FormEntry id="accountHolder" title="Kontoinhaber" value={contact.accountHolder || ''} editable={editable} onChange={onInputChange} />
+                        </div>
+                    </Panel>
+                    {renderActions()}
+                </Column>
+            </Row>
+            <Row>
+                <Column className="col-md-6">
+                    <ContactCompensation contactId={contact.id}  {...props} />
+                </Column>
+                <Column className="col-md-6">
+                    <ContactLogoff contactId={contact.id}  {...props} />
+                </Column>
+            </Row>
+        </Page>
+    )
 }
-
-const mapStateToProps = (state: State, props: any) => {
-    return {
-        user: state.data.user.data,
-        contact: state.data.contacts.byId[props.match.params.id] || state.data.members.byId[props.match.params.id],
-        loading: state.data.contacts.loading || state.data.members.loading
-    }
-}
-
-const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>, props: any) => {
-    return {
-        loadContacts: () => {
-            return dispatch(Data.fetchContacts())
-        },
-        editMember: (data: EditMember) => {
-            return dispatch(Data.editMember(data))
-        }
-    }
-}
-
-
-//@ts-ignore
-export const Contact = connect(mapStateToProps, mapDispatchToProps)(_Contact)

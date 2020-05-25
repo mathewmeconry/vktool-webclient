@@ -1,57 +1,38 @@
-import React, { Component } from "react";
+import React from "react"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { connect } from "react-redux";
-import { State } from "../reducers/IndexReducer";
-import { Dispatch } from "redux";
-import { UI } from "../actions/UIActions";
-import User from "../entities/User";
-import { RouterProps } from "react-router";
-import Config from "../Config";
+import User from "../entities/User"
+import { useQuery } from "react-apollo"
+import { GET_ME } from "../graphql/UserQueries"
 
-export class _Header extends Component<{ open: boolean, user: User, onClick: () => {} } & RouterProps, {}> {
-    public render() {
-        let className = 'navibar-open'
-        if (!this.props.open) {
-            className = 'navibar-collapsed'
-        }
+export interface HeaderProps {
+    open: boolean,
+    onClick?: () => void
+}
 
-        if (this.props.user) {
-            return (
-                <div id="header">
-                    <div id="header-title" className={className}>
-                        <div id="user">
-                            {this.props.user.displayName}
-                        </div>
-                    </div>
-                    <div id="header-bars" onClick={this.props.onClick}>
-                        <span>
-                            <FontAwesomeIcon icon="bars" />
-                        </span>
-                    </div>
+export default function Header(props: HeaderProps) {
+    const { loading, error, data } = useQuery<{me: User}>(GET_ME)
+
+    if (loading) return null
+    if (error) return null
+    if (!data) return null
+
+    let className = 'navibar-open'
+    if (!props.open) {
+        className = 'navibar-collapsed'
+    }
+
+    return (
+        <div id="header">
+            <div id="header-title" className={className}>
+                <div id="user">
+                    {data.me.displayName}
                 </div>
-            )
-        }
-
-        return (
-            <div></div>
-        )
-    }
+            </div>
+            <div id="header-bars" onClick={props.onClick}>
+                <span>
+                    <FontAwesomeIcon icon="bars" />
+                </span>
+            </div>
+        </div>
+    )
 }
-
-const mapStateToProps = (state: State) => {
-    return {
-        open: state.ui.navibar_open,
-        user: state.data.user.data
-    }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch) => {
-    return {
-        onClick: () => {
-            dispatch(UI.toggleNavibar())
-        }
-    }
-}
-
-//@ts-ignore
-export const Header = connect(mapStateToProps, mapDispatchToProps)(_Header)

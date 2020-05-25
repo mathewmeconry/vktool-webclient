@@ -4,7 +4,7 @@ import StringIndexed from "../../interfaces/StringIndexed";
 import WizardStep from "../../components/WizardStep";
 import { BillingReportCompensationEntry } from "../../interfaces/BillingReport";
 import Contact from "../../entities/Contact";
-import { MemberSelect } from "../../components/MemberSelect";
+import MemberSelect from "../../components/MemberSelect";
 
 export interface Step2Props {
     onNext: (data: StringIndexed<any>) => void,
@@ -128,7 +128,7 @@ export default class AddBillingReportStep2 extends Component<Step2Props, { table
                             <MemberSelect
                                 onChange={this.onSelectChange}
                                 isMulti={true}
-                                defaultValue={this.state.vks}
+                                defaultValue={this.state.vks.map(r => r.id.toString())}
                             />
                         </div>
                         <div className="col-2">

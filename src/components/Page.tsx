@@ -4,8 +4,8 @@ import { connect } from "react-redux"
 import { Dispatch } from "redux"
 import { UI } from "../actions/UIActions"
 import Swipe from "./Swipe"
-import { Header } from "./Header"
-import { Navibar } from "./Navibar"
+import Header from "./Header"
+import Navibar from "./Navibar"
 import { WorkingIndicator } from "./WorkingIndicator"
 
 export interface PageProps {
@@ -39,8 +39,8 @@ export class _Page extends Component<PropsWithChildren<PageProps>> {
 
         return (
             <div className="body">
-                <Header />
-                <Navibar />
+                <Header open={this.props.open} onClick={(this.props.open) ? this.props.closeNavibar : this.props.openNavibar} />
+                <Navibar open={this.props.open} />
                 <Swipe className={className + ' content'} mouseMove={true} swipedRight={this.swipedRight} swipedLeft={this.swipedLeft}>
                     <div className="content-top">
                         <h1 className="page-title">{this.props.title}</h1>

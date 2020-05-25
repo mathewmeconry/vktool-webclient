@@ -1,10 +1,4 @@
-import { State } from "../reducers/IndexReducer"
-import { connect } from "react-redux"
-import { Data } from "../actions/DataActions"
-import { ThunkDispatch } from "redux-thunk"
-import { AnyAction } from "redux"
-import { DataList, DataListProps } from "../components/DataList"
-import React, { Component } from "react"
+import React, { useState } from "react"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import Compensation from "../entities/Compensation"
 import { RouteComponentProps } from "react-router-dom"
@@ -13,79 +7,74 @@ import { ButtonGroup } from "react-bootstrap"
 import { AuthRoles } from "../interfaces/AuthRoles"
 import Button from '../components/Button'
 import Action from "../components/Action"
+import GraphQLDataList from "../components/GraphQLDataList"
+import { GET_COMPENSATIONS, GET_BASE_COMPENSATION, DELETE_COMPENSATION } from "../graphql/CompensationQueries"
+import { useLazyQuery, useMutation } from "react-apollo"
+import Loading from "../components/Loading"
 
-interface CompensationsProps extends DataListProps<Compensation> {
-    delete: (id: number) => void
-}
+export default function Compensations(props: RouteComponentProps) {
+    const [showModal, setShowModal] = useState(false)
+    const [getCompensation, lazyCompensation] = useLazyQuery(GET_BASE_COMPENSATION)
+    const [deleteCompensationMutation] = useMutation(DELETE_COMPENSATION)
 
-export class _Compensations extends Component<CompensationsProps & RouteComponentProps, { modalShow: boolean, toDeleteCompensation?: Compensation }> {
-    constructor(props: CompensationsProps & RouteComponentProps) {
-        super(props)
-
-        this.deleteCompensation = this.deleteCompensation.bind(this)
-        this.deleteCompensationConfirmed = this.deleteCompensationConfirmed.bind(this)
-        this.showModal = this.showModal.bind(this)
-        this.hideModal = this.hideModal.bind(this)
-
-        this.state = { modalShow: false }
-    }
-
-    private deleteCompensation(event: React.MouseEvent<HTMLButtonElement>) {
+    function deleteCompensation(event: React.MouseEvent<HTMLButtonElement>) {
         if (event.currentTarget.parentNode && event.currentTarget.parentNode.parentNode && event.currentTarget.parentNode.parentNode.parentElement) {
             let id = event.currentTarget.parentNode.parentNode.parentElement.getAttribute('data-key')
             if (id) {
-                this.setState({
-                    toDeleteCompensation: this.props.data.byId[id],
-                    modalShow: true
-                })
+                getCompensation({ variables: { id: parseInt(id) } })
+                setShowModal(true)
             }
         }
     }
 
-    private deleteCompensationConfirmed(event: React.MouseEvent<HTMLButtonElement>) {
-        if (this.state.toDeleteCompensation) {
-            this.props.delete(this.state.toDeleteCompensation.id)
-            this.setState({
-                toDeleteCompensation: undefined,
-                modalShow: false
-            })
-        }
+    async function deleteCompensationConfirmed() {
+        await deleteCompensationMutation({ variables: { id: lazyCompensation.data.id } })
+        setShowModal(false)
     }
 
-    private showModal() {
-        this.setState({
-            modalShow: true
-        })
-    }
-
-    private hideModal(event: React.MouseEvent<HTMLButtonElement>) {
-        this.setState({
-            modalShow: false
-        })
-    }
-
-    private renderModal() {
-        if (this.state.toDeleteCompensation) {
+    function renderModal() {
+        if (lazyCompensation.loading && showModal) {
             return (
                 <Modal
-                    show={this.state.modalShow}
+                    show={showModal}
                     // @ts-ignore
-                    onHide={this.hideModal}
-                    header={<h3>{(this.state.toDeleteCompensation as Compensation).member.firstname + ' ' + (this.state.toDeleteCompensation as Compensation).member.lastname + ' vom  ' + (this.state.toDeleteCompensation as Compensation).date.toLocaleDateString()}</h3>}
+                    onHide={() => setShowModal(false)}
+                    header={<h3>Loading...</h3>}
+                    body={
+                        <Loading />
+                    }
+                    footer={
+                        <ButtonGroup>
+                            <Button variant="secondary" onClick={() => setShowModal(false)}>Abbrechen</Button>
+                        </ButtonGroup>
+                    }
+
+                />
+            )
+        }
+
+        if (lazyCompensation.data) {
+            const toDeleteCompensation = lazyCompensation.data as Compensation
+            return (
+                <Modal
+                    show={showModal}
+                    // @ts-ignore
+                    onHide={() => setShowModal(false)}
+                    header={<h3>{(toDeleteCompensation as Compensation).member.firstname + ' ' + (toDeleteCompensation as Compensation).member.lastname + ' vom  ' + (toDeleteCompensation as Compensation).date.toLocaleDateString()}</h3>}
                     body={
                         <span>
                             {
                                 'Willst du die Entschädigung von ' +
-                                (this.state.toDeleteCompensation as Compensation).member.firstname + ' ' + (this.state.toDeleteCompensation as Compensation).member.lastname +
-                                ' vom  ' + (this.state.toDeleteCompensation as Compensation).date.toLocaleDateString() + ' mit einem Betrag von CHF' +
-                                (this.state.toDeleteCompensation as Compensation).amount + ' wirklich löschen?'
+                                (toDeleteCompensation as Compensation).member.firstname + ' ' + (toDeleteCompensation as Compensation).member.lastname +
+                                ' vom  ' + (toDeleteCompensation as Compensation).date.toLocaleDateString() + ' mit einem Betrag von CHF' +
+                                (toDeleteCompensation as Compensation).amount + ' wirklich löschen?'
                             }
                         </span>
                     }
                     footer={
                         <ButtonGroup>
-                            <Button variant="danger" onClick={this.deleteCompensationConfirmed}>Löschen</Button>
-                            <Button variant="secondary" onClick={this.hideModal}>Abbrechen</Button>
+                            <Button variant="danger" onClick={deleteCompensationConfirmed}>Löschen</Button>
+                            <Button variant="secondary" onClick={() => setShowModal(false)}>Abbrechen</Button>
                         </ButtonGroup>
                     }
 
@@ -96,17 +85,13 @@ export class _Compensations extends Component<CompensationsProps & RouteComponen
         return null
     }
 
-    public render() {
-        return (
-            <DataList<Compensation>
+    return (
+        <>
+            {renderModal()}
+            <GraphQLDataList
+                query={GET_COMPENSATIONS}
                 title='Entschädigungen'
                 viewLocation='/compensation/'
-                panelActions={[
-                    <Action icon="plus" to="/compensations/add" roles={[AuthRoles.COMPENSATIONS_CREATE]}/>,
-                ]}
-                rowActions={[
-                    <Button className="btn btn-danger delete" onClick={this.deleteCompensation} roles={[AuthRoles.COMPENSATIONS_EDIT]}><FontAwesomeIcon icon="trash" /></Button>
-                ]}
                 tableColumns={[
                     { text: 'Mitglied', keys: { 'member': ['firstname', 'lastname'] }, sortable: true, searchable: true },
                     { text: 'Datum', keys: ['date'], sortable: true, format: 'toLocaleDateString' },
@@ -116,60 +101,14 @@ export class _Compensations extends Component<CompensationsProps & RouteComponen
                     { text: 'Genehmigt', keys: ['approved'], sortable: true },
                     { text: 'Ausbezahlt', keys: ['paied'], sortable: true }
                 ]}
-                data={this.props.data}
-                fetchData={this.props.fetchData}
-                history={this.props.history}
-                defaultFilter='all'
-                filters={[
-                    {
-                        id: 'all',
-                        displayName: 'Alle',
-                        filters: [{ type: 'any' }]
-                    },
-                    {
-                        id: 'notApproved',
-                        displayName: 'Nicht bewilligt',
-                        filters: [{ type: 'eq', value: 'false', key: 'approved' }]
-                    },
-                    {
-                        id: 'approved',
-                        displayName: 'Bewilligt',
-                        filters: [{ type: 'eq', value: 'true', key: 'approved' }]
-                    },
-                    {
-                        id: 'paied',
-                        displayName: 'Ausbezahlt',
-                        filters: [{ type: 'eq', value: 'true', key: 'paied' }]
-                    },
-                    {
-                        id: 'notPaied',
-                        displayName: 'Nicht Ausbezahlt',
-                        filters: [{ type: 'eq', value: 'false', key: 'paied' }]
-                    }
+                panelActions={[
+                    <Action icon="plus" to="/compensations/add" roles={[AuthRoles.COMPENSATIONS_CREATE]} />,
                 ]}
-            >
-                {this.renderModal()}
-            </DataList>
-        )
-    }
+                rowActions={[
+                    <Button className="btn btn-danger delete" onClick={deleteCompensation} roles={[AuthRoles.COMPENSATIONS_EDIT]}><FontAwesomeIcon icon="trash" /></Button>
+                ]}
+                {...props}
+            />
+        </>
+    )
 }
-
-const mapStateToProps = (state: State) => {
-    return {
-        data: state.data.compensationEntries,
-    }
-}
-
-const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>) => {
-    return {
-        fetchData: () => {
-            dispatch(Data.fetchCompensationEntries())
-        },
-        delete: (id: number) => {
-            dispatch(Data.deleteCompensationEntry(id))
-        }
-    }
-}
-
-//@ts-ignore
-export const Compensations = connect(mapStateToProps, mapDispatchToProps)(_Compensations)

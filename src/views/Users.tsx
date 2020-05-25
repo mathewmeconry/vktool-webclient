@@ -1,31 +1,19 @@
-import { connect } from "react-redux";
-import { State } from "../reducers/IndexReducer";
-import { ThunkDispatch } from "redux-thunk";
-import { AnyAction } from "redux";
-import { Data } from "../actions/DataActions";
-import { UI } from "../actions/UIActions";
+import { RouteComponentProps } from "react-router"
+import React from "react"
+import GraphQLDataList from "../components/GraphQLDataList"
+import { GET_USERS } from "../graphql/UserQueries"
 
-
-import { DataList } from '../components/DataList'
-
-const mapStateToProps = (state: State) => {
-    return {
-        data: state.data.users,
-        viewLocation: '/user/',
-        title: 'Benutzer',
-        tableColumns: [
-            { text: 'Name', keys: ['displayName'], sortable: true, searchable: true },
-            { text: 'Rechte', keys: ['roles'], sortable: true, searchable: true }
-        ]
-    }
+export default function Users(props: RouteComponentProps) {
+    return (
+        <GraphQLDataList
+            query={GET_USERS}
+            title='Benutzer'
+            viewLocation='/user/'
+            tableColumns={[
+                { text: 'Name', keys: ['displayName'], sortable: true, searchable: true },
+                { text: 'Rechte', keys: ['roles'], sortable: true, searchable: true }
+            ]}
+            {...props}
+        />
+    )
 }
-
-const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>) => {
-    return {
-        fetchData: () => {
-            dispatch(Data.fetchUsers())
-        }
-    }
-}
-
-export const Users = connect(mapStateToProps, mapDispatchToProps)(DataList)

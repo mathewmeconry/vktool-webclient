@@ -1,12 +1,10 @@
 import React, { Component } from "react";
 import WizardStep from "../../components/WizardStep";
 import StringIndexed from "../../interfaces/StringIndexed";
-import { DataInterface } from "../../reducers/DataReducer";
 import Contact from "../../entities/Contact";
-import { ValueType } from "react-select/lib/types";
 import Select from 'react-select';
 import Checkbox from "../../components/Checkbox";
-import { MemberSelect } from "../../components/MemberSelect";
+import MemberSelect from "../../components/MemberSelect";
 
 export interface AddBillingReportStep3Props {
     onNext: (data: StringIndexed<any>) => void

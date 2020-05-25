@@ -1,52 +1,52 @@
-import React, { Component, SyntheticEvent } from "react"
+import React, { Component } from "react"
 import { Provider } from "react-redux"
 import configureStore from "./Store"
 import { Store, AnyAction } from "redux"
 import { Route, Switch, Redirect } from "react-router-dom"
 import { ToastContainer } from 'react-toastify'
 import { AuthRoles } from "./interfaces/AuthRoles"
-import { SecureRoute } from "./components/SecureRoute"
+import SecureRoute from "./components/SecureRoute"
 import Config from './Config'
 import { ConnectedRouter } from "connected-react-router"
 import { createBrowserHistory, History } from "history"
-import { Persistor } from 'redux-persist'
-import { PersistGate } from 'redux-persist/es/integration/react'
-import Loading from "./components/Loading"
+import ApolloClient from 'apollo-boost'
+import { ApolloProvider } from '@apollo/react-hooks'
 
 // styles
 import './styles/index.scss'
 import 'react-toastify/dist/ReactToastify.css'
 
 // views
-import { Dashboard } from "./views/Dashboard"
-import { Members } from "./views/Members"
-import { Contact } from "./views/Contact"
-import { Orders } from "./views/Orders"
-import { Order } from "./views/Order"
-import { BillingReports } from "./views/BillingReports"
-import { Compensations } from "./views/Compensations"
-import { AddBillingReport } from "./views/AddBillingReport"
-import { Login } from "./views/Login"
-import { Users } from "./views/Users"
-import { User } from "./views/User"
-import { BillingReport } from "./views/BillingReport"
-import { AddCompensation } from "./views/AddCompensation"
-import { Compensation } from "./views/Compensation"
-import { Error404 } from "./components/Errors/404"
-import { MailingLists } from "./views/MailingLists"
-import { CollectionPoints } from "./views/CollectionPoints"
-import { AddCollectionPoint } from "./views/AddCollectionPoint"
-import { Payouts } from "./views/Payouts"
-import { Payout } from "./views/Payout"
-import { PayoutMember } from "./views/PayoutMember"
-import { AddPayout } from "./views/AddPayout"
-import { Logoffs } from "./views/Logoffs"
-import { Logoff } from "./views/Logoff"
-import { AddLogoff } from "./views/AddLogoff"
+import Dashboard from "./views/Dashboard"
+import Members from "./views/Members"
+import Contact from "./views/Contact"
+import Orders from "./views/Orders"
+import Order from "./views/Order"
+import BillingReports from "./views/BillingReports"
+import Compensations from "./views/Compensations"
+import AddBillingReport from "./views/AddBillingReport"
+import Login from "./views/Login"
+import Users from "./views/Users"
+import User from "./views/User"
+import BillingReport from "./views/BillingReport"
+import AddCompensation from "./views/AddCompensation"
+import Compensation from "./views/Compensation"
+import Error404 from "./components/Errors/404"
+import MailingLists from "./views/MailingLists"
+import CollectionPoints from "./views/CollectionPoints"
+import AddCollectionPoint from "./views/AddCollectionPoint"
+import Payouts from "./views/Payouts"
+import Payout from "./views/Payout"
+import PayoutMember from "./views/PayoutMember"
+import AddPayout from "./views/AddPayout"
+import Logoffs from "./views/Logoffs"
+import Logoff from "./views/Logoff"
+import AddLogoff from "./views/AddLogoff"
 
 export default class Root extends Component<{}, {}> {
     private store: Store<any, AnyAction>
     private history: History
+    private apolloClient: ApolloClient<unknown>
 
     constructor(props: {}, state: {}) {
         super(props, state)
@@ -55,23 +55,28 @@ export default class Root extends Component<{}, {}> {
         const { store } = configureStore(this.history)
         this.store = store
         this.store.getState()
+        this.apolloClient = new ApolloClient({
+            uri: `${Config.apiEndpoint}/graphql`,
+            credentials: 'include',
+        })
     }
 
     render() {
         return (
             <Provider store={this.store}>
-                    <div className="body">
-                        <ToastContainer
-                            position="top-center"
-                            autoClose={5000}
-                            hideProgressBar={false}
-                            newestOnTop={true}
-                            closeOnClick
-                            rtl={false}
-                            draggable={true}
-                            pauseOnHover={true}
-                        />
-                        <ConnectedRouter history={this.history} >
+                <div className="body">
+                    <ToastContainer
+                        position="top-center"
+                        autoClose={5000}
+                        hideProgressBar={false}
+                        newestOnTop={true}
+                        closeOnClick
+                        rtl={false}
+                        draggable={true}
+                        pauseOnHover={true}
+                    />
+                    <ConnectedRouter history={this.history} >
+                        <ApolloProvider client={this.apolloClient}>
                             <Switch>
                                 <Route exact path="/" component={() => { return (<Redirect to="/login" />) }} />
                                 <Route exact path="/login" component={Login} />
@@ -101,8 +106,9 @@ export default class Root extends Component<{}, {}> {
                                 <SecureRoute exact path="/user/:id" roles={[AuthRoles.ADMIN]} component={User} />
                                 <Route path="/*" component={Error404} />
                             </Switch>
-                        </ConnectedRouter>
-                    </div>
+                        </ApolloProvider>
+                    </ConnectedRouter>
+                </div>
             </Provider>
         )
     }

@@ -1,151 +1,113 @@
-import { Component } from "react"
-import { connect } from "react-redux"
-import { State } from "../reducers/IndexReducer"
-import { ThunkDispatch } from "redux-thunk"
-import { AnyAction } from "redux"
-import { Data } from "../actions/DataActions"
-import * as CompensationEntity from "../entities/Compensation"
-import { RouteComponentProps } from "react-router"
-import * as React from "react"
+import React from 'react'
 import { Page } from "../components/Page"
 import Loading from "../components/Loading"
 import Row from "../components/Row"
 import Column from "../components/Column"
 import Panel from "../components/Panel"
 import FormEntry from "../components/FormEntry"
-import { Link } from "react-router-dom"
-import { Error404 } from "../components/Errors/404"
+import { Link, RouteComponentProps } from "react-router-dom"
+import Error404 from "../components/Errors/404"
 import Payout from "../entities/Payout"
 import Button from "../components/Button"
 import { AuthRoles } from "../interfaces/AuthRoles"
+import { useQuery, useMutation } from "react-apollo"
+import { GET_COMPENSATION, APPROVE_COMPENSATION } from "../graphql/CompensationQueries"
+import CustomCompensation from "../entities/CustomCompensation"
+import OrderCompensation from "../entities/OrderCompensation"
 
-interface CompensationProps extends RouteComponentProps<{ id: string }> {
-    compensation: CompensationEntity.default,
-    compensationIds: Array<number>,
-    loading: boolean,
-    fetchCompensations: () => Promise<AnyAction>,
-    approve: (id: number) => Promise<void>
-}
+export default function Compensation(props: RouteComponentProps<{ id: string }>) {
+    const { loading, data, refetch } = useQuery(GET_COMPENSATION, { variables: { id: parseInt(props.match.params.id) } })
+    const [approveMutation] = useMutation(APPROVE_COMPENSATION)
 
-export class _Compensation extends Component<CompensationProps> {
+    if (loading || !data) return <Loading />
 
-    constructor(props: CompensationProps) {
-        super(props)
-
-        this.approve = this.approve.bind(this)
-        this.renderBillingReport = this.renderBillingReport.bind(this)
-        this.renderActions = this.renderActions.bind(this)
-
-        this.props.fetchCompensations()
+    let compensation: CustomCompensation | OrderCompensation
+    if (data.getOrderCompensation) {
+        compensation = data.getOrderCompensation as OrderCompensation
+    } else {
+        compensation = data.getCustomCompensation as CustomCompensation
     }
 
-    private approve(): Promise<void> {
-        return this.props.approve(this.props.compensation.id)
+    if (!compensation) return <Error404 />
+
+    async function approve() {
+        await approveMutation({ variables: { id: compensation.id } })
+        refetch()
     }
 
-    private renderActions() {
-        const actions = [<Link to={"/contact/" + this.props.compensation.member.id} className="btn btn-block btn-outline-primary">Kontakt öffnen</Link>]
+    function renderActions() {
+        const actions = [<Link to={"/contact/" + compensation.member.id} className="btn btn-block btn-outline-primary">Kontakt öffnen</Link>]
 
-        if (!this.props.compensation.approved) {
-            actions.push(<Button id="approve" block={true} variant="outline-success" onClick={this.approve} roles={[AuthRoles.COMPENSATIONS_APPROVE]}>Genehmigen</Button>)
+        if (!compensation.approved) {
+            actions.push(<Button id="approve" block={true} variant="outline-success" onClick={approve} roles={[AuthRoles.COMPENSATIONS_APPROVE]}>Genehmigen</Button>)
         }
 
         return actions
     }
 
-    private renderBillingReport() {
-        if (CompensationEntity.default.isOrderBased(this.props.compensation)) {
+    function renderBillingReport() {
+        if ((compensation as OrderCompensation).billingReport) {
+            compensation = compensation as OrderCompensation
             let statusBadgeClass = 'badge-success'
-            if (this.props.compensation.billingReport.state === 'pending') {
+            if (compensation.billingReport.state === 'pending') {
                 statusBadgeClass = 'badge-warning'
             }
 
             return (
                 <Column className="col-md-6">
                     <Panel title="Verrechnungsrapport">
-                        <FormEntry id="orderNr" title="Auftragsnummer">{this.props.compensation.billingReport.order.documentNr}</FormEntry>
-                        <FormEntry id="orderNr" title="Auftrag">{this.props.compensation.billingReport.order.title}</FormEntry>
-                        <FormEntry id="state" title="Verrechnungsrapportstatus"><div className={"badge " + statusBadgeClass}>{this.props.compensation.billingReport.state}</div></FormEntry>
-                        <FormEntry id="from" title="Von">{this.props.compensation.from.toLocaleTimeString()}</FormEntry>
-                        <FormEntry id="until" title="Bis">{this.props.compensation.until.toLocaleTimeString()}</FormEntry>
-                        <FormEntry id="charge" title="Verrechnen">{(this.props.compensation.charge) ? '✓' : '⨯'}</FormEntry>
-                        <Link to={"/order/" + this.props.compensation.billingReport.order.id} className="btn btn-outline-primary btn-block">Auftrag</Link>
-                        <Link to={"/billing-report/" + this.props.compensation.billingReport.id} className="btn btn-outline-primary btn-block">Verrechnungsrapport</Link>
+                        <FormEntry id="orderNr" title="Auftragsnummer">{compensation.billingReport.order.documentNr}</FormEntry>
+                        <FormEntry id="orderNr" title="Auftrag">{compensation.billingReport.order.title}</FormEntry>
+                        <FormEntry id="state" title="Verrechnungsrapportstatus"><div className={"badge " + statusBadgeClass}>{compensation.billingReport.state}</div></FormEntry>
+                        <FormEntry id="from" title="Von">{new Date(compensation.from).toLocaleTimeString()}</FormEntry>
+                        <FormEntry id="until" title="Bis">{new Date(compensation.until).toLocaleTimeString()}</FormEntry>
+                        <FormEntry id="charge" title="Verrechnen">{(compensation.charge) ? '✓' : '⨯'}</FormEntry>
+                        <Link to={"/order/" + compensation.billingReport.order.id} className="btn btn-outline-primary btn-block">Auftrag</Link>
+                        <Link to={"/billing-report/" + compensation.billingReport.id} className="btn btn-outline-primary btn-block">Verrechnungsrapport</Link>
                     </Panel>
                 </Column>
             )
         }
     }
 
-    public render() {
-        if (!this.props.loading && !this.props.compensation && this.props.compensationIds.length > 0) {
-            return <Error404 />
-        }
-
-        if (this.props.loading || !this.props.compensation) {
-            return (<Page title="Entschädigung"><Loading /></Page>)
-        }
-
-        let statusBadgeClass = 'badge-success'
-        if (!this.props.compensation.approved) {
-            statusBadgeClass = 'badge-warning'
-        }
-
-        return (
-            <Page title="Entschädigung">
-                <Row>
-                    <Column className="col-md-6">
-                        <Panel title="Informationen">
-                            <FormEntry id="member" title="Mitglied">{this.props.compensation.member.firstname} {this.props.compensation.member.lastname}</FormEntry>
-                            <FormEntry id="date" title="Datum">{this.props.compensation.date.toLocaleDateString()}</FormEntry>
-                            <FormEntry id="amount" title="Betrag">CHF {this.props.compensation.amount.toFixed(2)}</FormEntry>
-                            {
-                                CompensationEntity.default.isCustom(this.props.compensation) &&
-                                <FormEntry id="description" title="Beschreibung">{this.props.compensation.description}</FormEntry>
-                            }
-                            <FormEntry id="state" title="Status"><div className={"badge " + statusBadgeClass}>{(this.props.compensation.approved) ? 'Bewilligt' : 'Ausstehend'}</div></FormEntry>
-                            <FormEntry id="creator" title="Ersteller">{this.props.compensation.creator.displayName}</FormEntry>
-                        </Panel>
-                    </Column>
-                    <Column className="col-md-6">
-                        <Panel title="Actions">
-                            {this.renderActions()}
-                        </Panel>
-                    </Column>
-                </Row>
-                <Row>
-                    {this.renderBillingReport()}
-                    <Column className="col-md-6">
-                        <Panel title="Auszahlung">
-                            <FormEntry id="paied" title="Ausbezahlt">{(this.props.compensation.paied) ? '✓' : '⨯'}</FormEntry>
-                            {(this.props.compensation.payout) ? (<Link to={"/payout/" + (this.props.compensation.payout as Payout).id + '/' + this.props.compensation.member.id} className="btn btn-outline-primary btn-block">Auszahlung</Link>) : (<p></p>)}
-                            {(this.props.compensation.bexioBill) ? (<a href={`https://office.bexio.com/index.php/kb_bill/show/id/${this.props.compensation.bexioBill}`} target="_blank" className="btn btn-outline-primary btn-block">Bexio Lieferantenrechnung</a>) : (<p></p>)}
-                            {(this.props.compensation.transferCompensation) ? (<Link to={`/compensation/${this.props.compensation.transferCompensation.id}`} className="btn btn-outline-primary btn-block">Übertrag</Link>) : (<p></p>)}
-                        </Panel>
-                    </Column>
-                </Row>
-            </Page >
-        )
+    let statusBadgeClass = 'badge-success'
+    if (!compensation.approved) {
+        statusBadgeClass = 'badge-warning'
     }
-}
 
-const mapStateToProps = (state: State, props: RouteComponentProps<{ id: string }>) => {
-    return {
-        compensation: state.data.compensationEntries.byId[props.match.params.id],
-        compensationIds: state.data.compensationEntries.ids,
-        loading: state.data.compensationEntries.loading
-    }
+    return (
+        <Page title="Entschädigung">
+            <Row>
+                <Column className="col-md-6">
+                    <Panel title="Informationen">
+                        <FormEntry id="member" title="Mitglied">{compensation.member.firstname} {compensation.member.lastname}</FormEntry>
+                        <FormEntry id="date" title="Datum">{new Date(compensation.date).toLocaleDateString()}</FormEntry>
+                        <FormEntry id="amount" title="Betrag">CHF {compensation.amount.toFixed(2)}</FormEntry>
+                        {
+                            (compensation as CustomCompensation).description &&
+                            <FormEntry id="description" title="Beschreibung">{(compensation as CustomCompensation).description}</FormEntry>
+                        }
+                        <FormEntry id="state" title="Status"><div className={"badge " + statusBadgeClass}>{(compensation.approved) ? 'Bewilligt' : 'Ausstehend'}</div></FormEntry>
+                        <FormEntry id="creator" title="Ersteller">{compensation.creator.displayName}</FormEntry>
+                    </Panel>
+                </Column>
+                <Column className="col-md-6">
+                    <Panel title="Actions">
+                        {renderActions()}
+                    </Panel>
+                </Column>
+            </Row>
+            <Row>
+                {renderBillingReport()}
+                <Column className="col-md-6">
+                    <Panel title="Auszahlung">
+                        <FormEntry id="paied" title="Ausbezahlt">{(compensation.paied) ? '✓' : '⨯'}</FormEntry>
+                        {(compensation.payout) ? (<Link to={"/payout/" + (compensation.payout as Payout).id + '/' + compensation.member.id} className="btn btn-outline-primary btn-block">Auszahlung</Link>) : (<p></p>)}
+                        {(compensation.bexioBill) ? (<a href={`https://office.bexio.com/index.php/kb_bill/show/id/${compensation.bexioBill}`} target="_blank" className="btn btn-outline-primary btn-block">Bexio Lieferantenrechnung</a>) : (<p></p>)}
+                        {(compensation.transferCompensation) ? (<Link to={`/compensation/${compensation.transferCompensation.id}`} className="btn btn-outline-primary btn-block">Übertrag</Link>) : (<p></p>)}
+                    </Panel>
+                </Column>
+            </Row>
+        </Page >
+    )
 }
-
-const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>) => {
-    return {
-        fetchCompensations: () => {
-            return dispatch(Data.fetchCompensationEntries())
-        },
-        approve: (id: number) => {
-            return dispatch(Data.approveCompensationEntry(id))
-        },
-    }
-}
-
-export const Compensation = connect(mapStateToProps, mapDispatchToProps)(_Compensation)
