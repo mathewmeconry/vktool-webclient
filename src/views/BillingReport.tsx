@@ -52,6 +52,11 @@ export default function BillingReport(props: RouteComponentProps<{ id: string }>
         setBillingReport(data.getBillingReport)
     }
 
+    async function refetchAndSet() {
+        const result = await refetch()
+        setBillingReport(result.data.getBillingReport)
+    }
+
     function elementView(event: React.MouseEvent<HTMLButtonElement>) {
         event.preventDefault()
         if (event.currentTarget.parentNode && event.currentTarget.parentNode.parentNode && event.currentTarget.parentNode.parentNode.parentElement) {
@@ -73,7 +78,7 @@ export default function BillingReport(props: RouteComponentProps<{ id: string }>
                 state: 'APPROVED'
             }
         })
-        refetch()
+        refetchAndSet()
     }
 
     async function decline(): Promise<void> {
@@ -83,7 +88,7 @@ export default function BillingReport(props: RouteComponentProps<{ id: string }>
                 state: 'DECLINED'
             }
         })
-        refetch()
+        refetchAndSet()
     }
 
     async function deleteCompensation(event: React.MouseEvent<HTMLButtonElement>) {
@@ -105,7 +110,7 @@ export default function BillingReport(props: RouteComponentProps<{ id: string }>
             })
             setShowModal(false)
             setToDeleteCompensation(undefined)
-            refetch()
+            refetchAndSet()
         }
     }
 
@@ -136,7 +141,7 @@ export default function BillingReport(props: RouteComponentProps<{ id: string }>
                 data: compensationEntries
             }
         })
-        refetch()
+        refetchAndSet()
 
         setShowModal(false)
     }
@@ -149,10 +154,14 @@ export default function BillingReport(props: RouteComponentProps<{ id: string }>
     }
 
     function onSelectChange(state: string): (opts: Array<Contact> | Order) => void {
-        return (opts: Array<Contact> | Order) => {
+        return (value: Array<Contact> | Order) => {
             const clone = { ...billingReport } as BillingReportEntity.default
             // @ts-ignore
             clone[state] = value
+            if (state === 'order') {
+                // @ts-ignore
+                clone[state] = value[0]
+            }
             setBillingReport(clone)
         }
     }
@@ -166,16 +175,19 @@ export default function BillingReport(props: RouteComponentProps<{ id: string }>
         if (billingReport) {
             await editBillingReportMutation({
                 variables: {
-                    id: billingReport.id,
-                    orderId: parseInt(billingReport.order.id.toString()),
-                    date: billingReport.date,
-                    elIds: billingReport.els.map(e => parseInt(e.id.toString())),
-                    driverIds: billingReport.drivers.map(e => parseInt(e.id.toString())),
-                    food: billingReport.food,
-                    remarks: billingReport.remarks
+                    data: {
+                        id: billingReport.id,
+                        orderId: parseInt(billingReport.order.id.toString()),
+                        date: billingReport.date,
+                        elIds: billingReport.els.map(e => parseInt(e.id.toString())),
+                        driverIds: billingReport.drivers.map(e => parseInt(e.id.toString())),
+                        food: billingReport.food,
+                        remarks: billingReport.remarks
+                    }
                 }
             })
-            refetch()
+            refetchAndSet()
+            setEditable(false)
         }
     }
 
@@ -238,7 +250,7 @@ export default function BillingReport(props: RouteComponentProps<{ id: string }>
             if (ŕoles.data?.me.roles.includes(AuthRoles.ADMIN) ||
                 ŕoles.data?.me.roles.includes(AuthRoles.BILLINGREPORTS_EDIT) ||
                 (billingReport?.state === 'pending' && billingReport.creator.id === myId.data?.me.id)) {
-                if (!editBillingReportMutation) {
+                if (!editable) {
                     panelActions.push(<Action icon="pencil-alt" key="edit" onClick={async () => setEditable(true)} roles={[AuthRoles.BILLINGREPORTS_EDIT]} />)
                 } else {
                     panelActions.push(<Action icon="save" key="save" onClick={onSave} />)
@@ -339,7 +351,7 @@ export default function BillingReport(props: RouteComponentProps<{ id: string }>
                                 keys: ['from'],
                                 direction: 'desc'
                             }}
-                            data={billingReport?.compensations || []}
+                            data={billingReport?.compensations.map(c => { return { ...c, from: new Date(c.from), until: new Date(c.until) } }) || []}
                         ></Table>
                     </Panel>
                 </Column>

@@ -1,10 +1,10 @@
-import React, { Component } from "react";
-import WizardStep from "../../components/WizardStep";
-import StringIndexed from "../../interfaces/StringIndexed";
-import Contact from "../../entities/Contact";
-import Select from 'react-select';
-import Checkbox from "../../components/Checkbox";
-import MemberSelect from "../../components/MemberSelect";
+import React, { Component } from "react"
+import WizardStep from "../../components/WizardStep"
+import StringIndexed from "../../interfaces/StringIndexed"
+import Contact from "../../entities/Contact"
+import Select from 'react-select'
+import Checkbox from "../../components/Checkbox"
+import MemberSelect from "../../components/MemberSelect"
 
 export interface AddBillingReportStep3Props {
     onNext: (data: StringIndexed<any>) => void
@@ -34,13 +34,13 @@ export default class AddBillingReportStep3 extends Component<AddBillingReportSte
     }
 
     private onInputChange(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
-        const target = event.target;
-        const value = target.type === 'checkbox' ? (target as HTMLInputElement).checked : target.value;
-        const id = target.id;
+        const target = event.target
+        const value = target.type === 'checkbox' ? (target as HTMLInputElement).checked : target.value
+        const id = target.id
         //@ts-ignore
         this.setState({
             [id]: value
-        });
+        })
     }
 
     private onSelectChange(stateName: string) {
@@ -60,17 +60,13 @@ export default class AddBillingReportStep3 extends Component<AddBillingReportSte
     }
 
     private async onNext(): Promise<boolean> {
-        if (this.elSelect) {
-            let valid = true
-            if (this.state.els.length <= 0) valid = false
+        let valid = true
+        if (this.state.els.length <= 0) valid = false
 
-            if (valid) {
-                this.props.onNext(this.state)
-                return true
-            }
+        if (valid) {
+            this.props.onNext(this.state)
         }
-
-        return false
+        return valid
     }
 
     public render() {
@@ -83,6 +79,7 @@ export default class AddBillingReportStep3 extends Component<AddBillingReportSte
                         onChange={this.onELChange}
                         isMulti={true}
                         required={true}
+                        defaultValue={this.state.els.map(c => c.id.toString())}
                     />
                     <br></br>
                     <h5>Fahrer</h5>
@@ -91,6 +88,7 @@ export default class AddBillingReportStep3 extends Component<AddBillingReportSte
                         onChange={this.onDriversChange}
                         isMulti={true}
                         required={false}
+                        defaultValue={this.state.drivers.map(c => c.id.toString())}
                     />
                     <br></br>
                     <h5>Diverses</h5>

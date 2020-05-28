@@ -25,7 +25,7 @@ export default function Contact(props: RouteComponentProps<{ id: string }>) {
     const [editable, setEditable] = useState(false)
     const [editContactMutation] = useMutation(EDIT_CONTACT)
     const myroles = useQuery<{ me: User }>(GET_MY_ROLES)
-    const { loading, error, data } = useQuery<{ getContact: ContactEntity.default }>(GET_CONTACT, { variables: { id: parseInt(props.match.params.id) } })
+    const { loading, error, data, refetch } = useQuery<{ getContact: ContactEntity.default }>(GET_CONTACT, { variables: { id: parseInt(props.match.params.id) } })
     const [contact, setContact] = useState<ContactEntity.default>(data?.getContact as ContactEntity.default)
     if (loading) {
         return (
@@ -60,11 +60,13 @@ export default function Contact(props: RouteComponentProps<{ id: string }>) {
     function onMoreMailsChange(event: React.ChangeEvent<HTMLInputElement>) {
         const target = event.target
         const value = target.value
-        onInputChange('moreEmails', (contact.moreMails || []).concat([value]))
+        const clone = [...(contact.moreMails || [])]
+        clone[parseInt(target.name)] = value
+        onInputChange('moreMails', clone)
     }
 
     async function removeMoreMailEntry(index: number) {
-        onInputChange('moreEmails', [...(contact.moreMails || []).slice(0, index), ...(contact.moreMails || []).slice(index + 1)])
+        onInputChange('moreMails', [...(contact.moreMails || []).slice(0, index), ...(contact.moreMails || []).slice(index + 1)])
     }
 
     async function onSave() {
@@ -83,11 +85,13 @@ export default function Contact(props: RouteComponentProps<{ id: string }>) {
             }
         })
         setEditable(false)
+        setContact((await refetch()).data.getContact)
     }
 
     async function onAbort() {
         setContact(data?.getContact as ContactEntity.default)
         setEditable(false)
+        setContact((await refetch()).data.getContact)
     }
 
     function renderPanelActions() {
@@ -106,6 +110,7 @@ export default function Contact(props: RouteComponentProps<{ id: string }>) {
             return <CollectionPointSelect isMulti={false} onChange={onSelectChange('collectionPoint')} defaultValue={(contact.collectionPoint) ? [contact.collectionPoint] : []} />
         }
         if (contact.collectionPoint &&
+            contact.collectionPoint.hasOwnProperty('name') &&
             contact.collectionPoint.hasOwnProperty('address') &&
             contact.collectionPoint.hasOwnProperty('postcode') &&
             contact.collectionPoint.hasOwnProperty('city')) {
@@ -113,7 +118,7 @@ export default function Contact(props: RouteComponentProps<{ id: string }>) {
             return <a
                 href={`https://www.google.com/maps/search/${address}`}
                 target='_blank'>
-                {address}
+                {`(${contact.collectionPoint.name})${address}`}
             </a>
         }
 
@@ -186,7 +191,7 @@ export default function Contact(props: RouteComponentProps<{ id: string }>) {
                             </FormEntry>
                             <FormEntry id="groups" title="Gruppen">
                                 {(contact.contactGroups) ? contact.contactGroups.map((group: ContactGroup) => {
-                                    return <span className="badge badge-primary">{group.name}</span>
+                                    return <span key={group.name} className="badge badge-primary">{group.name}</span>
                                 }) : ''}
                             </FormEntry>
                             <FormEntry id="entryDate" title="Eintrittsdatum" type="date" editable={editable} value={(contact.entryDate) ? new Date(contact.entryDate) : ''} onChange={onInputChange} />

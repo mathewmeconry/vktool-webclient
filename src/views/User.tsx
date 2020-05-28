@@ -14,7 +14,7 @@ import { GET_USER } from '../graphql/UserQueries'
 import Error404 from '../components/Errors/404'
 
 export default function User(props: RouteComponentProps<{ id: string }>) {
-    const user = useQuery<UserEntity.default>(GET_USER, { variables: { id: parseInt(props.match.params.id) } })
+    const user = useQuery<{getUser: UserEntity.default}>(GET_USER, { variables: { id: parseInt(props.match.params.id) } })
 
     if (user.loading) {
         return <Loading />
@@ -25,11 +25,11 @@ export default function User(props: RouteComponentProps<{ id: string }>) {
     }
 
     function renderBexioPart() {
-        if (!user.data || !user.data.bexioContact) {
+        if (!user.data || !user.data.getUser.bexioContact) {
             return (<span>Kein Link gefunden....</span>)
         }
 
-        let contact = user.data.bexioContact as Contact
+        let contact = user.data.getUser.bexioContact as Contact
         return (
             <div>
                 <FormEntry id="bexioId" title="ID">{contact.bexioId}</FormEntry>
@@ -46,8 +46,8 @@ export default function User(props: RouteComponentProps<{ id: string }>) {
 
         if (!user.data) return null
 
-        for (let i in user.data.roles) {
-            roles.push({ role: user.data.roles[i], id: i })
+        for (let i in user.data.getUser.roles) {
+            roles.push({ role: user.data.getUser.roles[i], id: i })
         }
 
         return (
@@ -61,11 +61,11 @@ export default function User(props: RouteComponentProps<{ id: string }>) {
     }
 
     return (
-        <Page title={user.data.displayName}>
+        <Page title={user.data.getUser.displayName}>
             <Row>
                 <Column className="col-md-6">
                     <Panel title="Allgemeine Informationen">
-                        <FormEntry id="displayName" title="Name">{user.data.displayName}</FormEntry>
+                        <FormEntry id="displayName" title="Name">{user.data.getUser.displayName}</FormEntry>
                     </Panel>
                     <Panel title="Rechte">
                         {renderRolePart()}

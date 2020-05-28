@@ -24,16 +24,16 @@ interface ExtendedLogoffBase extends LogoffBase {
 
 export default function AddLogoff(props: RouteComponentProps) {
     let formEl: HTMLFormElement
-    const [member, setMember] = useState('')
+    const [member, setMember] = useState<number>()
     const [notify, setNotify] = useState(true)
     const [logoffs, setLogoffs] = useState<Partial<ExtendedLogoffBase>[]>([])
     const [addLogoffs, { data }] = useMutation(ADD_LOGOFFS)
 
-    function onSelectChange(opt: ValueType<{ label: string, value: string }>) {
-        if (opt) {
-            setMember((opt as { label: string, value: string }).value)
+    function onSelectChange(contacts: Contact[]) {
+        if (contacts) {
+            setMember(contacts[0].id)
         } else {
-            setMember('')
+            setMember(undefined)
         }
     }
 
@@ -88,7 +88,7 @@ export default function AddLogoff(props: RouteComponentProps) {
                         notify
                     }
                 })
-                props.history.push('/compensations')
+                props.history.push('/draft/logoffs')
             }
             return valid
         }
@@ -104,7 +104,7 @@ export default function AddLogoff(props: RouteComponentProps) {
                             <div className="row">
                                 <div className="col">
                                     <h5>Mitglied</h5>
-                                    <MemberSelect onChange={onSelectChange} required={true} />
+                                    <MemberSelect onChange={onSelectChange} defaultValue={(member) ? [member.toString()] : undefined} required={true} />
                                 </div>
                                 <div className="col-1">
                                     <h5>Benachrichtigen</h5>

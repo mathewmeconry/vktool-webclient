@@ -13,6 +13,7 @@ export default function Users(props: RouteComponentProps) {
                 { text: 'Name', keys: ['displayName'], sortable: true, searchable: true },
                 { text: 'Rechte', keys: ['roles'], sortable: true, searchable: true }
             ]}
+            defaultSortBy='displayName'
             {...props}
         />
     )

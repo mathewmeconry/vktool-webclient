@@ -9,12 +9,14 @@ import GraphQLDataList from "../components/GraphQLDataList"
 import { GET_LOGOFFS, GET_LOGOFF, DELETE_LOGOFF } from "../graphql/LogoffQueries"
 import { useLazyQuery, useMutation } from "react-apollo"
 import Loading from "../components/Loading"
+import { PaginationSortDirections } from "../graphql/Interfaces"
+import Logoff from "../entities/Logoff"
 
 export default function Logoffs(props: RouteComponentProps) {
-    const [lazyGetLogoff, logoff] = useLazyQuery(GET_LOGOFF)
     const [deleteLogoffMutation] = useMutation(DELETE_LOGOFF)
     const [showModal, setShowModal] = useState(false)
     const [toDeleteLogoff, setToDeleteLogoff] = useState(0)
+    const [lazyGetLogoff, logoff] = useLazyQuery<{ getLogoff: Logoff }>(GET_LOGOFF, { variables: { id: toDeleteLogoff } })
 
     function deleteLogoff(event: React.MouseEvent<HTMLButtonElement>) {
         if (event.currentTarget.parentNode && event.currentTarget.parentNode.parentNode && event.currentTarget.parentNode.parentNode.parentElement) {
@@ -22,6 +24,7 @@ export default function Logoffs(props: RouteComponentProps) {
             if (id) {
                 setToDeleteLogoff(parseInt(id))
                 setShowModal(true)
+                lazyGetLogoff()
             }
         }
     }
@@ -33,9 +36,8 @@ export default function Logoffs(props: RouteComponentProps) {
 
     function renderModal() {
         if (toDeleteLogoff) {
-            lazyGetLogoff({ variables: { id: toDeleteLogoff } })
-            if (logoff.loading) {
-                <Modal
+            if (logoff.loading || !logoff.called) {
+                return (<Modal
                     show={showModal}
                     onHide={() => { setShowModal(false) }}
                     header={<h3>Loading...</h3>}
@@ -48,20 +50,20 @@ export default function Logoffs(props: RouteComponentProps) {
                         </ButtonGroup>
                     }
 
-                />
+                />)
             }
 
             return (
                 <Modal
                     show={showModal}
                     onHide={() => { setShowModal(false) }}
-                    header={<h3>{`${logoff.data.contact.firstname} ${logoff.data.contact.lastname} (${logoff.data.from.toLocaleDateString()} - ${logoff.data.until.toLocaleDateString()}`}</h3>}
+                    header={<h3>{`${logoff.data?.getLogoff.contact.firstname} ${logoff.data?.getLogoff.contact.lastname} (${(logoff.data?.getLogoff.from) ? new Date(logoff.data?.getLogoff.from).toLocaleDateString() : ''} - ${(logoff.data?.getLogoff.until) ? new Date(logoff.data?.getLogoff.until).toLocaleDateString() : ''}`}</h3>}
                     body={
                         <span>
                             {
                                 `Willst du die Abmeldung von 
-                                ${logoff.data.contact.firstname} ${logoff.data.contact.lastname}
-                                vom ${logoff.data.from.toLocaleDateString()} bis ${logoff.data.until.toLocaleDateString()}
+                                ${logoff.data?.getLogoff.contact.firstname} ${logoff.data?.getLogoff.contact.lastname}
+                                vom ${(logoff.data?.getLogoff.from) ? new Date(logoff.data?.getLogoff.from).toLocaleDateString() : ''} bis ${(logoff.data?.getLogoff.until) ? new Date(logoff.data?.getLogoff.until).toLocaleDateString() : ''}
                                 wirklich löschen?`
                             }
                         </span>
@@ -83,7 +85,7 @@ export default function Logoffs(props: RouteComponentProps) {
     return (
         <>
             {renderModal()}
-            <GraphQLDataList
+            <GraphQLDataList<Logoff>
                 query={GET_LOGOFFS}
                 title='Abmeldungen'
                 viewLocation='/draft/logoff/'
@@ -94,11 +96,14 @@ export default function Logoffs(props: RouteComponentProps) {
                     <button className="btn btn-danger delete" onMouseUp={deleteLogoff}><FontAwesomeIcon icon="trash" /></button>
                 ]}
                 tableColumns={[
-                    { text: 'Mitglied', keys: { 'contact': ['firstname', 'lastname'] }, sortable: true, searchable: true },
+                    { text: 'Mitglied', keys: { 'contact': ['firstname', 'lastname'] }, sortKey: "contact.firstname", sortable: true, searchable: true },
                     { text: 'Von', keys: ['from'], sortable: true, format: 'toLocaleString' },
                     { text: 'Bis', keys: ['until'], sortable: true, format: 'toLocaleString' },
                     { text: 'Status', keys: ['state'], sortable: true },
                 ]}
+                defaultSortBy='from'
+                defaultSortDirection={PaginationSortDirections.DESC}
+                pollInterval={0}
                 {...props}
             ></GraphQLDataList>
         </>

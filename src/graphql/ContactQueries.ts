@@ -24,6 +24,7 @@ export const GET_MAILLING = gql`
       mailSecond
       moreMails
       contactGroups {
+        id
         bexioId
       }
     }
@@ -56,6 +57,7 @@ export const GET_MEMBERS = gql`
         postcode,
         city,
         collectionPoint {
+          id
           address,
           postcode,
           city
@@ -75,6 +77,7 @@ export const GET_CONTACT = gql`
     getContact(id: $id) {
       id
       contactGroups {
+        id
         name
       }
       address
@@ -86,6 +89,7 @@ export const GET_CONTACT = gql`
       birthday
       collectionPoint {
         id
+        name
         address
         postcode
         city

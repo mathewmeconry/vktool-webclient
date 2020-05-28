@@ -1,9 +1,10 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import Select from 'react-select'
 import { ValueType } from "react-select/lib/types"
 import { useQuery } from "react-apollo"
 import CollectionPoint from "../entities/CollectionPoint"
 import { GET_ALL_COLLECITONPOINTS } from "../graphql/CollectionPointQueries"
+import LoadingDots from "./LoadingDots"
 
 
 interface CollectionPointSelectProps {
@@ -15,15 +16,14 @@ interface CollectionPointSelectProps {
 }
 
 export default function CollectionPointSelect(props: CollectionPointSelectProps) {
-    const [selected, setSelected] = useState<Array<{ value: string, label: string }>>()
-    const { loading, error, data } = useQuery<{ getAllCollectionPoints: CollectionPoint[] }>(GET_ALL_COLLECITONPOINTS)
+    const { loading, error, data } = useQuery<{ getCollectionPoints: CollectionPoint[] }>(GET_ALL_COLLECITONPOINTS)
 
-    if (loading) return null
+    if (loading) return <LoadingDots />
     if (error) return null
     if (!data) return null
-    const collectionPoints = data.getAllCollectionPoints
+    const collectionPoints = data.getCollectionPoints
 
-    let valueProps = []
+    const valueProps = []
     if (props.defaultValue instanceof Array) {
         for (let collectionPoint of props.defaultValue) {
             valueProps.push({
@@ -53,20 +53,18 @@ export default function CollectionPointSelect(props: CollectionPointSelectProps)
                 ops = opt as Array<{ label: string, value: string }>
             }
             if (props.onChange) props.onChange(collectionPoints.find(r => r.id === parseInt((opt as { label: string, value: string }).value)))
-
-            setSelected(ops)
         }
     }
 
     return (<Select
         isClearable={true}
-        options={prepareOptions(collectionPoints)}
+        options={prepareOptions(collectionPoints || [])}
         backspaceRemovesValue={true}
         hideSelectedOptions={true}
         openMenuOnFocus={true}
         isMulti={props.isMulti || false}
         onChange={onChange}
-        value={selected}
+        value={valueProps}
         required={!!props.required}
     />)
 }

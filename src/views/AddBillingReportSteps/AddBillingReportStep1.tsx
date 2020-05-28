@@ -4,7 +4,7 @@ import StringIndexed from "../../interfaces/StringIndexed"
 import Order from "../../entities/Order"
 import { useQuery } from "react-apollo"
 import { GET_OPEN_ORDERS } from "../../graphql/OrderQueries"
-import Loading from "../../components/Loading"
+import LoadingDots from "../../components/LoadingDots"
 
 export interface Step1Props {
     onNext: (data: StringIndexed<any>) => void,
@@ -14,9 +14,8 @@ export default function AddBillingReportStep1(props: Step1Props) {
     let formEl: HTMLFormElement
     const [date, setDate] = useState('')
     const [order, setOrder] = useState<number>()
-    const { loading, error, data } = useQuery<Order[]>(GET_OPEN_ORDERS)
+    const { loading, error, data } = useQuery<{ getOpenOrders: Order[] }>(GET_OPEN_ORDERS)
 
-    if (loading) return <Loading />
     if (error) return null
 
     function validate(openOrders: Order[]) {
@@ -66,13 +65,21 @@ export default function AddBillingReportStep1(props: Step1Props) {
         }
     }
 
+    function renderOrderSelect() {
+        if (loading) return <LoadingDots />
+
+        return (
+            <select className='form-control' name="order" id="order" onChange={onInputChange} value={order} required={true}>
+                {renderOptions(data?.getOpenOrders || [])}
+            </select>
+        )
+    }
+
     return (
-        <WizardStep title="Details" onNextStep={validate(data || [])} {...props}>
+        <WizardStep title="Details" onNextStep={validate(data?.getOpenOrders || [])} {...props}>
             <form ref={(form: HTMLFormElement) => formEl = form}>
                 <h5>Einsatz</h5>
-                <select className='form-control' name="order" id="order" onChange={onInputChange} value={order} required={true}>
-                    {renderOptions(data || [])}
-                </select>
+                {renderOrderSelect()}
                 <br></br>
                 <h5>Datum</h5>
                 <input type="Date" name="date" id="date" className='form-control' value={date} onChange={onInputChange} required={true}></input>

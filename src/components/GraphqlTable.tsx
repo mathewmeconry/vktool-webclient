@@ -18,6 +18,7 @@ export interface GraphQLTableColumn {
     content?: JSX.Element
     link?: boolean
     linkPrefix?: string,
+    sortKey?: string,
     sortable?: boolean,
     searchable?: boolean,
     prefix?: string
@@ -37,8 +38,9 @@ export interface GraphQLTableProps<T> {
     columns: Array<GraphQLTableColumn>
     onDataChange?: (data: T[]) => void
     onCheck?: (event: React.ChangeEvent<HTMLInputElement>) => void
-    defaultSortBy?: keyof T,
+    defaultSortBy?: string,
     defaultSortDirection?: PaginationSortDirections
+    pollInterval?: number
 }
 
 export default function GraphQLTable<T extends Base & { [index: string]: any }>(props: GraphQLTableProps<T>) {
@@ -46,7 +48,7 @@ export default function GraphQLTable<T extends Base & { [index: string]: any }>(
     const [cursor, setCursor] = useState(0)
     const [sortBy, setSortBy] = useState((props.defaultSortBy as string) || undefined)
     const [sortDirection, setSortDirection] = useState(props.defaultSortDirection || PaginationSortDirections.ASC)
-    const { loading, error, data } = useQuery<{ [index: string]: PaginationResponse<T> }, PaginationArgs>(props.query, { variables: { limit, cursor, sortBy, sortDirection, ...props.queryVariables } })
+    const { loading, error, data } = useQuery<{ [index: string]: PaginationResponse<T> }, PaginationArgs>(props.query, { variables: { limit, cursor, sortBy, sortDirection, ...props.queryVariables }, pollInterval: props.pollInterval || 5000 })
 
     if (loading) return <Loading />
     if (error) return null
@@ -57,6 +59,11 @@ export default function GraphQLTable<T extends Base & { [index: string]: any }>(
     function sortClick(event: MouseEvent<HTMLTableHeaderCellElement>) {
         let dataKey = (event.target as HTMLElement).dataset.key as string
         if (!dataKey) dataKey = ((event.target as HTMLElement).parentElement as HTMLElement).dataset.key as string
+
+        let sortKey = (event.target as HTMLElement).dataset.sortkey as string
+        if (!sortKey) sortKey = ((event.target as HTMLElement).parentElement as HTMLElement).dataset.sortkey as string
+
+        if (sortKey) dataKey = sortKey
 
         if (sortBy === dataKey) {
             if (sortDirection === PaginationSortDirections.ASC) {
@@ -71,6 +78,11 @@ export default function GraphQLTable<T extends Base & { [index: string]: any }>(
     }
 
     function renderColumnValues(value: any, column: GraphQLTableColumn): string {
+        const dateRegex = new RegExp(/\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+/)
+        if (dateRegex.test(value) && !(value instanceof Array)) {
+            value = new Date(value)
+        }
+
         if (typeof value === 'boolean') {
             if (value) {
                 return '✓'
@@ -146,7 +158,13 @@ export default function GraphQLTable<T extends Base & { [index: string]: any }>(
     function renderPaginationItems(total: number, limit: number, cursor: number) {
         const items = []
         for (let page = 0; page * limit < total; page++) {
-            items.push(<Pagination.Item key={page} active={page * limit === cursor} onClick={(event: React.MouseEvent<HTMLElement>) => { setCursor(page * limit) }}>{page + 1}</Pagination.Item>)
+            if ((page >= cursor / limit + 10 || page <= cursor / limit - 10)) {
+                if (items.length === 0 || items.slice(-1)[0].type !== Pagination.Ellipsis) {
+                    items.push(<Pagination.Ellipsis />)
+                }
+            } else {
+                items.push(<Pagination.Item key={page} active={page * limit === cursor} onClick={(event: React.MouseEvent<HTMLElement>) => { setCursor(page * limit) }}>{page + 1}</Pagination.Item>)
+            }
         }
         return items
     }
@@ -156,7 +174,7 @@ export default function GraphQLTable<T extends Base & { [index: string]: any }>(
             <table className={`table table-striped ${props.className || ''}`}>
                 <thead key="table-head">
                     <tr key="table-head-row">
-                        {props.checkable ? <th></th> : ''}
+                        {props.checkable ? <th></th> : null}
                         {props.columns.map((column) => {
                             let columnKey = ''
                             if (column.keys instanceof Array) {
@@ -167,7 +185,7 @@ export default function GraphQLTable<T extends Base & { [index: string]: any }>(
                                 }
                             }
                             let sortIndicator
-                            if (columnKey === sortBy) {
+                            if (columnKey === sortBy || column.sortKey === sortBy) {
                                 if (sortDirection === PaginationSortDirections.ASC) {
                                     sortIndicator = <FontAwesomeIcon icon="sort-down" className="float-right" />
                                 } else {
@@ -175,7 +193,7 @@ export default function GraphQLTable<T extends Base & { [index: string]: any }>(
                                 }
                             }
                             if (column.sortable) {
-                                return <th key={columnKey} data-key={columnKey} scope="col" onClick={sortClick} style={{ cursor: 'pointer' }}>{column.text}{sortIndicator}</th>
+                                return <th key={columnKey} data-key={columnKey} data-sortKey={column.sortKey} scope="col" onClick={sortClick} style={{ cursor: 'pointer' }}>{column.text}{sortIndicator}</th>
                             }
                             return <th key={columnKey} data-key={columnKey} scope="col">{column.text}</th>
                         })}

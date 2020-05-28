@@ -2,6 +2,7 @@ import { RouteComponentProps } from "react-router"
 import React from "react"
 import GraphQLDataList from "../components/GraphQLDataList"
 import { GET_ORDERS } from "../graphql/OrderQueries"
+import { PaginationSortDirections } from "../graphql/Interfaces"
 
 
 export default function Orders(props: RouteComponentProps) {
@@ -13,10 +14,12 @@ export default function Orders(props: RouteComponentProps) {
             tableColumns={[
                 { text: 'Auftragsnummer', keys: ['documentNr'], sortable: true, searchable: true },
                 { text: 'Titel', keys: ['title'], sortable: true, searchable: true },
-                { text: 'Kunde', keys: { 'contact': ['firstname', 'lastname'] }, sortable: true, searchable: true },
+                { text: 'Kunde', keys: { 'contact': ['firstname', 'lastname'] }, sortKey: 'contact.firstname', sortable: true, searchable: true },
                 { text: 'Total', keys: ['total'], sortable: true, prefix: 'CHF ', searchable: true },
                 { text: 'Auftragsdaten', keys: ['execDates'], format: 'toLocaleDateString' }
             ]}
+            defaultSortBy='documentNr'
+            defaultSortDirection={PaginationSortDirections.DESC}
             {...props}
         />
     )

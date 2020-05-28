@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState } from "react"
 import Select from 'react-select'
-import { ValueType } from "react-select/lib/types";
-import Order from "../entities/Order";
+import { ValueType } from "react-select/lib/types"
+import Order from "../entities/Order"
 import { GET_OPEN_ORDERS } from "../graphql/OrderQueries"
 import { useQuery } from "react-apollo"
+import LoadingDots from "./LoadingDots"
 
 interface OrderSelectProps {
     defaultValue?: Array<string>,
@@ -14,17 +15,16 @@ interface OrderSelectProps {
 }
 
 export default function OrderSelect(props: OrderSelectProps) {
-    const { loading, error, data } = useQuery<Order[]>(GET_OPEN_ORDERS)
+    const { loading, error, data } = useQuery<{ getOpenOrders: Order[] }>(GET_OPEN_ORDERS)
 
-
-    if (loading) return null
+    if (loading) return <LoadingDots />
     if (error) return null
-    if (!data) return null
-    
+    if (!data?.getOpenOrders) return null
+
     let valueProps = []
     if (props.defaultValue instanceof Array) {
         for (let id of props.defaultValue) {
-            const order = (data || []).find(rec => rec.id.toString() === id)
+            const order = (data.getOpenOrders || []).find(rec => rec.id.toString() === id)
             if (order) {
                 valueProps.push({
                     value: order.id.toString(),
@@ -33,8 +33,6 @@ export default function OrderSelect(props: OrderSelectProps) {
             }
         }
     }
-
-    const [selected, setSelected] = useState<Array<{ value: string, label: string }>>(valueProps)
 
     function prepareOptions(data: Order[]) {
         let options = []
@@ -53,19 +51,18 @@ export default function OrderSelect(props: OrderSelectProps) {
         if (props.isMulti) {
             ops = opt as Array<{ label: string, value: string }>
         }
-
-        setSelected(ops)
+        props.onChange(ops.map(r => data?.getOpenOrders.find(o => o.id === parseInt(r.value))))
     }
 
     return (<Select
         isClearable={true}
-        options={prepareOptions(data)}
+        options={prepareOptions(data?.getOpenOrders || [])}
         backspaceRemovesValue={true}
         hideSelectedOptions={true}
         openMenuOnFocus={true}
         isMulti={props.isMulti || false}
         onChange={onChange}
-        value={selected}
+        value={valueProps}
         required={!!props.required}
     />)
 

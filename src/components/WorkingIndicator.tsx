@@ -12,7 +12,7 @@ function _WorkingIndicator(props: { working: string }): ReactElement | null {
 
 const mapStateToProps = (state: State) => {
     return {
-        working: state.ui.working
+        working: state.ui.working || 'nop'
     }
 }
 export const WorkingIndicator = connect(mapStateToProps)(_WorkingIndicator)

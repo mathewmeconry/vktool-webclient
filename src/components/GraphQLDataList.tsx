@@ -19,8 +19,9 @@ export interface GraphQLDataListProps<T> extends React.Props<any> {
     viewLocation: string,
     rowActions?:JSX.Element[],
     query: DocumentNode
-    defaultSortBy?: keyof T,
+    defaultSortBy?: string,
     defaultSortDirection?: PaginationSortDirections
+    pollInterval?: number
 }
 
 export default function GraphQLDataList<T extends Base>(props: GraphQLDataListProps<T> & RouteComponentProps) {
@@ -62,6 +63,7 @@ export default function GraphQLDataList<T extends Base>(props: GraphQLDataListPr
                             query={props.query}
                             defaultSortBy={props.defaultSortBy}
                             defaultSortDirection={props.defaultSortDirection}
+                            pollInterval={props.pollInterval}
                         />
                     </Panel>
                 </Column>

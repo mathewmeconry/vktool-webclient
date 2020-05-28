@@ -16,7 +16,7 @@ export default function CollectionPoints(props: RouteComponentProps) {
             viewLocation='/collection-point/'
             tableColumns={[
                 { text: 'Name', keys: ['name'], sortable: true, searchable: true },
-                { text: 'Abholpunkt', keys: ['address', 'postcode', 'city'], link: true, linkPrefix: 'https://www.google.com/maps/search/', sortable: true, searchable: true },
+                { text: 'Abholpunkt', keys: ['address', 'postcode', 'city'], link: true, linkPrefix: 'https://www.google.com/maps/search/', sortKey: 'address', sortable: true, searchable: true },
             ]}
             defaultSortBy='name'
             {...props}

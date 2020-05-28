@@ -85,9 +85,9 @@ export default class Button extends Component<ButtonProps, ButtonState> {
 
                     switch (this.state.state) {
                         case 'normal':
-                            return (<Bootstrap.Button {...this.props} onClick={this.onClick}>{this.props.children}</Bootstrap.Button>)
+                            return (<Bootstrap.Button type={this.props.type} active={this.props.active || false} block={this.props.block || false} variant={this.props.variant} size={this.props.size} href={this.props.href} disabled={this.props.disabled} onClick={this.onClick}>{this.props.children}</Bootstrap.Button>)
                         case 'inProgress':
-                            return (<Bootstrap.Button {...this.props} onClick={this.onClick}>
+                            return (<Bootstrap.Button type={this.props.type} active={this.props.active || false} block={this.props.block || false} variant={this.props.variant} size={this.props.size} href={this.props.href} disabled={this.props.disabled} onClick={this.onClick}>
                                 <svg className="button-loading" viewBox="0 0 128 128">
                                     <g>
                                         <path d="M64 127.75A63.76 63.76 0 0 1 52.8 1.23v14.23a49.8 49.8 0 1 0 22.4 0V1.23A63.76 63.76 0 0 1 64 127.75z" fillOpacity="1" />
@@ -96,9 +96,9 @@ export default class Button extends Component<ButtonProps, ButtonState> {
                                 </svg>
                             </Bootstrap.Button >)
                         case 'done':
-                            return (<Bootstrap.Button {...this.props} onClick={this.onClick}><FontAwesomeIcon icon="check-circle" /></Bootstrap.Button>)
+                            return (<Bootstrap.Button type={this.props.type} active={this.props.active || false} block={this.props.block || false} variant={this.props.variant} size={this.props.size} href={this.props.href} disabled={this.props.disabled} onClick={this.onClick}><FontAwesomeIcon icon="check-circle" /></Bootstrap.Button>)
                         default:
-                            return (<Bootstrap.Button {...this.props} onClick={this.onClick}>{this.props.children}</Bootstrap.Button>)
+                            return (<Bootstrap.Button type={this.props.type} active={this.props.active || false} block={this.props.block || false} variant={this.props.variant} size={this.props.size} href={this.props.href} disabled={this.props.disabled} onClick={this.onClick}>{this.props.children}</Bootstrap.Button>)
                     }
                 }}
             </Query>

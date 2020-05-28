@@ -375,6 +375,11 @@ export default class Table<T extends { id: string | number }> extends Component<
     }
 
     private renderColumnValues(value: any, column: TableColumn): string {
+        const dateRegex = new RegExp(/\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+/)
+        if (dateRegex.test(value) && !(value instanceof Array)) {
+            value = new Date(value)
+        }
+
         if (typeof value === 'boolean') {
             if (value) {
                 return '✓'
@@ -481,7 +486,7 @@ export default class Table<T extends { id: string | number }> extends Component<
                 <table className={`table table-striped ${this.props.className || ''}`} ref={this.ref}>
                     <thead key="table-head">
                         <tr key="table-head-row">
-                            {this.props.checkable ? <th></th> : ''}
+                            {this.props.checkable ? <th></th> : null}
                             {this.props.columns.map((column) => {
                                 let columnKey = ''
                                 if (column.keys instanceof Array) {

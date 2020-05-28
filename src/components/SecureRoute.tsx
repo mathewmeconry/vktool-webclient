@@ -5,6 +5,7 @@ import { RouteProps } from 'react-router'
 import { Error403 } from './Errors/403'
 import { useQuery } from 'react-apollo'
 import { GET_MY_ROLES } from '../graphql/UserQueries'
+import Loading from './Loading'
 
 export interface SecureRouteProps extends RouteProps {
     exact: boolean,
@@ -17,8 +18,8 @@ export interface SecureRouteProps extends RouteProps {
 export default function SecureRoute(props: SecureRouteProps) {
     const { loading, error, data } = useQuery(GET_MY_ROLES)
 
-    if (loading) {
-        return null
+    if (loading || !data) {
+        return <Loading fullscreen={true} />
     }
 
     for (let role of props.roles) {

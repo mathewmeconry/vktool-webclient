@@ -19,22 +19,19 @@ import { useQuery, useMutation } from "react-apollo"
 import { GET_PAYOUT, SEND_PAYOUT_MAIL, SEND_PAYOUT_BEXIO, RECLAIM_PAYOUT, TRANSFER_PAYOUT } from "../graphql/PayoutQueries"
 import Compensation from "../entities/Compensation"
 import axios from 'axios'
+import { default as PayoutEntity } from '../entities/Payout'
 
 export default function Payout(props: RouteComponentProps<{ id: string }>) {
-    const payout = useQuery(GET_PAYOUT, { variables: { id: parseInt(props.match.params.id) } })
+    const payout = useQuery<{ getPayout: PayoutEntity }>(GET_PAYOUT, { variables: { id: parseInt(props.match.params.id) } })
 
     const [showModal, setShowModal] = useState(false)
-    const [modalType, setModalType] = useState('')
+    const [modalType, setModalType] = useState<'bexio' | 'mail'>()
     const [selected, setSelected] = useState<number[]>([])
 
     const [sendMailMutation] = useMutation(SEND_PAYOUT_MAIL)
     const [sendBexioMutation] = useMutation(SEND_PAYOUT_BEXIO)
     const [reclaimMutation] = useMutation(RECLAIM_PAYOUT)
     const [transferMutation] = useMutation(TRANSFER_PAYOUT)
-
-    if (payout.loading) {
-        return (<Page title="Loading..."><Loading /></Page>)
-    }
 
     function onCheck(event: React.ChangeEvent<HTMLInputElement>) {
         if (event.currentTarget.parentNode && event.currentTarget.parentNode.parentNode && event.currentTarget.parentNode.parentNode.parentElement) {
@@ -66,22 +63,22 @@ export default function Payout(props: RouteComponentProps<{ id: string }>) {
     }
 
     async function sendMails(): Promise<void> {
-        await sendMailMutation({ variables: { id: payout.data.id, memberIds: selected } })
+        await sendMailMutation({ variables: { id: payout.data?.getPayout.id, memberIds: selected } })
         setShowModal(false)
     }
 
     async function sendToBexio(): Promise<void> {
-        await sendBexioMutation({ variables: { id: payout.data.id, memberIds: selected } })
+        await sendBexioMutation({ variables: { id: payout.data?.getPayout.id, memberIds: selected } })
         setShowModal(false)
     }
 
     async function reclaim(): Promise<void> {
-        await reclaimMutation({ variables: { id: payout.data.id } })
+        await reclaimMutation({ variables: { id: payout.data?.getPayout.id } })
     }
 
     async function transfer(): Promise<void> {
         if (selected.length > 0) {
-            await transferMutation({ variables: { id: payout.data.id, memberIds: selected } })
+            await transferMutation({ variables: { id: payout.data?.getPayout.id, memberIds: selected } })
         }
     }
 
@@ -96,15 +93,16 @@ export default function Payout(props: RouteComponentProps<{ id: string }>) {
     }
 
     async function getBankingXml() {
-        const response = await axios({
-            method: 'POST',
-            url: `${Config.apiEndpoint}/api/payouts/xml`,
-            data: { payoutId: payout.data.id, memberIds: selected },
-            withCredentials: true,
-            timeout: 600000
-        })
-        downloader(new Blob([response.data]), `Soldperiode_${(payout.data.from > new Date('1970-01-01')) ? payout.data.from.toLocaleDateString() : ''}_-_${payout.data.until.toLocaleDateString()}.xml`)
-        return
+        if (payout.data) {
+            const response = await axios({
+                method: 'POST',
+                url: `${Config.apiEndpoint}/api/payouts/xml`,
+                data: { payoutId: payout.data?.getPayout.id, memberIds: selected },
+                withCredentials: true,
+                timeout: 600000
+            })
+            downloader(new Blob([response.data]), `Soldperiode_${(payout.data?.getPayout.from > new Date('1970-01-01')) ? payout.data?.getPayout.from.toLocaleDateString() : ''}_-_${payout.data?.getPayout.until.toLocaleDateString()}.xml`)
+        }
     }
 
     function renderMailModal() {
@@ -135,8 +133,8 @@ export default function Payout(props: RouteComponentProps<{ id: string }>) {
                             Willst du wirklich eine E-Mail <b>an folgende Personen</b> mit der Entschädigungsauszahlung senden?
                         <ul>
                                 {selected.map(el => {
-                                    const member: Contact = payout.data.compensationsByMember[el][0].member
-                                    return (<li>{member.lastname} {member.firstname}</li>)
+                                    const member: Contact | undefined = payout.data?.getPayout.compensations.find(c => c.member.id === el)?.member
+                                    return (<li>{member?.lastname} {member?.firstname}</li>)
                                 })}
                             </ul>
                         </span>
@@ -179,8 +177,8 @@ export default function Payout(props: RouteComponentProps<{ id: string }>) {
                             Willst du wirklich <b>folgende Entschädigungen</b> an Bexio übertragen?
                         <ul>
                                 {selected.map(el => {
-                                    const member: Contact = payout.data.compensationsByMember[el][0].member
-                                    return (<li>{member.lastname} {member.firstname}</li>)
+                                    const member: Contact | undefined = payout.data?.getPayout.compensations.find(c => c.member.id === el)?.member
+                                    return (<li>{member?.lastname} {member?.firstname}</li>)
                                 })}
                             </ul>
                         </span>
@@ -207,9 +205,12 @@ export default function Payout(props: RouteComponentProps<{ id: string }>) {
     }
 
 
+    if (!payout.data || payout.loading) {
+        return (<Page title="Loading..."><Loading /></Page>)
+    }
 
     const data: StringIndexed<{ id: number, member: Contact, total: number }> = {}
-    for (let compensation of payout.data.compensations as Compensation[]) {
+    for (let compensation of payout.data?.getPayout.compensations as Compensation[]) {
         if (!data.hasOwnProperty(compensation.member.id)) {
             data[compensation.member.id] = {
                 id: compensation.member.id,
@@ -224,20 +225,19 @@ export default function Payout(props: RouteComponentProps<{ id: string }>) {
     }
 
     return (
-        <Page title={`Auszahlung ${payout.data.from.toLocaleDateString()} - ${payout.data.until.toLocaleDateString()}`}>
+        <Page title={`Auszahlung ${new Date(payout.data?.getPayout.from).toLocaleDateString()} - ${new Date(payout.data?.getPayout.until).toLocaleDateString()}`}>
             <Row>
                 <Column className="col-md-6">
                     <Panel title="Informationen">
-                        <FormEntry id="from" title="Von" value={payout.data.from.toLocaleDateString()} type="date"></FormEntry>
-                        <FormEntry id="until" title="Bis" value={payout.data.until.toLocaleDateString()} type="date"></FormEntry>
-                        <FormEntry id="countCompensations" title="Anzahl Entschädiungen" value={payout.data.compensations.length} editable={false}></FormEntry>
-                        <FormEntry id="total" title="Total" value={`CHF ${payout.data.total.toFixed(2)}`} ></FormEntry>
-                        <FormEntry id="totalWithoutMinus" title="Total ohne Minus" value={`CHF ${payout.data.totalWithoutMinus.toFixed(2)}`} ></FormEntry>
+                        <FormEntry id="from" title="Von" value={new Date(payout.data?.getPayout.from).toLocaleDateString()} type="date"></FormEntry>
+                        <FormEntry id="until" title="Bis" value={new Date(payout.data?.getPayout.until).toLocaleDateString()} type="date"></FormEntry>
+                        <FormEntry id="countCompensations" title="Anzahl Entschädiungen" value={payout.data?.getPayout.compensations.length} editable={false}></FormEntry>
+                        <FormEntry id="total" title="Total" value={`CHF ${payout.data?.getPayout.total.toFixed(2)}`} ></FormEntry>
                     </Panel>
                 </Column>
                 <Column className="col-md-6">
                     <Panel title="Actions">
-                        <a className="btn btn-block btn-outline-primary" target="_blank" href={`${Config.apiEndpoint}/api/payouts/${payout.data.id}/pdf`} >PDF</a>
+                        <a className="btn btn-block btn-outline-primary" target="_blank" href={`${Config.apiEndpoint}/api/payouts/${payout.data?.getPayout.id}/pdf`} >PDF</a>
                         <Button block={true} variant="outline-primary" roles={[AuthRoles.PAYOUTS_SEND]} onClick={async () => { setShowModal(true); setModalType('mail') }}>Bestätigung E-Mails verschicken</Button>
                         <Button block={true} variant="outline-primary" roles={[AuthRoles.PAYOUTS_SEND]} onClick={async () => { setShowModal(true); setModalType('bexio') }}>An Bexio übertragen</Button>
                         <Button block={true} variant="outline-primary" onClick={() => getBankingXml()}>Banking XML herunterladen</Button>

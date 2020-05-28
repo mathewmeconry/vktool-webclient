@@ -23,9 +23,11 @@ export const GET_LOGOFF = gql`
         lastname
       }
       createdBy {
+        id
         displayName
       }
       changedStateBy {
+        id
         displayName
       }
       remarks
@@ -52,6 +54,7 @@ export const GET_LOGOFFS = gql`
       items {
         id
         contact {
+          id
           firstname
           lastname
         }

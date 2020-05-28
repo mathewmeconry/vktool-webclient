@@ -3,10 +3,8 @@ import { State } from "../reducers/IndexReducer"
 import { connect } from "react-redux"
 import { Dispatch } from "redux"
 import { UI } from "../actions/UIActions"
-import Swipe from "./Swipe"
 import Header from "./Header"
 import Navibar from "./Navibar"
-import { WorkingIndicator } from "./WorkingIndicator"
 
 export interface PageProps {
     title: string,
@@ -18,17 +16,6 @@ export interface PageProps {
 export class _Page extends Component<PropsWithChildren<PageProps>> {
     constructor(props: PageProps) {
         super(props)
-
-        this.swipedRight = this.swipedRight.bind(this)
-        this.swipedLeft = this.swipedLeft.bind(this)
-    }
-
-    public swipedRight() {
-        if (this.props.openNavibar) this.props.openNavibar()
-    }
-
-    public swipedLeft() {
-        if (this.props.closeNavibar) this.props.closeNavibar()
     }
 
     public render() {
@@ -41,15 +28,14 @@ export class _Page extends Component<PropsWithChildren<PageProps>> {
             <div className="body">
                 <Header open={this.props.open} onClick={(this.props.open) ? this.props.closeNavibar : this.props.openNavibar} />
                 <Navibar open={this.props.open} />
-                <Swipe className={className + ' content'} mouseMove={true} swipedRight={this.swipedRight} swipedLeft={this.swipedLeft}>
+                <div className={`content ${className}`}>
                     <div className="content-top">
                         <h1 className="page-title">{this.props.title}</h1>
                     </div>
                     <div className="content-body container-fluid">
                         {this.props.children}
                     </div>
-                </Swipe>
-                <WorkingIndicator />
+                </div>
             </div>
         )
     }

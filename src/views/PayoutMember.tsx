@@ -21,9 +21,9 @@ import { GET_PAYOUT } from '../graphql/PayoutQueries'
 import axios from 'axios'
 
 export default function PayoutMember(props: RouteComponentProps<{ id: string, memberId: string }>) {
-    const memberCompensations = useQuery<Compensation[]>(GET_COMPENSATIONS_BY_CONTACT_AND_PAYOUT, { variables: { id: parseInt(props.match.params.id), memberId: parseInt(props.match.params.memberId) } })
-    const member = useQuery<Contact>(GET_CONTACT, { variables: { id: parseInt(props.match.params.memberId) } })
-    const payout = useQuery<Payout>(GET_PAYOUT, { variables: { id: parseInt(props.match.params.id) } })
+    const memberCompensations = useQuery<{ getContactCompensations: Compensation[] }>(GET_COMPENSATIONS_BY_CONTACT_AND_PAYOUT, { variables: { payoutId: parseInt(props.match.params.id), memberId: parseInt(props.match.params.memberId) } })
+    const member = useQuery<{ getContact: Contact }>(GET_CONTACT, { variables: { id: parseInt(props.match.params.memberId) } })
+    const payout = useQuery<{ getPayout: Payout }>(GET_PAYOUT, { variables: { id: parseInt(props.match.params.id) } })
 
     if (memberCompensations.loading || member.loading || payout.loading) {
         return (
@@ -31,7 +31,7 @@ export default function PayoutMember(props: RouteComponentProps<{ id: string, me
         )
     }
 
-    if (!memberCompensations.data || !member.data || !payout.data) {
+    if (!memberCompensations.data?.getContactCompensations || !member.data?.getContact || !payout.data?.getPayout) {
         return null
     }
 
@@ -70,22 +70,22 @@ export default function PayoutMember(props: RouteComponentProps<{ id: string, me
     }
 
     let total = 0
-    memberCompensations.data.map(el => total = total + parseFloat(el.amount.toFixed(2)))
+    memberCompensations.data?.getContactCompensations.map(el => total = total + parseFloat(el.amount.toFixed(2)))
 
     return (
-        <Page title={`Auszahlung ${payout.data.from.toLocaleDateString()} - ${payout.data.until.toLocaleDateString()} / ${member.data.firstname} ${member.data.lastname}`}>
+        <Page title={`Auszahlung ${new Date(payout.data?.getPayout.from).toLocaleDateString()} - ${new Date(payout.data?.getPayout.until).toLocaleDateString()} / ${member.data?.getContact.firstname} ${member.data?.getContact.lastname}`}>
             <Row>
                 <Column className="col-md-6">
                     <Panel title="Informationen">
-                        <FormEntry id="member" title="Mitglied">{member.data.firstname} {member.data.lastname}</FormEntry>
-                        <FormEntry id="amountCompensations" title="Anzahl Entschädigungen">{memberCompensations.data.length}</FormEntry>
+                        <FormEntry id="member" title="Mitglied">{member.data?.getContact.firstname} {member.data?.getContact.lastname}</FormEntry>
+                        <FormEntry id="amountCompensations" title="Anzahl Entschädigungen">{memberCompensations.data?.getContactCompensations.length}</FormEntry>
                         <FormEntry id="total" title="Total">CHF {total.toFixed(2)}</FormEntry>
-                        <FormEntry id="payout" title="Auszahlung">{payout.data.until.toLocaleDateString()}</FormEntry>
+                        <FormEntry id="payout" title="Auszahlung">{new Date(payout.data?.getPayout.until).toLocaleDateString()}</FormEntry>
                     </Panel>
                 </Column>
                 <Column className="col-md-6">
                     <Panel title="Actions">
-                        <Button block={true} variant="outline-primary" onClick={async () => { await memberPdf((payout.data as Payout).id, (member.data as Contact)) }}>PDF</Button>
+                        <Button block={true} variant="outline-primary" onClick={async () => { await memberPdf((payout.data?.getPayout as Payout).id, (member.data?.getContact as Contact)) }}>PDF</Button>
                     </Panel>
                 </Column>
             </Row>
@@ -107,7 +107,7 @@ export default function PayoutMember(props: RouteComponentProps<{ id: string, me
                                 keys: ['date'],
                                 direction: 'desc'
                             }}
-                            data={memberCompensations.data}
+                            data={memberCompensations.data?.getContactCompensations}
                         />
                     </Panel>
                 </Column>

@@ -8,14 +8,14 @@ import { useMutation } from "react-apollo"
 import MemberSelect from '../components/MemberSelect'
 import { ADD_CUSTOMCOMPENSATION } from '../graphql/CompensationQueries'
 import { Button } from "react-bootstrap"
-import { ValueType } from "react-select/lib/types"
+import Contact from "../entities/Contact"
 
 export default function AddCollectionPoint(props: RouteComponentProps) {
     let formEl: HTMLFormElement
-    const [member, setMember] = useState('')
-    const [date, setDate] = useState(new Date())
-    const [description, setDescription] = useState('')
-    const [amount, setAmount] = useState(0)
+    const [member, setMember] = useState<number>()
+    const [date, setDate] = useState<Date>()
+    const [description, setDescription] = useState<string>()
+    const [amount, setAmount] = useState<number>()
     const [addCustomCompensation, { data }] = useMutation(ADD_CUSTOMCOMPENSATION)
 
     function onInputChange(event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
@@ -36,27 +36,29 @@ export default function AddCollectionPoint(props: RouteComponentProps) {
         }
     }
 
-    function onSelectChange(opt: ValueType<{ label: string, value: string }>) {
+    function onSelectChange(opt: Contact[]) {
         if (opt) {
-            setMember((opt as { label: string, value: string }).value)
+            setMember(opt[0].id)
         } else {
-            setMember('')
+            setMember(undefined)
         }
     }
 
-    function save(event: React.MouseEvent<HTMLButtonElement>): boolean {
+    async function save(event: React.MouseEvent<HTMLButtonElement>): Promise<boolean> {
         event.preventDefault()
         if (formEl) {
             let valid = formEl.checkValidity()
             formEl.className = 'was-validated'
 
             if (valid) {
-                addCustomCompensation({
+                await addCustomCompensation({
                     variables: {
-                        memberId: parseInt(member),
-                        date,
-                        description,
-                        amount
+                        data: {
+                            memberId: member,
+                            date,
+                            description,
+                            amount
+                        }
                     }
                 })
                 props.history.push('/compensations')
@@ -73,11 +75,11 @@ export default function AddCollectionPoint(props: RouteComponentProps) {
                     <Panel>
                         <form id="addCompensation" ref={(ref: HTMLFormElement) => { formEl = ref }}>
                             <h5>Mitglied</h5>
-                            <MemberSelect onChange={onSelectChange} isMulti={false} defaultValue={[member]} />
+                            <MemberSelect onChange={onSelectChange} isMulti={false} defaultValue={(member) ? [member.toString()] : undefined} />
                             <br></br>
 
                             <h5>Datum</h5>
-                            <input name="date" type="date" className="form-control" value={date.toISOString()} onChange={onInputChange} required={true} />
+                            <input name="date" type="date" className="form-control" value={(date) ? date.toISOString().split('T')[0] : undefined} onChange={onInputChange} required={true} />
                             <br></br>
 
                             <h5>Beschreibung</h5>

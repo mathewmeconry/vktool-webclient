@@ -9,9 +9,10 @@ import Loading from "../components/Loading"
 import { RouteComponentProps } from "react-router"
 import { useQuery } from "react-apollo"
 import { GET_ORDER } from "../graphql/OrderQueries"
+import { default as OrderEntity } from '../entities/Order'
 
 export default function Order(props: RouteComponentProps<{ id: string }>) {
-    const order = useQuery(GET_ORDER, { variables: { id: parseInt(props.match.params.id) } })
+    const order = useQuery<{ getOrder: OrderEntity }>(GET_ORDER, { variables: { id: parseInt(props.match.params.id) } })
 
     if (order.loading) {
         return (
@@ -21,40 +22,42 @@ export default function Order(props: RouteComponentProps<{ id: string }>) {
 
     function renderPositions() {
         let positionsRendered = []
-        for (let position of (order.data.positions as Position[])) {
-            positionsRendered.push(
-                <Row className="position">
-                    <Column className="col-1">
-                        {position.pos}
-                    </Column>
-                    <Column>
-                        <div dangerouslySetInnerHTML={{ __html: position.text || '' }}></div>
-                    </Column>
-                    {(position.positionTotal) ? <Column className="col-2">CHF {position.positionTotal}</Column> : ''}
-                </Row>
-            )
+        if (order.data?.getOrder.positions) {
+            for (let position of (order.data?.getOrder.positions as Position[])) {
+                positionsRendered.push(
+                    <Row className="position">
+                        <Column className="col-1">
+                            {position.pos}
+                        </Column>
+                        <Column>
+                            <div dangerouslySetInnerHTML={{ __html: position.text || '' }}></div>
+                        </Column>
+                        {(position.positionTotal) ? <Column className="col-2">CHF {position.positionTotal}</Column> : ''}
+                    </Row>
+                )
+            }
         }
 
         return positionsRendered
     }
 
-    if (order.data.execDates instanceof Date) {
-        order.data.execDates = [order.data.execDates]
+    if (order.data?.getOrder.execDates instanceof Date) {
+        order.data.getOrder.execDates = [order.data?.getOrder.execDates]
     }
 
     return (
-        <Page title={order.data.title}>
+        <Page title={order.data?.getOrder.title || ''}>
             <Row>
                 <Column className="col-md-6">
                     <Panel title="Informationen">
                         <div className="container-fluid">
-                            <FormEntry id="title" title="Titel" >{order.data.title}</FormEntry>
-                            <FormEntry id="customer" title="Kunde">{`${order.data.contact.firstname} ${order.data.contact.lastname}`}</FormEntry>
-                            <FormEntry id="documentNr" title="Auftragsnummer" >{order.data.documentNr}</FormEntry>
-                            <FormEntry id="deliveryAddress" title="Lieferadresse">{order.data.deliveryAddress}</FormEntry>
+                            <FormEntry id="title" title="Titel" >{order.data?.getOrder.title}</FormEntry>
+                            <FormEntry id="customer" title="Kunde">{(order.data?.getOrder.contact) ? `${order.data?.getOrder.contact.firstname} ${order.data?.getOrder.contact.lastname}` : 'Kein Kunde gefunden'}</FormEntry>
+                            <FormEntry id="documentNr" title="Auftragsnummer" >{order.data?.getOrder.documentNr}</FormEntry>
+                            <FormEntry id="deliveryAddress" title="Lieferadresse">{order.data?.getOrder.deliveryAddress}</FormEntry>
                             <FormEntry id="executionDates" title="Auftragsdaten">
-                                {(order.data.execDates) ? order.data.execDates.map((date: Date) => {
-                                    return <span className="badge badge-secondary">{date.toLocaleDateString()}</span>
+                                {(order.data?.getOrder.execDates) ? order.data?.getOrder.execDates.map((date: Date) => {
+                                    return <span className="badge badge-secondary">{new Date(date).toLocaleDateString()}</span>
                                 }) : ''}
                             </FormEntry>
                         </div>
@@ -62,7 +65,7 @@ export default function Order(props: RouteComponentProps<{ id: string }>) {
                 </Column>
                 <Column className="col-md-6">
                     <Panel title="Actions">
-                        <a target="_blank" href={`https://office.bexio.com/index.php/kb_order/show/id/${order.data.bexioId}`} className="btn btn-block btn-outline-primary">In Bexio anschauen</a>
+                        <a target="_blank" href={`https://office.bexio.com/index.php/kb_order/show/id/${order.data?.getOrder.bexioId}`} className="btn btn-block btn-outline-primary">In Bexio anschauen</a>
                     </Panel>
                 </Column>
             </Row>
@@ -78,7 +81,7 @@ export default function Order(props: RouteComponentProps<{ id: string }>) {
                                     <strong>Total</strong>
                                 </Column>
                                 <Column className="col-2">
-                                    CHF {order.data.total}
+                                    CHF {order.data?.getOrder.total}
                                 </Column>
                             </Row>
                         </div>

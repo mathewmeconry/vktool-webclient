@@ -1,24 +1,25 @@
-@import '../../node_modules/bootstrap-scss/bootstrap.scss';
-@import 'header';
-@import 'navibar';
-@import 'page';
-@import 'panel';
-@import 'bootstrap_changes';
-@import 'order';
-@import 'wizard';
-@import 'checkbox';
-@import 'login';
-@import 'loading_animation';
-@import '404';
-@import '403';
-@import 'datalist';
-@import 'action';
-@import 'colors';
-@import 'form_entry';
-@import 'fonts';
-@import 'button';
-@import 'inputs';
-@import 'working_indicator';
+@import "../../node_modules/bootstrap-scss/bootstrap.scss";
+@import "header";
+@import "navibar";
+@import "page";
+@import "panel";
+@import "bootstrap_changes";
+@import "order";
+@import "wizard";
+@import "checkbox";
+@import "login";
+@import "loading_animation";
+@import "404";
+@import "403";
+@import "datalist";
+@import "action";
+@import "colors";
+@import "form_entry";
+@import "fonts";
+@import "button";
+@import "inputs";
+@import "working_indicator";
+@import "loading_dots";
 
 * {
     /* So 100% means 100% */
@@ -47,6 +48,6 @@ body,
     body,
     #root,
     .body {
-        font-size: $font_size
+        font-size: $font_size;
     }
 }

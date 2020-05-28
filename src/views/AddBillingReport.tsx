@@ -18,6 +18,7 @@ import Contact from '../entities/Contact'
 import { useMutation } from 'react-apollo'
 import { ADD_BILLINGREPORT } from '../graphql/BillingReportQueries'
 import { ADD_ORDERCOMPENSATIONS } from '../graphql/CompensationQueries'
+import BillingReport from '../entities/BillingReport'
 
 export interface AddBillingReportProps {
     history: History
@@ -31,7 +32,7 @@ export default function AddBillingReport(props: AddBillingReportProps) {
     const [vks, setVks] = useState<StringIndexed<BillingReportCompensationEntry<Contact>>>()
     const [food, setFood] = useState<boolean>()
     const [remarks, setRemarks] = useState<string>()
-    const [addBillingReport, { }] = useMutation(ADD_BILLINGREPORT)
+    const [addBillingReport, { }] = useMutation<{ addBillingReport: BillingReport }>(ADD_BILLINGREPORT)
     const [addOrderCompensations, { }] = useMutation(ADD_ORDERCOMPENSATIONS)
 
 
@@ -39,7 +40,7 @@ export default function AddBillingReport(props: AddBillingReportProps) {
         for (const key in data) {
             switch (key) {
                 case 'order':
-                    setOrder(data[key])
+                    setOrder(data[key][0])
                     break
                 case 'date':
                     setDate(data[key])
@@ -69,7 +70,7 @@ export default function AddBillingReport(props: AddBillingReportProps) {
                 data: {
                     orderId: order?.id,
                     date,
-                    elsIds: els.map(r => r.id),
+                    elIds: els.map(r => r.id),
                     driverIds: drivers.map(r => r.id),
                     food,
                     remarks
@@ -83,8 +84,8 @@ export default function AddBillingReport(props: AddBillingReportProps) {
             data.push({
                 from: vk.from,
                 until: vk.until,
-                billingReportId: result.data.id,
-                memberId: id,
+                billingReportId: result.data?.addBillingReport.id,
+                memberId: vk.id,
                 date
             })
         }
@@ -109,16 +110,15 @@ export default function AddBillingReport(props: AddBillingReportProps) {
                             <AddBillingReportStep1 onNext={onNext} />
                             <AddBillingReportStep2 onNext={onNext} />
                             <AddBillingReportStep3 onNext={onNext} />
-                            // @ts-ignore
                             <AddBillingReportStep4
                                 onNext={save}
-                                order={order}
-                                date={date}
-                                vks={vks}
+                                order={order as Order}
+                                date={date as Date}
+                                vks={vks as StringIndexed<BillingReportCompensationEntry<Contact>>}
                                 els={els.map(el => el.firstname + ' ' + el.lastname)}
                                 drivers={drivers.map(driver => driver.firstname + ' ' + driver.lastname)}
-                                food={food}
-                                remarks={remarks}
+                                food={food || false}
+                                remarks={remarks || ''}
                             />
                         </StepWizard>
                     </Panel>

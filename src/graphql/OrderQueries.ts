@@ -7,6 +7,7 @@ export const GET_OPEN_ORDERS = gql`
       documentNr
       title
       contact {
+        id
         lastname
       }
     }
@@ -34,6 +35,7 @@ export const GET_ORDERS = gql`
         documentNr
         title
         contact {
+          id
           firstname
           lastname
         }
@@ -50,6 +52,7 @@ export const GET_ORDER = gql`
       id,
       title
       contact {
+        id
         firstname
         lastname
       }
@@ -58,6 +61,7 @@ export const GET_ORDER = gql`
       execDates
       bexioId
       positions {
+        id
         pos
         text
         positionTotal

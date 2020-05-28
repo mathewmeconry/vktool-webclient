@@ -26,6 +26,7 @@ export const GET_COMPENSATION = gql`
       description
       approved
       creator {
+        id
         displayName
       }
       payout {
@@ -48,6 +49,7 @@ export const GET_COMPENSATION = gql`
       description
       approved
       creator {
+        id
         displayName
       }
       payout {
@@ -75,8 +77,8 @@ export const GET_COMPENSATIONS_BY_CONTACT = gql`
 `;
 
 export const GET_COMPENSATIONS_BY_CONTACT_AND_PAYOUT = gql`
-  query GET_COMPENSATIONS_BY_CONTACT_AND_PAYOUT($id: Int!, $payoutId: Int!) {
-    getContactCompensations(id: $id, payoutId: $payoutId) {
+  query GET_COMPENSATIONS_BY_CONTACT_AND_PAYOUT($memberId: Int!, $payoutId: Int!) {
+    getContactCompensations(id: $memberId, payoutId: $payoutId) {
       id
       date
       amount
@@ -105,6 +107,7 @@ export const GET_COMPENSATIONS = gql`
       items {
         id
         member {
+          id
           firstname
           lastname
         }
@@ -112,6 +115,7 @@ export const GET_COMPENSATIONS = gql`
         amount
         description
         creator {
+          id
           displayName
         }
         approved
@@ -126,6 +130,7 @@ export const GET_BASE_COMPENSATION = gql`
     getCompensation(id: $id) {
       id
       member {
+        id
         firstname
         lastname
       }

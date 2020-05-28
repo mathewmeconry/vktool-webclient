@@ -20,10 +20,12 @@ export const GET_BILLINGREPORTS = gql`
         id
         date
         order {
+          id
           title
           documentNr
         }
         creator {
+          id
           displayName
         }
         state
@@ -42,6 +44,7 @@ export const GET_BILLINGREPORT = gql`
       }
       date
       creator {
+        id
         displayName
       }
       state

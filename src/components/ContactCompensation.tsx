@@ -44,7 +44,12 @@ export class ContactCompensation extends Component<{ contactId: number } & Route
 
                 let openCompensationsSum = 0
                 const compensations = result.data.getContactCompensations
-                openCompensationsSum = compensations.reduce((p, c) => p + c.amount, 0)
+                openCompensationsSum = compensations.reduce((p, c) => {
+                    if (!c.paied) {
+                        return p + c.amount
+                    }
+                    return p
+                }, 0)
 
                 return (
                     <Panel title={`Entschädigungen (Offen: ${openCompensationsSum.toFixed(2)}.-)`} scrollable={true}>

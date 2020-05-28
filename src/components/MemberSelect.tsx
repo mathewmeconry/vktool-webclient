@@ -4,6 +4,7 @@ import { ValueType } from "react-select/lib/types"
 import Contact from "../entities/Contact"
 import { useQuery } from "react-apollo"
 import { GET_ALL_MEMBERS } from '../graphql/ContactQueries'
+import LoadingDots from "./LoadingDots"
 
 interface MemberSelectProps {
     defaultValue?: Array<string>,
@@ -29,9 +30,7 @@ export default function MemberSelect(props: MemberSelectProps) {
         }
     }
 
-    const [selected, setSelected] = useState<Array<{ value: string, label: string }>>(valueProps)
-
-    if (loading) return null
+    if (loading) return <LoadingDots />
     if (error) return null
     if (!data) return null
 
@@ -53,8 +52,9 @@ export default function MemberSelect(props: MemberSelectProps) {
             ops = opt as Array<{ label: string, value: string }>
         }
 
-        setSelected(ops)
+        props.onChange(ops.map(r => data?.getMembersAll.find(m => m.id === parseInt(r.value))))
     }
+
 
     return (<Select
         isClearable={true}
@@ -64,7 +64,7 @@ export default function MemberSelect(props: MemberSelectProps) {
         openMenuOnFocus={true}
         isMulti={props.isMulti || false}
         onChange={onChange}
-        value={selected}
+        value={valueProps}
         required={!!props.required}
     />)
 
