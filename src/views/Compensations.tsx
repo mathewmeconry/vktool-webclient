@@ -94,10 +94,10 @@ export default function Compensations(props: RouteComponentProps) {
                 title='Entschädigungen'
                 viewLocation='/compensation/'
                 tableColumns={[
-                    { text: 'Mitglied', keys: { 'member': ['firstname', 'lastname'] }, sortKey: 'member.firstname', sortable: true, searchable: true },
+                    { text: 'Mitglied', keys: { 'member': ['firstname', 'lastname'] }, sortKey: 'member.firstname', sortable: true },
                     { text: 'Datum', keys: ['date'], sortable: true, format: 'toLocaleDateString' },
                     { text: 'Betrag', keys: ['amount'], sortable: true, prefix: 'CHF ', format: 'toFixed(2)' },
-                    { text: 'Beschreibung', keys: ['description'], sortable: false, searchable: true },
+                    { text: 'Beschreibung', keys: ['description'], sortable: false },
                     { text: 'Ersteller', keys: { 'creator': ['displayName'] }, sortKey: 'creator.displayName', sortable: true },
                     { text: 'Genehmigt', keys: ['approved'], sortable: true },
                     { text: 'Ausbezahlt', keys: ['paied'], sortable: true }
@@ -110,6 +110,7 @@ export default function Compensations(props: RouteComponentProps) {
                 rowActions={[
                     <Button className="btn delete" variant="danger" onClick={deleteCompensation} roles={[AuthRoles.COMPENSATIONS_EDIT]}><FontAwesomeIcon icon="trash" /></Button>
                 ]}
+                searchable={true}
                 {...props}
             />
         </>

@@ -96,14 +96,15 @@ export default function Logoffs(props: RouteComponentProps) {
                     <button className="btn btn-danger delete" onMouseUp={deleteLogoff}><FontAwesomeIcon icon="trash" /></button>
                 ]}
                 tableColumns={[
-                    { text: 'Mitglied', keys: { 'contact': ['firstname', 'lastname'] }, sortKey: "contact.firstname", sortable: true, searchable: true },
+                    { text: 'Mitglied', keys: { 'contact': ['firstname', 'lastname'] }, sortKey: "contact.firstname", sortable: true },
                     { text: 'Von', keys: ['from'], sortable: true, format: 'toLocaleString' },
                     { text: 'Bis', keys: ['until'], sortable: true, format: 'toLocaleString' },
                     { text: 'Status', keys: ['state'], sortable: true },
                 ]}
                 defaultSortBy='from'
                 defaultSortDirection={PaginationSortDirections.DESC}
-                pollInterval={0}
+                pollInterval={10000}
+                searchable={true}
                 {...props}
             ></GraphQLDataList>
         </>

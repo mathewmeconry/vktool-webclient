@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Page } from "./Page"
 import Row from "./Row"
 import Column from "./Column"
@@ -13,18 +13,20 @@ import { RouteComponentProps } from 'react-router-dom'
 
 export interface GraphQLDataListProps<T> extends React.Props<any> {
     title: string,
-    panelActions?:JSX.Element[]
+    panelActions?: JSX.Element[]
     additionalTitleStuff?: JSX.Element[],
     tableColumns: GraphQLTableColumn[],
     viewLocation: string,
-    rowActions?:JSX.Element[],
+    rowActions?: JSX.Element[],
     query: DocumentNode
     defaultSortBy?: string,
     defaultSortDirection?: PaginationSortDirections
     pollInterval?: number
+    searchable?: boolean
 }
 
 export default function GraphQLDataList<T extends Base>(props: GraphQLDataListProps<T> & RouteComponentProps) {
+    const [searchString, setSearchString] = useState<string>()
 
     function elementView(event: React.MouseEvent<HTMLButtonElement>) {
         if (event.currentTarget.parentNode && event.currentTarget.parentNode.parentNode && event.currentTarget.parentNode.parentNode.parentElement) {
@@ -48,6 +50,9 @@ export default function GraphQLDataList<T extends Base>(props: GraphQLDataListPr
                         title={
                             <ButtonToolbar className="justify-content-between align-items-center">
                                 {props.additionalTitleStuff || []}
+                                {props.searchable &&
+                                    <input id="search" value={searchString} placeholder="Search..." className="form-control form-control-sm" onChange={(event) => setSearchString(event.target.value)} />
+                                }
                             </ButtonToolbar>
                         }>
                         <GraphQLTable<T>
@@ -64,6 +69,7 @@ export default function GraphQLDataList<T extends Base>(props: GraphQLDataListPr
                             defaultSortBy={props.defaultSortBy}
                             defaultSortDirection={props.defaultSortDirection}
                             pollInterval={props.pollInterval}
+                            queryVariables={{ searchString }}
                         />
                     </Panel>
                 </Column>

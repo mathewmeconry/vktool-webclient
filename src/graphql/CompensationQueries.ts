@@ -95,12 +95,14 @@ export const GET_COMPENSATIONS = gql`
     $limit: Int
     $sortBy: String
     $sortDirection: String
+    $searchString: String
   ) {
     getAllCompensations(
       cursor: $cursor
       limit: $limit
       sortBy: $sortBy
       sortDirection: $sortDirection
+      searchString: $searchString
     ) {
       cursor
       total

@@ -42,12 +42,14 @@ export const GET_LOGOFFS = gql`
     $limit: Int
     $sortBy: String
     $sortDirection: String
+    $searchString: String
   ) {
     getAllLogoffs(
       cursor: $cursor
       limit: $limit
       sortBy: $sortBy
       sortDirection: $sortDirection
+      searchString: $searchString
     ) {
       cursor
       total

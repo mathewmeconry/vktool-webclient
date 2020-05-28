@@ -6,12 +6,14 @@ export const GET_BILLINGREPORTS = gql`
     $limit: Int
     $sortBy: String
     $sortDirection: String
+    $searchString: String
   ) {
     getAllBillingReports(
       cursor: $cursor
       limit: $limit
       sortBy: $sortBy
       sortDirection: $sortDirection
+      searchString: $searchString
     ) {
       cursor
       hasMore

@@ -10,10 +10,11 @@ export default function Users(props: RouteComponentProps) {
             title='Benutzer'
             viewLocation='/user/'
             tableColumns={[
-                { text: 'Name', keys: ['displayName'], sortable: true, searchable: true },
-                { text: 'Rechte', keys: ['roles'], sortable: true, searchable: true }
+                { text: 'Name', keys: ['displayName'], sortable: true },
+                { text: 'Rechte', keys: ['roles'], sortable: true }
             ]}
             defaultSortBy='displayName'
+            searchable={true}
             {...props}
         />
     )

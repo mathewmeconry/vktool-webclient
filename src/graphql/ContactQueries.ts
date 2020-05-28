@@ -37,12 +37,14 @@ export const GET_MEMBERS = gql`
     $limit: Int
     $sortBy: String
     $sortDirection: String
+    $searchString: String
   ) {
     getMembers(
       cursor: $cursor
       limit: $limit
       sortBy: $sortBy
       sortDirection: $sortDirection
+      searchString: $searchString
     ) {
       cursor
       hasMore

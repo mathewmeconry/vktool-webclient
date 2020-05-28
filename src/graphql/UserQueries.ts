@@ -49,12 +49,14 @@ export const GET_USERS = gql`
     $limit: Int
     $sortBy: String
     $sortDirection: String
+    $searchString: String
   ) {
     getAllUsers(
       cursor: $cursor
       limit: $limit
       sortBy: $sortBy
       sortDirection: $sortDirection
+      searchString: $searchString
     ) {
       cursor
       hasMore

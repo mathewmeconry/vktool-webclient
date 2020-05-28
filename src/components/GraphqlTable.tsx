@@ -20,7 +20,6 @@ export interface GraphQLTableColumn {
     linkPrefix?: string,
     sortKey?: string,
     sortable?: boolean,
-    searchable?: boolean,
     prefix?: string
     suffix?: string
     format?: string
@@ -50,7 +49,7 @@ export default function GraphQLTable<T extends Base & { [index: string]: any }>(
     const [sortDirection, setSortDirection] = useState(props.defaultSortDirection || PaginationSortDirections.ASC)
     const { loading, error, data } = useQuery<{ [index: string]: PaginationResponse<T> }, PaginationArgs>(props.query, { variables: { limit, cursor, sortBy, sortDirection, ...props.queryVariables }, pollInterval: props.pollInterval || 5000 })
 
-    if (loading) return <Loading />
+    if (loading && !props.queryVariables?.searchString) return <Loading />
     if (error) return null
     if (!data) return null
 
@@ -204,7 +203,9 @@ export default function GraphQLTable<T extends Base & { [index: string]: any }>(
                 </tbody>
             </table>
             <div className="d-flex justify-content-between">
-                <div className="w-25"></div>
+                <div className="w-25">
+                    {Math.max(cursor, 1)} - {Math.min(cursor + limit, dataSet.total)} von {dataSet.total}
+                </div>
                 <Pagination>
                     <Pagination.Prev key='prev' onClick={(event: React.MouseEvent<HTMLElement>) => { setCursor(cursor - limit) }} disabled={cursor === 0} />
                     {renderPaginationItems(dataSet.total, limit, cursor)}
