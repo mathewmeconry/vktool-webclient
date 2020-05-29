@@ -63,8 +63,10 @@ function registerValidSW(swUrl, config) {
         if (installingWorker == null) {
           return;
         }
+
         installingWorker.onstatechange = () => {
           if (installingWorker.state === 'installed') {
+            installingWorker.postMessage({ type: 'SKIP_WAITING' });
             if (navigator.serviceWorker.controller) {
               // At this point, the updated precached content has been fetched,
               // but the previous service worker will still serve the older
@@ -78,6 +80,8 @@ function registerValidSW(swUrl, config) {
               if (config && config.onUpdate) {
                 config.onUpdate(registration);
               }
+            } else if(installingWorker.state === 'activated') {
+                window.location.reload()
             } else {
               // At this point, everything has been precached.
               // It's the perfect time to display a
