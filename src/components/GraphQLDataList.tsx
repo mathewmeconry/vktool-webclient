@@ -33,7 +33,7 @@ export default function GraphQLDataList<T extends Base>(props: GraphQLDataListPr
     const [searchString, setSearchString] = useState<string>()
     if (props.filterQuery) {
         var [filter, setFilter] = useState<number | undefined>(props.defaultFilter)
-        var filters = useQuery<{ [index: string]: [{ id: number, displayName: string }] }>(props.filterQuery)
+        var filters = useQuery<{ [index: string]: [{ id: number, displayName: string }] }>(props.filterQuery, { fetchPolicy: 'cache-and-network' })
     }
 
     function elementView(event: React.MouseEvent<HTMLButtonElement>) {

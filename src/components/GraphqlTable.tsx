@@ -46,7 +46,7 @@ export default function GraphQLTable<T extends Base & { [index: string]: any }>(
     const [cursor, setCursor] = useState(0)
     const [sortBy, setSortBy] = useState((props.defaultSortBy as string) || undefined)
     const [sortDirection, setSortDirection] = useState(props.defaultSortDirection || PaginationSortDirections.ASC)
-    const { loading, error, data } = useQuery<{ [index: string]: PaginationResponse<T> }, PaginationArgs>(props.query, { variables: { limit, cursor, sortBy, sortDirection, ...props.queryVariables }, pollInterval: props.pollInterval || 5000 })
+    const { loading, error, data } = useQuery<{ [index: string]: PaginationResponse<T> }, PaginationArgs>(props.query, { variables: { limit, cursor, sortBy, sortDirection, ...props.queryVariables }, pollInterval: props.pollInterval || 5000, fetchPolicy: 'cache-and-network' })
 
     if (loading && !props.queryVariables?.searchString) return <Loading />
     if (error) return null
