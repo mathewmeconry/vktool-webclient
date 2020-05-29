@@ -1,4 +1,4 @@
-import React, { MouseEvent } from 'react'
+import React, { MouseEvent, useEffect } from 'react'
 import { DocumentNode } from "graphql"
 import { useQuery } from "@apollo/react-hooks"
 import { useState } from "react"
@@ -47,10 +47,11 @@ export default function GraphQLTable<T extends Base & { [index: string]: any }>(
     const [sortBy, setSortBy] = useState((props.defaultSortBy as string) || undefined)
     const [sortDirection, setSortDirection] = useState(props.defaultSortDirection || PaginationSortDirections.ASC)
     const { loading, error, data } = useQuery<{ [index: string]: PaginationResponse<T> }, PaginationArgs>(props.query, { variables: { limit, cursor, sortBy, sortDirection, ...props.queryVariables }, pollInterval: props.pollInterval || 5000, fetchPolicy: 'cache-and-network' })
+    useEffect(() => { setCursor(0) }, [props.queryVariables?.searchString, props.queryVariables?.filter])
 
-    if (loading && !props.queryVariables?.searchString) return <Loading />
+    if (loading && !props.queryVariables?.searchString && !data) return <Loading />
     if (error) return null
-    if (!data) return null
+    if (!data) return <Loading />
 
     const dataSet: PaginationResponse<T> = data[Object.keys(data)[0]]
 
