@@ -77,7 +77,10 @@ export const GET_COMPENSATIONS_BY_CONTACT = gql`
 `;
 
 export const GET_COMPENSATIONS_BY_CONTACT_AND_PAYOUT = gql`
-  query GET_COMPENSATIONS_BY_CONTACT_AND_PAYOUT($memberId: Int!, $payoutId: Int!) {
+  query GET_COMPENSATIONS_BY_CONTACT_AND_PAYOUT(
+    $memberId: Int!
+    $payoutId: Int!
+  ) {
     getContactCompensations(id: $memberId, payoutId: $payoutId) {
       id
       date
@@ -96,6 +99,7 @@ export const GET_COMPENSATIONS = gql`
     $sortBy: String
     $sortDirection: String
     $searchString: String
+    $filter: Int
   ) {
     getAllCompensations(
       cursor: $cursor
@@ -103,6 +107,7 @@ export const GET_COMPENSATIONS = gql`
       sortBy: $sortBy
       sortDirection: $sortDirection
       searchString: $searchString
+      filter: $filter
     ) {
       cursor
       total
@@ -138,6 +143,15 @@ export const GET_BASE_COMPENSATION = gql`
       }
       date
       amount
+    }
+  }
+`;
+
+export const GET_COMPENSATION_FILTERS = gql`
+  query GET_COMPENSATION_FILTERS {
+    getCompensationFilters {
+      id
+      displayName
     }
   }
 `;

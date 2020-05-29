@@ -43,6 +43,7 @@ export const GET_LOGOFFS = gql`
     $sortBy: String
     $sortDirection: String
     $searchString: String
+    $filter: Int
   ) {
     getAllLogoffs(
       cursor: $cursor
@@ -50,6 +51,7 @@ export const GET_LOGOFFS = gql`
       sortBy: $sortBy
       sortDirection: $sortDirection
       searchString: $searchString
+      filter: $filter
     ) {
       cursor
       total
@@ -64,6 +66,15 @@ export const GET_LOGOFFS = gql`
         until
         state
       }
+    }
+  }
+`;
+
+export const GET_LOGOFF_FILTERS = gql`
+  query GET_LOGOFF_FILTERS {
+    getLogoffFilters {
+      id
+      displayName
     }
   }
 `;

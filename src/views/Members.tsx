@@ -2,14 +2,14 @@ import Action from "../components/Action"
 import React from "react"
 import Config from "../Config"
 import GraphQLDataList from "../components/GraphQLDataList"
-import { GET_MEMBERS } from "../graphql/ContactQueries"
+import { GET_MEMBERS, GET_MEMBERS_FILTERS } from "../graphql/ContactQueries"
 import { RouteComponentProps } from "react-router-dom"
 import Contact from "../entities/Contact"
 
 export default function Members(props: RouteComponentProps) {
-
     return <GraphQLDataList<Contact>
         query={GET_MEMBERS}
+        filterQuery={GET_MEMBERS_FILTERS}
         title='Mitglieder'
         viewLocation='/contact/'
         tableColumns={[

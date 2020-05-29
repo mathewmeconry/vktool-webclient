@@ -8,7 +8,7 @@ import { AuthRoles } from "../interfaces/AuthRoles"
 import Button from '../components/Button'
 import Action from "../components/Action"
 import GraphQLDataList from "../components/GraphQLDataList"
-import { GET_COMPENSATIONS, GET_BASE_COMPENSATION, DELETE_COMPENSATION } from "../graphql/CompensationQueries"
+import { GET_COMPENSATIONS, GET_BASE_COMPENSATION, DELETE_COMPENSATION, GET_COMPENSATION_FILTERS } from "../graphql/CompensationQueries"
 import { useLazyQuery, useMutation } from "react-apollo"
 import Loading from "../components/Loading"
 import { PaginationSortDirections } from "../graphql/Interfaces"
@@ -91,6 +91,8 @@ export default function Compensations(props: RouteComponentProps) {
             {renderModal()}
             <GraphQLDataList
                 query={GET_COMPENSATIONS}
+                filterQuery={GET_COMPENSATION_FILTERS}
+                defaultFilter={0}
                 title='Entschädigungen'
                 viewLocation='/compensation/'
                 tableColumns={[

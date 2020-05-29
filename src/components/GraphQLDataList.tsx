@@ -3,13 +3,14 @@ import { Page } from "./Page"
 import Row from "./Row"
 import Column from "./Column"
 import Panel from "./Panel"
-import { ButtonToolbar } from "react-bootstrap"
+import { ButtonToolbar, ButtonGroup, Button } from "react-bootstrap"
 import GraphQLTable, { GraphQLTableColumn } from './GraphqlTable'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { DocumentNode } from 'graphql'
 import { PaginationSortDirections } from '../graphql/Interfaces'
 import Base from '../entities/Base'
 import { RouteComponentProps } from 'react-router-dom'
+import { useQuery } from 'react-apollo'
 
 export interface GraphQLDataListProps<T> extends React.Props<any> {
     title: string,
@@ -19,14 +20,20 @@ export interface GraphQLDataListProps<T> extends React.Props<any> {
     viewLocation: string,
     rowActions?: JSX.Element[],
     query: DocumentNode
+    filterQuery?: DocumentNode
     defaultSortBy?: string,
     defaultSortDirection?: PaginationSortDirections
     pollInterval?: number
     searchable?: boolean
+    defaultFilter?: number
 }
 
 export default function GraphQLDataList<T extends Base>(props: GraphQLDataListProps<T> & RouteComponentProps) {
     const [searchString, setSearchString] = useState<string>()
+    if (props.filterQuery) {
+        var [filter, setFilter] = useState<number | undefined>(props.defaultFilter)
+        var filters = useQuery<{ [index: string]: [{ id: number, displayName: string }] }>(props.filterQuery)
+    }
 
     function elementView(event: React.MouseEvent<HTMLButtonElement>) {
         if (event.currentTarget.parentNode && event.currentTarget.parentNode.parentNode && event.currentTarget.parentNode.parentNode.parentElement) {
@@ -41,6 +48,24 @@ export default function GraphQLDataList<T extends Base>(props: GraphQLDataListPr
         }
     }
 
+    function renderFilters() {
+        if (filters && !filters.loading && filters.data) {
+            const fs = filters.data[Object.keys(filters.data)[0]]
+            return (
+                <>
+                    <ButtonGroup className="filters">
+                        {
+                            fs.map((f) => {
+                                return <Button variant='outline-secondary' active={f.id === filter} onClick={() => (f?.id === filter) ? setFilter(undefined) : setFilter(f?.id)}>{f.displayName}</Button>
+                            })
+                        }
+                    </ButtonGroup>
+                </>
+            )
+        }
+        return <ButtonGroup></ButtonGroup>
+    }
+
     return (
         <Page title={props.title}>
             <Row>
@@ -49,6 +74,7 @@ export default function GraphQLDataList<T extends Base>(props: GraphQLDataListPr
                         actions={props.panelActions || []}
                         title={
                             <ButtonToolbar className="justify-content-between align-items-center">
+                                {renderFilters()}
                                 {props.additionalTitleStuff || []}
                                 {props.searchable &&
                                     <input id="search" value={searchString} placeholder="Search..." className="form-control form-control-sm" onChange={(event) => setSearchString(event.target.value)} />
@@ -69,7 +95,7 @@ export default function GraphQLDataList<T extends Base>(props: GraphQLDataListPr
                             defaultSortBy={props.defaultSortBy}
                             defaultSortDirection={props.defaultSortDirection}
                             pollInterval={props.pollInterval}
-                            queryVariables={{ searchString }}
+                            queryVariables={{ searchString, filter }}
                         />
                     </Panel>
                 </Column>

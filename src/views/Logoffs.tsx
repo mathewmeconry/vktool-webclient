@@ -6,7 +6,7 @@ import { Button, ButtonGroup } from "react-bootstrap"
 import Action from "../components/Action"
 import { AuthRoles } from "../interfaces/AuthRoles"
 import GraphQLDataList from "../components/GraphQLDataList"
-import { GET_LOGOFFS, GET_LOGOFF, DELETE_LOGOFF } from "../graphql/LogoffQueries"
+import { GET_LOGOFFS, GET_LOGOFF, DELETE_LOGOFF, GET_LOGOFF_FILTERS } from "../graphql/LogoffQueries"
 import { useLazyQuery, useMutation } from "react-apollo"
 import Loading from "../components/Loading"
 import { PaginationSortDirections } from "../graphql/Interfaces"
@@ -87,6 +87,8 @@ export default function Logoffs(props: RouteComponentProps) {
             {renderModal()}
             <GraphQLDataList<Logoff>
                 query={GET_LOGOFFS}
+                filterQuery={GET_LOGOFF_FILTERS}
+                defaultFilter={0}
                 title='Abmeldungen'
                 viewLocation='/draft/logoff/'
                 panelActions={[
@@ -103,7 +105,7 @@ export default function Logoffs(props: RouteComponentProps) {
                 ]}
                 defaultSortBy='from'
                 defaultSortDirection={PaginationSortDirections.DESC}
-                pollInterval={10000}
+                pollInterval={1000}
                 searchable={true}
                 {...props}
             ></GraphQLDataList>

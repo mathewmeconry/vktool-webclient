@@ -1,6 +1,6 @@
 import React from 'react'
 import GraphQLDataList from "../components/GraphQLDataList"
-import { GET_BILLINGREPORTS } from "../graphql/BillingReportQueries"
+import { GET_BILLINGREPORTS, GET_BILLINGREPORT_FILTERS } from "../graphql/BillingReportQueries"
 import { RouteComponentProps } from 'react-router-dom'
 import { PaginationSortDirections } from '../graphql/Interfaces'
 
@@ -8,6 +8,8 @@ export default function BillingReports(props: RouteComponentProps) {
     return (
         <GraphQLDataList
             query={GET_BILLINGREPORTS}
+            filterQuery={GET_BILLINGREPORT_FILTERS}
+            defaultFilter={0}
             title='Verrechnungsrapporte'
             tableColumns={[
                 { text: 'Datum', keys: ['date'], sortable: true, format: 'toLocaleDateString' },

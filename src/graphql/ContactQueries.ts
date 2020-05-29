@@ -38,6 +38,7 @@ export const GET_MEMBERS = gql`
     $sortBy: String
     $sortDirection: String
     $searchString: String
+    $filter: Int
   ) {
     getMembers(
       cursor: $cursor
@@ -45,6 +46,7 @@ export const GET_MEMBERS = gql`
       sortBy: $sortBy
       sortDirection: $sortDirection
       searchString: $searchString
+      filter: $filter
     ) {
       cursor
       hasMore
@@ -113,6 +115,15 @@ export const GET_CONTACT = gql`
     }
   }
 `;
+
+export const GET_MEMBERS_FILTERS = gql`
+  query GET_MEMBERS_FILTERS {
+    getContactFilters {
+      id
+      displayName
+    }
+  }
+`
 
 export const EDIT_CONTACT = gql`
   mutation EDIT_CONTACT($data: EditContact!) {

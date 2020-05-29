@@ -7,6 +7,7 @@ export const GET_BILLINGREPORTS = gql`
     $sortBy: String
     $sortDirection: String
     $searchString: String
+    $filter: Int
   ) {
     getAllBillingReports(
       cursor: $cursor
@@ -14,6 +15,7 @@ export const GET_BILLINGREPORTS = gql`
       sortBy: $sortBy
       sortDirection: $sortDirection
       searchString: $searchString
+      filter: $filter
     ) {
       cursor
       hasMore
@@ -76,6 +78,15 @@ export const GET_BILLINGREPORT = gql`
           lastname
         }
       }
+    }
+  }
+`;
+
+export const GET_BILLINGREPORT_FILTERS = gql`
+  query GET_BILLINGREPORT_FILTERS {
+    getBillingReportFilters {
+      id
+      displayName
     }
   }
 `;
