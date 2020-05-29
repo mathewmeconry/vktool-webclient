@@ -27,14 +27,21 @@ export default function Login(props: RouteComponentProps<{}, {}, { prevLocation:
     }
 
     return (
-        <div id="login">
-            <h2>Login</h2>
-            < div className="form-group" >
-                <a className="btn btn-secondary btn-block" href={Config.apiEndpoint + "/api/auth/azure"}>
-                    <FontAwesomeIcon icon={['fab', 'microsoft']} className="icon"></FontAwesomeIcon>
-                        VK-Login
+        <div className="d-flex vw-100 vh-100" id="login-container">
+            <div id="login">
+                <h2>Login</h2>
+                <div className="form-group" >
+                    <a className="btn btn-secondary btn-block d-flex justify-content-between" href={Config.apiEndpoint + "/api/auth/azure"}>
+                        <span className="icon">
+                            <FontAwesomeIcon icon={['fab', 'microsoft']} ></FontAwesomeIcon>
+                        </span>
+                        <span>
+                            VK-Login
+                        </span>
+                        <span></span>
                     </a>
+                </div >
             </div >
-        </div >
+        </div>
     )
 }
