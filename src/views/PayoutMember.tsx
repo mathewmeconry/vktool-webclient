@@ -56,6 +56,10 @@ export default function PayoutMember(props: RouteComponentProps<{ id: string, me
         document.body.appendChild(link)
         link.click()
         document.body.removeChild(link)
+        setTimeout(function () {
+            // For Firefox it is necessary to delay revoking the ObjectURL
+            window.URL.revokeObjectURL(url);
+        }, 100);
     }
 
     async function memberPdf(payoutId: number, member: Contact) {
@@ -64,9 +68,10 @@ export default function PayoutMember(props: RouteComponentProps<{ id: string, me
             url: `${Config.apiEndpoint}/api/payouts/member/pdf`,
             data: { payoutId, memberId: member.id },
             withCredentials: true,
-            timeout: 600000
+            timeout: 600000,
+            responseType: 'arraybuffer'
         })
-        downloader(new Blob([response.data], { type: 'application/pdf' }), `Auszahlung Verkehrskadettenentschädigung ${member.lastname} ${member.firstname}.pdf`)
+        await downloader(new Blob([response.data], { type: 'application/pdf' }), `Auszahlung Verkehrskadettenentschädigung ${member.lastname} ${member.firstname}.pdf`)
     }
 
     let total = 0

@@ -101,7 +101,7 @@ export default function Payout(props: RouteComponentProps<{ id: string }>) {
                 withCredentials: true,
                 timeout: 600000
             })
-            downloader(new Blob([response.data]), `Soldperiode_${(payout.data?.getPayout.from > new Date('1970-01-01')) ? payout.data?.getPayout.from.toLocaleDateString() : ''}_-_${payout.data?.getPayout.until.toLocaleDateString()}.xml`)
+            downloader(new Blob([response.data]), `Soldperiode_${(new Date(payout.data?.getPayout.from) > new Date('1970-01-01')) ? new Date(payout.data?.getPayout.from).toLocaleDateString() : ''}_-_${new Date(payout.data?.getPayout.until).toLocaleDateString()}.xml`)
         }
     }
 

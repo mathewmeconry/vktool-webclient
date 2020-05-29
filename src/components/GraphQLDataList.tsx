@@ -11,6 +11,7 @@ import { PaginationSortDirections } from '../graphql/Interfaces'
 import Base from '../entities/Base'
 import { RouteComponentProps } from 'react-router-dom'
 import { useQuery } from 'react-apollo'
+import LoadingDots from './LoadingDots'
 
 export interface GraphQLDataListProps<T> extends React.Props<any> {
     title: string,
@@ -63,6 +64,24 @@ export default function GraphQLDataList<T extends Base>(props: GraphQLDataListPr
                 </>
             )
         }
+
+        if (filters && !filters.loading && !filters.data) {
+            filters.refetch()
+            return (
+                <ButtonGroup>
+                    <LoadingDots />
+                </ButtonGroup>
+            )
+        }
+
+        if (filters && filters.loading) {
+            return (
+                <ButtonGroup>
+                    <LoadingDots />
+                </ButtonGroup>
+            )
+        }
+
         return <ButtonGroup></ButtonGroup>
     }
 

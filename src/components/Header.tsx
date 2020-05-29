@@ -12,9 +12,7 @@ export interface HeaderProps {
 export default function Header(props: HeaderProps) {
     const { loading, error, data } = useQuery<{me: User}>(GET_ME)
 
-    if (loading) return null
     if (error) return null
-    if (!data) return null
 
     let className = 'navibar-open'
     if (!props.open) {
@@ -25,7 +23,7 @@ export default function Header(props: HeaderProps) {
         <div id="header">
             <div id="header-title" className={className}>
                 <div id="user">
-                    {data.me.displayName}
+                    {data?.me.displayName}
                 </div>
             </div>
             <div id="header-bars" onClick={props.onClick}>
