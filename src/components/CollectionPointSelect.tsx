@@ -1,155 +1,70 @@
-import React, { Component } from "react";
-import { Data } from "../actions/DataActions";
-import { ThunkDispatch } from "redux-thunk";
-import { State } from "../reducers/IndexReducer";
-import { AnyAction } from "redux";
+import React, { useState, useEffect } from "react"
 import Select from 'react-select'
-import { DataInterface } from "../reducers/DataReducer";
-import { ValueType } from "react-select/lib/types";
-import { connect } from 'react-redux';
-import CollectionPoint from "../entities/CollectionPoint";
+import { ValueType } from "react-select/lib/types"
+import { useQuery } from "react-apollo"
+import CollectionPoint from "../entities/CollectionPoint"
+import { GET_ALL_COLLECITONPOINTS } from "../graphql/CollectionPointQueries"
+import LoadingDots from "./LoadingDots"
+
 
 interface CollectionPointSelectProps {
     defaultValue?: Array<CollectionPoint>,
     isMulti?: boolean
     onChange: Function,
-    collectionPoints: DataInterface<CollectionPoint>,
-    loading: boolean,
     ref?: Function,
-    fetchCollectionPoints: Function
+    required?: boolean
 }
 
-export class _CollectionPointSelect extends Component<CollectionPointSelectProps, { value?: Array<{ label: string, value: string }> }> {
-    constructor(props: CollectionPointSelectProps) {
-        super(props)
+export default function CollectionPointSelect(props: CollectionPointSelectProps) {
+    const { loading, error, data } = useQuery<{ getCollectionPoints: CollectionPoint[] }>(GET_ALL_COLLECITONPOINTS)
 
-        if (this.props.defaultValue instanceof Array) {
-            let valueProps = []
-            for (let collectionPoint of this.props.defaultValue) {
-                if (collectionPoint && Object.keys(collectionPoint).length > 0) {
-                    valueProps.push({
-                        value: collectionPoint.id.toString(),
-                        label: `(${collectionPoint.name}) ${collectionPoint.address}, ${collectionPoint.postcode} ${collectionPoint.city}`,
-                    })
-                }
-            }
+    if (loading) return <LoadingDots />
+    if (error) return null
+    if (!data) return null
+    const collectionPoints = data.getCollectionPoints
 
-            this.state = {
-                value: valueProps
-            }
-        } else {
-            this.state = {}
+    const valueProps = []
+    if (props.defaultValue instanceof Array) {
+        for (let collectionPoint of props.defaultValue) {
+            valueProps.push({
+                value: collectionPoint.id.toString(),
+                label: `(${collectionPoint.name}) ${collectionPoint.address}, ${collectionPoint.postcode} ${collectionPoint.city}`,
+            })
         }
     }
 
-    public componentDidUpdate() {
-        if (this.props.defaultValue instanceof Array) {
-            let valueProps = []
-            for (let collectionPoint of this.props.defaultValue) {
-                if (collectionPoint && Object.keys(collectionPoint).length > 0) {
-                    valueProps.push({
-                        value: collectionPoint.id.toString(),
-                        label: `(${collectionPoint.name}) ${collectionPoint.address}, ${collectionPoint.postcode} ${collectionPoint.city}`,
-                    })
-                }
-            }
 
-            if (JSON.stringify(this.state.value) !== JSON.stringify(valueProps)) {
-                this.setState({
-                    value: valueProps
-                })
-            }
-        }
-    }
-
-    public componentWillMount() {
-        if (this.props.collectionPoints.ids.length < 1) {
-            this.props.fetchCollectionPoints()
-        }
-    }
-
-    private prepareOptions() {
+    function prepareOptions(data: CollectionPoint[]) {
         let options = []
-        if (Object.keys(this.props.collectionPoints.byId).length > 0) {
-            for (let i in this.props.collectionPoints.byId) {
-                let collectionPoint = this.props.collectionPoints.byId[i]
-                options.push({
-                    label: `(${collectionPoint.name}) ${collectionPoint.address}, ${collectionPoint.postcode} ${collectionPoint.city}`,
-                    value: i
-                })
-            }
+        for (const collectionPoint of data) {
+            options.push({
+                value: collectionPoint.id.toString(),
+                label: `(${collectionPoint.name}) ${collectionPoint.address}, ${collectionPoint.postcode} ${collectionPoint.city}`,
+            })
         }
 
         return options
     }
 
-    private onChange(opt: ValueType<{ label: string, value: string }>) {
-        let ops: Array<{ label: string, value: string }> = [opt as { label: string, value: string }]
-        if (this.props.isMulti) {
-            ops = opt as Array<{ label: string, value: string }>
-        }
-
-        this.setState({
-            value: ops
-        })
-
-        let collectionPoints = []
-        for (let o of ops) {
-            if (o) {
-                collectionPoints.push(this.props.collectionPoints.byId[o.value])
+    function onChange(opt: ValueType<{ label: string, value: string }>) {
+        if (opt) {
+            let ops: Array<{ label: string, value: string }> = [opt as { label: string, value: string }]
+            if (props.isMulti) {
+                ops = opt as Array<{ label: string, value: string }>
             }
-        }
-
-        if (this.props.onChange) {
-            if (this.props.isMulti) {
-                this.props.onChange(collectionPoints)
-            } else {
-                this.props.onChange(collectionPoints[0])
-            }
+            if (props.onChange) props.onChange(collectionPoints.find(r => r.id === parseInt((opt as { label: string, value: string }).value)))
         }
     }
 
-    private prepareValue() {
-        if (this.props.isMulti) {
-            return this.state.value || []
-        }
-
-        return (this.state.value || [])[0]
-    }
-
-    public render() {
-        if (!this.props.loading) {
-            return (<Select
-                ref={(select: any) => { if (this.props.ref) this.props.ref(select) }}
-                isClearable={true}
-                options={this.prepareOptions()}
-                backspaceRemovesValue={true}
-                hideSelectedOptions={true}
-                openMenuOnFocus={true}
-                isMulti={this.props.isMulti || false}
-                onChange={this.onChange.bind(this)}
-                value={this.prepareValue()}
-            />)
-        }
-
-        return null
-    }
+    return (<Select
+        isClearable={true}
+        options={prepareOptions(collectionPoints || [])}
+        backspaceRemovesValue={true}
+        hideSelectedOptions={true}
+        openMenuOnFocus={true}
+        isMulti={props.isMulti || false}
+        onChange={onChange}
+        value={valueProps}
+        required={!!props.required}
+    />)
 }
-
-const mapStateToProps = (state: State, props: any) => {
-    return {
-        collectionPoints: state.data.collectionPoints,
-        loading: state.data.collectionPoints.loading
-    }
-}
-
-const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>, props: any) => {
-    return {
-        fetchCollectionPoints: () => {
-            dispatch(Data.fetchCollectionPoints())
-        }
-    }
-}
-
-//@ts-ignore
-export const CollectionPointSelect = connect(mapStateToProps, mapDispatchToProps)(_CollectionPointSelect)

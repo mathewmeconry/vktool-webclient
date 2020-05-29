@@ -1,20 +1,12 @@
-import React, { Component } from 'react'
+import React, { useState } from 'react'
 import { Page } from '../components/Page'
 import Panel from '../components/Panel'
 import Row from '../components/Row'
 import Column from '../components/Column'
 import FormEntry from '../components/FormEntry'
-import { connect } from 'react-redux'
-import { State } from '../reducers/IndexReducer'
-import { ThunkDispatch } from 'redux-thunk'
-import { Data } from '../actions/DataActions'
-import { AnyAction } from 'redux'
 import Loading from '../components/Loading'
-import Table from '../components/Table'
 import StringIndexed from '../interfaces/StringIndexed'
-import { History } from 'history'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { DataInterface } from '../reducers/DataReducer'
 import { RouteComponentProps, Link } from 'react-router-dom'
 import * as BillingReportEntity from '../entities/BillingReport'
 import OrderCompensation from '../entities/OrderCompensation'
@@ -23,159 +15,52 @@ import User from '../entities/User'
 import { AuthRoles } from '../interfaces/AuthRoles'
 import Action from '../components/Action'
 import Contact from '../entities/Contact'
-import { OrderSelect } from '../components/OrderSelect'
-import { MemberSelect } from '../components/MemberSelect'
-import { EditBillingReport, BillingReportCompensationEntry } from '../interfaces/BillingReport'
-import Compensation from '../entities/Compensation'
+import OrderSelect from '../components/OrderSelect'
+import MemberSelect from '../components/MemberSelect'
 import Modal from '../components/Modal'
 import { ButtonGroup } from 'react-bootstrap'
 import AddBillingReportStep2 from './AddBillingReportSteps/AddBillingReportStep2'
 import Button from '../components/Button'
+import { GET_BILLINGREPORT, EDIT_BILLINGREPORT, CHANGE_BILLINGREPORT_STATE } from '../graphql/BillingReportQueries'
+import { useQuery, useMutation } from 'react-apollo'
+import { DELETE_COMPENSATION, ADD_ORDERCOMPENSATIONS } from '../graphql/CompensationQueries'
+import GraphQLTable from '../components/GraphqlTable'
+import { PaginationSortDirections } from '../graphql/Interfaces'
+import { GET_MY_ROLES, GET_MY_ID } from '../graphql/UserQueries'
+import Table from '../components/Table'
+import { UI } from '../actions/UIActions'
+import { useDispatch } from 'react-redux'
 
-export interface BillingReportProps extends RouteComponentProps<{ id: string }> {
-    billingReports: DataInterface<BillingReportEntity.default>,
-    orders: DataInterface<Order>,
-    loading: boolean,
-    fetchBillingReports: Function,
-    fetchOrders: Function,
-    history: History,
-    user: User,
-    approve: (id: string) => Promise<void>,
-    decline: (id: string) => Promise<void>,
-    edit: (data: EditBillingReport) => Promise<void>,
-    deleteCompensation: (id: number) => Promise<void>,
-    addCompensationEntries: (data: { billingReportId: number, entries: Array<BillingReportCompensationEntry> }) => Promise<void>
-}
 
-interface BillingReportState {
-    informationEdit: boolean
-    order: Order
-    date: Date
-    els: Array<Contact>
-    drivers: Array<Contact>
-    food: boolean
-    remarks: string,
-    toDeleteCompensation?: Compensation,
-    modalShow: boolean
-}
+export default function BillingReport(props: RouteComponentProps<{ id: string }>) {
+    const { loading, error, data, refetch } = useQuery<{ getBillingReport: BillingReportEntity.default }>(GET_BILLINGREPORT, { variables: { id: parseInt(props.match.params.id), fetchPolicy: 'cache-and-network' } })
+    const [billingReport, setBillingReport] = useState<BillingReportEntity.default>()
+    const [showModal, setShowModal] = useState(false)
+    const [editable, setEditable] = useState(false)
+    const [toDeleteCompensation, setToDeleteCompensation] = useState<OrderCompensation>()
 
-export class _BillingReport extends Component<BillingReportProps, BillingReportState> {
-    private billingReport: BillingReportEntity.default
+    const ŕoles = useQuery<{ me: { roles: AuthRoles[] } }>(GET_MY_ROLES)
+    const myId = useQuery<{ me: { id: number } }>(GET_MY_ID)
 
-    constructor(props: BillingReportProps) {
-        super(props)
+    const [editBillingReportMutation] = useMutation(EDIT_BILLINGREPORT)
+    const [changeBillingReportStateMutation] = useMutation(CHANGE_BILLINGREPORT_STATE)
+    const [addOrderCompensationsMutation] = useMutation(ADD_ORDERCOMPENSATIONS)
+    const [deleteCompensationMutation] = useMutation(DELETE_COMPENSATION)
+    const dispatch = useDispatch()
 
-        this.approve = this.approve.bind(this)
-        this.decline = this.decline.bind(this)
-        this.elementView = this.elementView.bind(this)
+    if (loading) return <Loading />
+    if (error) return null
 
-        this.billingReport = this.props.billingReports.byId[parseInt(this.props.match.params.id)]
-        this.onInformationEdit = this.onInformationEdit.bind(this)
-        this.onAbort = this.onAbort.bind(this)
-        this.onInformationSave = this.onInformationSave.bind(this)
-        this.onInputChange = this.onInputChange.bind(this)
-
-        this.getCompensationActions = this.getCompensationActions.bind(this)
-        this.deleteCompensation = this.deleteCompensation.bind(this)
-        this.deleteCompensationConfirmed = this.deleteCompensationConfirmed.bind(this)
-        this.addCompensations = this.addCompensations.bind(this)
-
-        this.showModal = this.showModal.bind(this)
-        this.hideModal = this.hideModal.bind(this)
-
-        if (this.billingReport) {
-            this.state = {
-                informationEdit: false,
-                order: (this.billingReport.order as Order),
-                date: this.billingReport.date,
-                els: this.billingReport.els,
-                drivers: this.billingReport.drivers,
-                food: this.billingReport.food,
-                remarks: this.billingReport.remarks,
-                modalShow: false
-            }
-        }
+    if (!billingReport && data?.getBillingReport) {
+        setBillingReport(data.getBillingReport)
     }
 
-    public componentDidUpdate(prevProps: BillingReportProps) {
-        if (this.props.match.params.id !== prevProps.match.params.id) {
-            this.billingReport = this.props.billingReports.byId[parseInt(this.props.match.params.id)]
-
-            if (this.billingReport) {
-                this.setState({
-                    order: (this.billingReport.order as Order),
-                    date: this.billingReport.date,
-                    els: this.billingReport.els,
-                    drivers: this.billingReport.drivers,
-                    food: this.billingReport.food,
-                    remarks: this.billingReport.remarks
-                })
-            }
-        }
+    async function refetchAndSet() {
+        const result = await refetch()
+        setBillingReport(result.data.getBillingReport)
     }
 
-    public componentWillMount() {
-        this.props.fetchBillingReports()
-        this.props.fetchOrders()
-    }
-
-    public approve(): Promise<void> {
-        return this.props.approve(this.billingReport.id.toString())
-    }
-
-    public decline(): Promise<void> {
-        return this.props.decline(this.billingReport.id.toString())
-    }
-
-    public async onInformationEdit(event: React.MouseEvent<HTMLElement>) {
-        this.setState({
-            informationEdit: true
-        })
-    }
-
-    public async onAbort(event: React.MouseEvent<HTMLElement>) {
-        this.setState({
-            informationEdit: false,
-            order: (this.billingReport.order as Order),
-            date: this.billingReport.date,
-            els: this.billingReport.els,
-            drivers: this.billingReport.drivers,
-            food: this.billingReport.food,
-            remarks: this.billingReport.remarks
-        })
-    }
-
-    public async onInformationSave(event: React.MouseEvent<HTMLElement>) {
-        await this.props.edit({
-            id: this.billingReport.id.toString(),
-            date: this.state.date,
-            drivers: this.state.drivers,
-            els: this.state.els,
-            food: this.state.food,
-            orderId: this.state.order.id,
-            remarks: this.state.remarks
-        })
-
-        this.setState({
-            informationEdit: false
-        })
-    }
-
-    private onInputChange(name: string, value: any) {
-        //@ts-ignore
-        this.setState({
-            [name]: value
-        })
-    }
-
-    public onSelectChange(state: string): (opts: Array<Contact> | Order) => void {
-        return (opts: Array<Contact> | Order) => {
-            //@ts-ignore
-            this.setState({ [state]: opts })
-        }
-    }
-
-    public async elementView(event: React.MouseEvent<HTMLButtonElement>) {
+    function elementView(event: React.MouseEvent<HTMLButtonElement>) {
         event.preventDefault()
         if (event.currentTarget.parentNode && event.currentTarget.parentNode.parentNode && event.currentTarget.parentNode.parentNode.parentElement) {
             let id = event.currentTarget.parentNode.parentNode.parentElement.getAttribute('data-key')
@@ -184,158 +69,172 @@ export class _BillingReport extends Component<BillingReportProps, BillingReportS
             if (event.button == 1) {
                 window.open((document.location as Location).origin + '/compensation/' + id)
             } else {
-                this.props.history.push('/compensation/' + id)
+                props.history.push('/compensation/' + id)
             }
         }
     }
 
-    private async deleteCompensation(event: React.MouseEvent<HTMLButtonElement>) {
+    async function approve(): Promise<void> {
+        const result = await changeBillingReportStateMutation({
+            variables: {
+                id: data?.getBillingReport.id,
+                state: 'APPROVED'
+            }
+        })
+        if (result.errors) {
+            return
+        }
+        dispatch(UI.showSuccess('Bewilligt'))
+        refetchAndSet()
+    }
+
+    async function decline(): Promise<void> {
+        const result = await changeBillingReportStateMutation({
+            variables: {
+                id: data?.getBillingReport.id,
+                state: 'DECLINED'
+            }
+        })
+        if (result.errors) {
+            return
+        }
+        dispatch(UI.showError('Abgelehnt'))
+        refetchAndSet()
+    }
+
+    async function deleteCompensation(event: React.MouseEvent<HTMLButtonElement>) {
         if (event.currentTarget.parentNode && event.currentTarget.parentNode.parentNode && event.currentTarget.parentNode.parentNode.parentElement) {
             let id = event.currentTarget.parentNode.parentNode.parentElement.getAttribute('data-key')
             if (id) {
-                this.setState({
-                    toDeleteCompensation: this.billingReport.compensations.find((compensation: Compensation) => compensation.id === parseInt(id || '')),
-                    modalShow: true
+                setToDeleteCompensation(billingReport?.compensations.find(c => c.id === parseInt(id || '')))
+                setShowModal(true)
+            }
+        }
+    }
+
+    async function deleteCompensationConfirmed() {
+        if (toDeleteCompensation) {
+            const result = await deleteCompensationMutation({
+                variables: {
+                    id: toDeleteCompensation.id
+                }
+            })
+            if (result.errors) {
+                return
+            }
+            dispatch(UI.showSuccess('Gespeichert'))
+            setShowModal(false)
+            setToDeleteCompensation(undefined)
+            refetchAndSet()
+        }
+    }
+
+
+    async function addCompensations(input: StringIndexed<any>) {
+        let compensationEntries: Array<{
+            from: Date,
+            until: Date,
+            billingReportId: number,
+            memberId: number,
+            date: Date
+        }> = []
+        if (billingReport) {
+            for (let i in input.vks) {
+                const entry = input.vks[i]
+                compensationEntries.push({
+                    from: entry.from,
+                    until: entry.until,
+                    billingReportId: billingReport.id,
+                    date: billingReport.date,
+                    memberId: entry.member.id
                 })
             }
         }
-    }
 
-    private async deleteCompensationConfirmed() {
-        if (this.state.toDeleteCompensation) {
-            await this.props.deleteCompensation(this.state.toDeleteCompensation.id)
-            this.setState({
-                toDeleteCompensation: undefined,
-                modalShow: false
-            })
-        }
-    }
-
-    private async addCompensations(data: StringIndexed<any>) {
-        let compensationEntries: Array<BillingReportCompensationEntry> = []
-        for (let i in data.vks) {
-            compensationEntries.push(data.vks[i])
-        }
-
-        await this.props.addCompensationEntries({
-            billingReportId: this.billingReport.id,
-            entries: compensationEntries
-        })
-
-        this.hideModal()
-    }
-
-    private async showModal() {
-        this.setState({
-            modalShow: true
-        })
-    }
-
-    private async hideModal(): Promise<boolean> {
-        this.setState({
-            modalShow: false
-        })
-
-        return true
-    }
-
-    public prepareCompensationsForTable() {
-        let compensations: StringIndexed<OrderCompensation> = {}
-        for (let compensation of (this.billingReport.compensations as Array<OrderCompensation>)) {
-            compensations[compensation.id] = compensation
-        }
-        return compensations
-    }
-
-    public renderActions() {
-        return [
-            <Button id="approve" block={true} variant="outline-success" onClick={this.approve} roles={[AuthRoles.BILLINGREPORTS_APPROVE]}>Genehmigen</Button>,
-            <Link to={`/order/${this.billingReport.order.id}`} className="btn btn-block btn-outline-primary">Auftrag öffnen</Link>
-        ]
-    }
-
-    public renderOrder() {
-        if (this.state.informationEdit) {
-            return <OrderSelect defaultValue={[this.state.order]} onChange={this.onSelectChange('order')} />
-        }
-
-        return (this.state.order as Order).title
-    }
-
-    public renderEls() {
-        if (this.state.informationEdit) {
-            return <MemberSelect defaultValue={this.state.els} isMulti={true} onChange={this.onSelectChange('els')} />
-        }
-
-        return this.state.els.map(el => el.firstname + ' ' + el.lastname).join(',')
-    }
-
-    public renderDrivers() {
-        if (this.state.informationEdit) {
-            return <MemberSelect defaultValue={this.state.drivers} isMulti={true} onChange={this.onSelectChange('drivers')} />
-        }
-
-        return this.state.drivers.map(driver => driver.firstname + ' ' + driver.lastname).join(',')
-    }
-
-    public renderInformations() {
-        let statusBadgeClass = 'badge-success'
-        if (this.billingReport.state === 'pending') statusBadgeClass = 'badge-warning'
-        if (this.billingReport.state === 'declined') statusBadgeClass = 'badge-danger'
-
-        let panelActions = []
-        if (this.props.user.roles.includes(AuthRoles.ADMIN) ||
-            this.props.user.roles.includes(AuthRoles.BILLINGREPORTS_EDIT) ||
-            (this.billingReport.state === 'pending' && this.billingReport.creator.id === this.props.user.id)) {
-            if (!this.state.informationEdit) {
-                panelActions.push(<Action icon="pencil-alt" key="edit" onClick={this.onInformationEdit} roles={[AuthRoles.BILLINGREPORTS_EDIT]} />)
-            } else {
-                panelActions.push(<Action icon="save" key="save" onClick={this.onInformationSave} />)
-                panelActions.push(<Action icon="times" key="edit" onClick={this.onAbort} />)
+        const result = await addOrderCompensationsMutation({
+            variables: {
+                data: compensationEntries
             }
-        }
+        })
 
-        return (
-            <Panel title="Informationen" actions={panelActions} className={(this.state.informationEdit) ? 'editable' : ''}>
-                <FormEntry id="orderTitle" title="Auftrag">
-                    {this.renderOrder()}
-                </FormEntry>
-                <FormEntry id="date" title="Datum" value={this.state.date.toISOString().split('T')[0]} type='date' editable={this.state.informationEdit} onChange={this.onInputChange}></FormEntry>
-                <FormEntry id="creator" title="Ersteller">{(this.billingReport.creator as User).displayName}</FormEntry>
-                <FormEntry id="state" title="Status"><div className={"badge " + statusBadgeClass}>{this.billingReport.state}</div></FormEntry>
-                <FormEntry id="els" title="ELs">
-                    {this.renderEls()}
-                </FormEntry>
-                <FormEntry id="drivers" title="Fahrer">
-                    {this.renderDrivers()}
-                </FormEntry>
-                <FormEntry id="food" title="Verpflegung" value={this.state.food} type='checkbox' editable={this.state.informationEdit} onChange={this.onInputChange}></FormEntry>
-                <FormEntry id="remarks" title="Bemerkungen" value={this.state.remarks} type='textarea' editable={this.state.informationEdit} onChange={this.onInputChange}></FormEntry>
-            </Panel>
-        )
+        if (result.errors) {
+            return
+        }
+        dispatch(UI.showSuccess('Gespeichert'))
+        refetchAndSet()
+        setShowModal(false)
     }
 
-    public renderCompensationDeletionModal() {
-        if (this.state.toDeleteCompensation) {
+    function onInputChange(name: string, value: any) {
+        const clone = { ...billingReport } as BillingReportEntity.default
+        // @ts-ignore
+        clone[name] = value
+        setBillingReport(clone)
+    }
+
+    function onSelectChange(state: string): (opts: Array<Contact> | Order) => void {
+        return (value: Array<Contact> | Order) => {
+            const clone = { ...billingReport } as BillingReportEntity.default
+            // @ts-ignore
+            clone[state] = value
+            if (state === 'order') {
+                // @ts-ignore
+                clone[state] = value[0]
+            }
+            setBillingReport(clone)
+        }
+    }
+
+    async function onAbort() {
+        setBillingReport(data?.getBillingReport)
+        setEditable(false)
+    }
+
+    async function onSave() {
+        if (billingReport) {
+            const result = await editBillingReportMutation({
+                variables: {
+                    data: {
+                        id: billingReport.id,
+                        orderId: parseInt(billingReport.order.id.toString()),
+                        date: billingReport.date,
+                        elIds: billingReport.els.map(e => parseInt(e.id.toString())),
+                        driverIds: billingReport.drivers.map(e => parseInt(e.id.toString())),
+                        food: billingReport.food,
+                        remarks: billingReport.remarks
+                    }
+                }
+            })
+            if (result.errors) {
+                return
+            }
+            dispatch(UI.showSuccess('Gespeichert'))
+            refetchAndSet()
+            setEditable(false)
+        }
+    }
+
+    function renderCompensationDeletionModal() {
+        if (toDeleteCompensation) {
             return (
                 <Modal
-                    show={this.state.modalShow}
-                    onHide={this.hideModal}
-                    header={<h3>{(this.state.toDeleteCompensation as Compensation).member.firstname + ' ' + (this.state.toDeleteCompensation as Compensation).member.lastname + ' vom  ' + (this.state.toDeleteCompensation as Compensation).date.toLocaleDateString()}</h3>}
+                    show={showModal}
+                    onHide={() => { setShowModal(false) }}
+                    header={<h3>{toDeleteCompensation.member.firstname + ' ' + toDeleteCompensation.member.lastname + ' vom  ' + new Date(toDeleteCompensation.date).toLocaleDateString()}</h3>}
                     body={
                         <span>
                             {
                                 'Willst du die Entschädigung von ' +
-                                (this.state.toDeleteCompensation as Compensation).member.firstname + ' ' + (this.state.toDeleteCompensation as Compensation).member.lastname +
-                                ' vom  ' + (this.state.toDeleteCompensation as Compensation).date.toLocaleDateString() + ' mit einem Betrag von CHF' +
-                                (this.state.toDeleteCompensation as Compensation).amount + ' wirklich löschen?'
+                                toDeleteCompensation.member.firstname + ' ' + toDeleteCompensation.member.lastname +
+                                ' vom  ' + new Date(toDeleteCompensation.date).toLocaleDateString() + ' mit einem Betrag von CHF' +
+                                toDeleteCompensation.amount + ' wirklich löschen?'
                             }
                         </span>
                     }
                     footer={
                         <ButtonGroup>
-                            <Button variant="danger" onClick={this.deleteCompensationConfirmed}>Löschen</Button>
-                            <Button variant="secondary" onClick={this.hideModal}>Abbrechen</Button>
+                            <Button variant="danger" onClick={deleteCompensationConfirmed}>Löschen</Button>
+                            <Button variant="secondary" onClick={() => { setShowModal(false) }}>Abbrechen</Button>
                         </ButtonGroup>
                     }
 
@@ -346,15 +245,15 @@ export class _BillingReport extends Component<BillingReportProps, BillingReportS
         return null
     }
 
-    public renderCompensationsAddModal() {
-        if (!this.state.toDeleteCompensation) {
+    function renderCompensationsAddModal() {
+        if (!toDeleteCompensation) {
             return (
                 <Modal
-                    show={this.state.modalShow}
-                    onHide={this.hideModal}
+                    show={showModal}
+                    onHide={() => setShowModal(false)}
                     header={<h3>Entschädigungen hinzufügen</h3>}
                     body={
-                        <AddBillingReportStep2 onNext={this.addCompensations} onPrevious={this.hideModal} />
+                        <AddBillingReportStep2 onNext={addCompensations} onPrevious={() => { setShowModal(false); return Promise.resolve(true) }} />
                     }
                     footer={<div></div>}
 
@@ -364,96 +263,122 @@ export class _BillingReport extends Component<BillingReportProps, BillingReportS
         return null
     }
 
-    public getCompensationActions() {
-        return [
-            <Button variant="success" className="view" onClick={this.elementView}><FontAwesomeIcon icon="eye" /></Button>,
-            <Button variant="danger" className="delete" onClick={this.deleteCompensation} roles={[AuthRoles.BILLINGREPORTS_EDIT]}><FontAwesomeIcon icon="trash" /></Button>
-        ]
-    }
+    function renderInformations() {
+        if (billingReport) {
+            let statusBadgeClass = 'badge-success'
+            if (billingReport?.state === 'pending') statusBadgeClass = 'badge-warning'
+            if (billingReport?.state === 'declined') statusBadgeClass = 'badge-danger'
 
-    public render() {
-        if (this.props.loading || !this.billingReport || !this.state) {
-            return (<Page title="Verrechnungsrapport"><Loading /></Page>)
-        }
+            let panelActions = []
+            if (ŕoles.data?.me.roles.includes(AuthRoles.ADMIN) ||
+                ŕoles.data?.me.roles.includes(AuthRoles.BILLINGREPORTS_EDIT) ||
+                (billingReport?.state === 'pending' && billingReport.creator.id === myId.data?.me.id)) {
+                if (!editable) {
+                    panelActions.push(<Action icon="pencil-alt" key="edit" onClick={async () => setEditable(true)} roles={[AuthRoles.BILLINGREPORTS_EDIT]} />)
+                } else {
+                    panelActions.push(<Action icon="save" key="save" onClick={onSave} />)
+                    panelActions.push(<Action icon="times" key="edit" onClick={onAbort} />)
+                }
+            }
 
-        return (
-            <Page title="Verrechnungsrapport">
-                {this.renderCompensationDeletionModal()}
-                {this.renderCompensationsAddModal()}
-                <Row>
-                    <Column className="col-md-6">
-                        {this.renderInformations()}
-                    </Column>
-                    <Column className="col-md-6">
-                        <Panel title="Actions">
-                            {this.renderActions()}
-                        </Panel>
-                    </Column>
-                </Row>
-                <Row>
-                    <Column>
-                        <Panel title="VKs" actions={[<Action icon="plus" onClick={this.showModal} />]}>
-                            <Table<OrderCompensation>
-                                columns={[
-                                    { text: 'Name', keys: { 'member': ['firstname', 'lastname'] }, sortable: true },
-                                    { text: 'Von', keys: ['from'], format: 'toLocaleTimeString', sortable: true },
-                                    { text: 'Bis', keys: ['until'], format: 'toLocaleTimeString', sortable: true },
-                                    { text: 'Verrechnen', keys: ['charge'], sortable: true },
-                                    { text: 'Betrag', keys: ['amount'], prefix: 'CHF ', sortable: true, format: 'toFixed(2)' },
-                                    { text: 'Ausbezahlt', keys: ['paied'], sortable: true },
-                                    {
-                                        text: 'Actions', keys: ['_id'], content: <ButtonGroup>{this.getCompensationActions()}</ButtonGroup>
-                                    }
-                                ]}
-                                defaultSort={{ keys: ['from'], direction: 'asc' }}
-                                data={this.prepareCompensationsForTable()}
-                            ></Table>
-                        </Panel>
-                    </Column>
-                </Row>
-            </Page >
-        )
-    }
-}
-
-const mapStateToProps = (state: State, props: any) => {
-    return {
-        billingReports: state.data.billingReports,
-        user: state.data.user.data,
-        orders: state.data.orders,
-        loading: state.data.billingReports.loading || state.data.user.loading || state.data.orders.loading
-    }
-}
-
-const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>, props: any) => {
-    return {
-        fetchBillingReports: () => {
-            return dispatch(Data.fetchBillingReports())
-        },
-        fetchOrders: () => {
-            return dispatch(Data.fetchOrders())
-        },
-        approve: (id: string) => {
-            return dispatch(Data.approveBillingReport(id))
-        },
-        decline: (id: string) => {
-            return dispatch(Data.declineBillingReport(id))
-        },
-        edit: (data: EditBillingReport) => {
-            return dispatch(Data.editBillingReport(data))
-        },
-        deleteCompensation: async (id: number) => {
-            return dispatch(Data.deleteCompensationEntry(id)).then(() => {
-                dispatch(Data.fetchBillingReports())
-            })
-        },
-        addCompensationEntries: (data: { billingReportId: number, entries: Array<BillingReportCompensationEntry> }) => {
-            return dispatch(Data.addCompensationEntriesForBillingReport(data)).then(() => {
-                dispatch(Data.fetchBillingReports())
-            })
+            return (
+                <Panel title="Informationen" actions={panelActions} className={(editable) ? 'editable' : ''}>
+                    <FormEntry id="orderTitle" title="Auftrag">
+                        {renderOrder()}
+                    </FormEntry>
+                    <FormEntry id="date" title="Datum" value={(billingReport.date) ? new Date(billingReport?.date).toISOString().split('T')[0] : ''} type='date' editable={editable} onChange={onInputChange}></FormEntry>
+                    <FormEntry id="creator" title="Ersteller">{(billingReport?.creator as User).displayName}</FormEntry>
+                    <FormEntry id="state" title="Status"><div className={"badge " + statusBadgeClass}>{billingReport?.state}</div></FormEntry>
+                    <FormEntry id="els" title="ELs">
+                        {renderEls()}
+                    </FormEntry>
+                    <FormEntry id="drivers" title="Fahrer">
+                        {renderDrivers()}
+                    </FormEntry>
+                    <FormEntry id="food" title="Verpflegung" value={billingReport?.food} type='checkbox' editable={editable} onChange={onInputChange}></FormEntry>
+                    <FormEntry id="remarks" title="Bemerkungen" value={billingReport?.remarks} type='textarea' editable={editable} onChange={onInputChange}></FormEntry>
+                </Panel>
+            )
         }
     }
-}
 
-//@ts-ignore
-export const BillingReport = connect(mapStateToProps, mapDispatchToProps)(_BillingReport)
+    function renderActions() {
+        const actions = [<Link to={`/order/${billingReport?.order.id}`} className="btn btn-block btn-outline-primary">Auftrag öffnen</Link>]
+        if (billingReport?.state === 'pending') {
+            actions.push(<Button id="approve" block={true} variant="outline-success" onClick={approve} roles={[AuthRoles.BILLINGREPORTS_APPROVE]}>Genehmigen</Button>)
+        }
+
+        return actions
+    }
+
+    function renderOrder() {
+        if (billingReport) {
+            if (editable) {
+                return <OrderSelect defaultValue={[billingReport?.order.id.toString()]} onChange={onSelectChange('order')} />
+            }
+
+            return (billingReport?.order).title
+        }
+    }
+
+
+    function renderEls() {
+        if (editable) {
+            return <MemberSelect defaultValue={billingReport?.els.map(el => el.id.toString())} isMulti={true} onChange={onSelectChange('els')} />
+        }
+
+        return billingReport?.els.map(el => el.firstname + ' ' + el.lastname).join(',')
+    }
+
+    function renderDrivers() {
+        if (editable) {
+            return <MemberSelect defaultValue={billingReport?.drivers.map(d => d.id.toString())} isMulti={true} onChange={onSelectChange('drivers')} />
+        }
+
+        return billingReport?.drivers.map(driver => driver.firstname + ' ' + driver.lastname).join(',')
+    }
+
+    return (
+        <Page title="Verrechnungsrapport">
+            {renderCompensationDeletionModal()}
+            {renderCompensationsAddModal()}
+            <Row>
+                <Column className="col-md-6">
+                    {renderInformations()}
+                </Column>
+                <Column className="col-md-6">
+                    <Panel title="Actions">
+                        {renderActions()}
+                    </Panel>
+                </Column>
+            </Row>
+            <Row>
+                <Column>
+                    <Panel title="VKs" actions={[<Action icon="plus" onClick={async () => setShowModal(true)} />]}>
+                        <Table<OrderCompensation>
+                            columns={[
+                                { text: 'Name', keys: { 'member': ['firstname', 'lastname'] }, sortable: true },
+                                { text: 'Von', keys: ['from'], format: 'toLocaleTimeString', sortable: true },
+                                { text: 'Bis', keys: ['until'], format: 'toLocaleTimeString', sortable: true },
+                                { text: 'Verrechnen', keys: ['charge'], sortable: true },
+                                { text: 'Betrag', keys: ['amount'], prefix: 'CHF ', sortable: true, format: 'toFixed(2)' },
+                                { text: 'Ausbezahlt', keys: ['paied'], sortable: true },
+                                {
+                                    text: 'Actions', keys: ['_id'], content: <ButtonGroup>{[
+                                        <Button variant="success" className="view" onClick={elementView}><FontAwesomeIcon icon="eye" /></Button>,
+                                        <Button variant="danger" className="delete" onClick={deleteCompensation} roles={[AuthRoles.BILLINGREPORTS_EDIT]}><FontAwesomeIcon icon="trash" /></Button>
+                                    ]}</ButtonGroup>
+                                }
+                            ]}
+                            defaultSort={{
+                                keys: ['from'],
+                                direction: 'desc'
+                            }}
+                            data={billingReport?.compensations.map(c => { return { ...c, from: new Date(c.from), until: new Date(c.until) } }) || []}
+                        ></Table>
+                    </Panel>
+                </Column>
+            </Row>
+        </Page >
+    )
+}

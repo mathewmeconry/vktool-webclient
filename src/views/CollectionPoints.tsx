@@ -1,34 +1,26 @@
-import { State } from "../reducers/IndexReducer";
-import { connect } from "react-redux";
-import { Data } from "../actions/DataActions";
-import { ThunkDispatch } from "redux-thunk";
-import { AnyAction } from "redux";
-import { DataList } from "../components/DataList";
-import Action from "../components/Action";
-import React from "react";
+import Action from "../components/Action"
+import React from "react"
 import { AuthRoles } from "../interfaces/AuthRoles"
+import GraphQLDataList from "../components/GraphQLDataList"
+import { GET_COLLECTIONPOINTS } from "../graphql/CollectionPointQueries"
+import { RouteComponentProps } from "react-router"
+import CollectionPoint from "../entities/CollectionPoint"
 
 
-const mapStateToProps = (state: State) => {
-    return {
-        data: state.data.collectionPoints,
-        title: 'Abholpunkte',
-        panelActions: [<Action icon="plus" to="/draft/collection-point/add" roles={[AuthRoles.DRAFT_CREATE, AuthRoles.DRAFT_EDIT]}/>],
-        viewLocation: '/collection-point/',
-        tableColumns: [
-            { text: 'Name', keys: ['name'], sortable: true, searchable: true },
-            { text: 'Abholpunkt', keys: ['address', 'postcode', 'city'], link: true, linkPrefix: 'https://www.google.com/maps/search/', sortable: true, searchable: true },
-        ]
-    }
+export default function CollectionPoints(props: RouteComponentProps) {
+    return (
+        <GraphQLDataList<CollectionPoint>
+            query={GET_COLLECTIONPOINTS}
+            title='Abholpunkte'
+            panelActions={[<Action icon="plus" to="/draft/collection-point/add" roles={[AuthRoles.DRAFT_CREATE, AuthRoles.DRAFT_EDIT]} />]}
+            viewLocation='/collection-point/'
+            tableColumns={[
+                { text: 'Name', keys: ['name'], sortable: true },
+                { text: 'Abholpunkt', keys: ['address', 'postcode', 'city'], link: true, linkPrefix: 'https://www.google.com/maps/search/', sortKey: 'address', sortable: true },
+            ]}
+            defaultSortBy='name'
+            searchable={true}
+            {...props}
+        />
+    )
 }
-
-const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>) => {
-    return {
-        fetchData: () => {
-            dispatch(Data.fetchCollectionPoints())
-        }
-    }
-}
-
-
-export const CollectionPoints = connect(mapStateToProps, mapDispatchToProps)(DataList)

@@ -1,42 +1,42 @@
 export enum AuthRoles {
-    AUTHENTICATED = 'authenticated',
+    AUTHENTICATED = 'AUTHENTICATED',
 
-    CONTACTS_READ = 'contacts_read',
-    CONTACTS_EDIT = 'contacts_edit',
+    CONTACTS_READ = 'CONTACTS_READ',
+    CONTACTS_EDIT = 'CONTACTS_EDIT',
 
-    MEMBERS_READ = 'members_read',
-    MEMBERS_EDIT = 'members_edit',
+    MEMBERS_READ = 'MEMBERS_READ',
+    MEMBERS_EDIT = 'MEMBERS_EDIT',
 
-    MAILING_LISTS = 'mailing_lists',
+    MAILING_LISTS = 'MAILING_LISTS',
 
-    RANKS_READ = 'ranks_read',
-    RANKS_EDIT = 'ranks_edit',
+    RANKS_READ = 'RANKS_READ',
+    RANKS_EDIT = 'RANKS_EDIT',
 
-    ORDERS_READ = 'orders_read',
-    ORDERS_EDIT = 'orders_edit',
+    ORDERS_READ = 'ORDERS_READ',
+    ORDERS_EDIT = 'ORDERS_EDIT',
 
-    COMPENSATIONS_READ = 'compensations_read',
-    COMPENSATIONS_CREATE = 'compensations_create',
-    COMPENSATIONS_EDIT = 'compensations_edit',
-    COMPENSATIONS_APPROVE = 'compensations_approve',
+    COMPENSATIONS_READ = 'COMPENSATIONS_READ',
+    COMPENSATIONS_CREATE = 'COMPENSATIONS_CREATE',
+    COMPENSATIONS_EDIT = 'COMPENSATIONS_EDIT',
+    COMPENSATIONS_APPROVE = 'COMPENSATIONS_APPROVE',
 
-    BILLINGREPORTS_READ = 'billingreports_read',
-    BILLINGREPORTS_CREATE = 'billingreports_create',
-    BILLINGREPORTS_EDIT = 'billingreports_edit',
-    BILLINGREPORTS_APPROVE = 'billingrepors_approve',
+    BILLINGREPORTS_READ = 'BILLINGREPORTS_READ',
+    BILLINGREPORTS_CREATE = 'BILLINGREPORTS_CREATE',
+    BILLINGREPORTS_EDIT = 'BILLINGREPORTS_EDIT',
+    BILLINGREPORTS_APPROVE = 'BILLINGREPORS_APPROVE',
 
-    DRAFT_READ = 'draft_read',
-    DRAFT_CREATE = 'draft_create',
-    DRAFT_EDIT = 'draft_edit',
+    DRAFT_READ = 'DRAFT_READ',
+    DRAFT_CREATE = 'DRAFT_CREATE',
+    DRAFT_EDIT = 'DRAFT_EDIT',
 
-    PAYOUTS_READ = 'payouts_read',
-    PAYOUTS_CREATE = 'payouts_create',
-    PAYOUTS_SEND = 'payouts_send',
+    PAYOUTS_READ = 'PAYOUTS_READ',
+    PAYOUTS_CREATE = 'PAYOUTS_CREATE',
+    PAYOUTS_SEND = 'PAYOUTS_SEND',
 
-    LOGOFFS_READ = 'logoffs_read',
-    LOGOFFS_CREATE = 'logoffs_create',
-    LOGOFFS_EDIT = 'logoffs_edit',
-    LOGOFFS_APPROVE = 'logoffs_approve',
+    LOGOFFS_READ = 'LOGOFFS_READ',
+    LOGOFFS_CREATE = 'LOGOFFS_CREATE',
+    LOGOFFS_EDIT = 'LOGOFFS_EDIT',
+    LOGOFFS_APPROVE = 'LOGOFFS_APPROVE',
 
-    ADMIN = 'admin'
+    ADMIN = 'ADMIN'
 }

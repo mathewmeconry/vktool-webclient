@@ -1,150 +1,69 @@
-import React, { Component } from "react";
-import { Data } from "../actions/DataActions";
-import { ThunkDispatch } from "redux-thunk";
-import { State } from "../reducers/IndexReducer";
-import { AnyAction } from "redux";
+import React, { useState } from "react"
 import Select from 'react-select'
-import { DataInterface } from "../reducers/DataReducer";
-import { ValueType } from "react-select/lib/types";
-import { connect } from 'react-redux';
-import Order from "../entities/Order";
+import { ValueType } from "react-select/lib/types"
+import Order from "../entities/Order"
+import { GET_OPEN_ORDERS } from "../graphql/OrderQueries"
+import { useQuery } from "react-apollo"
+import LoadingDots from "./LoadingDots"
 
 interface OrderSelectProps {
-    defaultValue?: Array<Order>,
+    defaultValue?: Array<string>,
     isMulti?: boolean
     onChange: Function,
-    orders: DataInterface<Order>,
-    loading: boolean,
     ref?: Function,
-    fetchOrders: Function
+    required?: boolean
 }
 
-export class _OrderSelect extends Component<OrderSelectProps, { value?: Array<{ label: string, value: string }> }> {
-    constructor(props: OrderSelectProps) {
-        super(props)
+export default function OrderSelect(props: OrderSelectProps) {
+    const { loading, error, data } = useQuery<{ getOpenOrders: Order[] }>(GET_OPEN_ORDERS)
 
-        if (this.props.defaultValue instanceof Array) {
-            let valueProps = []
-            for (let order of this.props.defaultValue) {
+    if (loading) return <LoadingDots />
+    if (error) return null
+    if (!data?.getOpenOrders) return null
+
+    let valueProps = []
+    if (props.defaultValue instanceof Array) {
+        for (let id of props.defaultValue) {
+            const order = (data.getOpenOrders || []).find(rec => rec.id.toString() === id)
+            if (order) {
                 valueProps.push({
                     value: order.id.toString(),
                     label: order.title
                 })
             }
-
-            this.state = {
-                value: valueProps
-            }
-        } else {
-            this.state = {}
         }
     }
 
-    public componentDidUpdate() {
-        if (this.props.defaultValue instanceof Array) {
-            let valueProps = []
-            for (let order of this.props.defaultValue) {
-                if (order.hasOwnProperty('id')) {
-                    valueProps.push({
-                        value: order.id.toString(),
-                        label: order.title
-                    })
-                }
-            }
-
-            if (JSON.stringify(this.state.value) !== JSON.stringify(valueProps)) {
-                this.setState({
-                    value: valueProps
-                })
-            }
-        }
-    }
-
-    public componentWillMount() {
-        if (this.props.orders.ids.length < 1) {
-            this.props.fetchOrders()
-        }
-    }
-
-    private prepareOptions() {
+    function prepareOptions(data: Order[]) {
         let options = []
-        if (Object.keys(this.props.orders.byId).length > 0) {
-            for (let i in this.props.orders.byId) {
-                let order = this.props.orders.byId[i]
-                options.push({
-                    label: order.title,
-                    value: i
-                })
-            }
+        for (const rec of data) {
+            options.push({
+                label: rec.title,
+                value: rec.id.toString()
+            })
         }
 
         return options
     }
 
-    private onChange(opt: ValueType<{ label: string, value: string }>) {
+    function onChange(opt: ValueType<{ label: string, value: string }>) {
         let ops: Array<{ label: string, value: string }> = [opt as { label: string, value: string }]
-        if (this.props.isMulti) {
+        if (props.isMulti) {
             ops = opt as Array<{ label: string, value: string }>
         }
-
-        this.setState({
-            value: ops
-        })
-
-        let orders = []
-        for (let o of ops) {
-            orders.push(this.props.orders.byId[o.value])
-        }
-        if (this.props.onChange) {
-            if (this.props.isMulti) {
-                this.props.onChange(orders)
-            } else {
-                this.props.onChange(orders[0])
-            }
-        }
+        props.onChange(ops.map(r => data?.getOpenOrders.find(o => o.id === parseInt(r.value))))
     }
 
-    private prepareValue() {
-        if (this.props.isMulti) {
-            return this.state.value || []
-        }
+    return (<Select
+        isClearable={true}
+        options={prepareOptions(data?.getOpenOrders || [])}
+        backspaceRemovesValue={true}
+        hideSelectedOptions={true}
+        openMenuOnFocus={true}
+        isMulti={props.isMulti || false}
+        onChange={onChange}
+        value={valueProps}
+        required={!!props.required}
+    />)
 
-        return (this.state.value || [])[0]
-    }
-
-    public render() {
-        if (!this.props.loading) {
-            return (<Select
-                ref={(select: any) => { if (this.props.ref) this.props.ref(select) }}
-                isClearable={true}
-                options={this.prepareOptions()}
-                backspaceRemovesValue={true}
-                hideSelectedOptions={true}
-                openMenuOnFocus={true}
-                isMulti={this.props.isMulti || false}
-                onChange={this.onChange.bind(this)}
-                value={this.prepareValue()}
-            />)
-        }
-
-        return null
-    }
 }
-
-const mapStateToProps = (state: State, props: any) => {
-    return {
-        orders: state.data.orders,
-        loading: state.data.orders.loading
-    }
-}
-
-const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>, props: any) => {
-    return {
-        fetchOrders: () => {
-            dispatch(Data.fetchOrders())
-        }
-    }
-}
-
-//@ts-ignore
-export const OrderSelect = connect(mapStateToProps, mapDispatchToProps)(_OrderSelect)

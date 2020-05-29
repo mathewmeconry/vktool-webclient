@@ -1,38 +1,35 @@
-import React, { Component } from 'react'
-import { State } from '../reducers/IndexReducer';
-import { ThunkDispatch } from 'redux-thunk';
-import { AnyAction } from 'redux';
-import { connect } from 'react-redux'
-import { Data } from '../actions/DataActions';
-import { Page } from '../components/Page';
-import Loading from '../components/Loading';
-import Row from '../components/Row';
-import Column from '../components/Column';
-import Panel from '../components/Panel';
-import FormEntry from '../components/FormEntry';
-import { Link } from 'react-router-dom';
-import Table from '../components/Table';
-import * as UserEntity from '../entities/User';
-import Contact from '../entities/Contact';
+import React from 'react'
+import { Page } from '../components/Page'
+import Loading from '../components/Loading'
+import Row from '../components/Row'
+import Column from '../components/Column'
+import Panel from '../components/Panel'
+import FormEntry from '../components/FormEntry'
+import { Link, RouteComponentProps } from 'react-router-dom'
+import Table from '../components/Table'
+import * as UserEntity from '../entities/User'
+import Contact from '../entities/Contact'
+import { useQuery } from 'react-apollo'
+import { GET_USER } from '../graphql/UserQueries'
+import Error404 from '../components/Errors/404'
 
-export interface UserProps {
-    user: UserEntity.default,
-    loading: boolean,
-    fetchUsers: Function,
-}
+export default function User(props: RouteComponentProps<{ id: string }>) {
+    const user = useQuery<{getUser: UserEntity.default}>(GET_USER, { variables: { id: parseInt(props.match.params.id) } })
 
-export class _User extends Component<UserProps> {
-    constructor(props: UserProps) {
-        super(props)
-        this.props.fetchUsers()
+    if (user.loading) {
+        return <Loading />
     }
 
-    public renderBexioPart() {
-        if (!this.props.user.bexioContact) {
+    if (!user.data) {
+        return <Error404 />
+    }
+
+    function renderBexioPart() {
+        if (!user.data || !user.data.getUser.bexioContact) {
             return (<span>Kein Link gefunden....</span>)
         }
 
-        let contact = this.props.user.bexioContact as Contact
+        let contact = user.data.getUser.bexioContact as Contact
         return (
             <div>
                 <FormEntry id="bexioId" title="ID">{contact.bexioId}</FormEntry>
@@ -44,11 +41,13 @@ export class _User extends Component<UserProps> {
         )
     }
 
-    public renderRolePart() {
+    function renderRolePart() {
         let roles: Array<{ role: string, id: string }> = []
 
-        for (let i in this.props.user.roles) {
-            roles.push({ role: this.props.user.roles[i], id: i })
+        if (!user.data) return null
+
+        for (let i in user.data.getUser.roles) {
+            roles.push({ role: user.data.getUser.roles[i], id: i })
         }
 
         return (
@@ -61,65 +60,23 @@ export class _User extends Component<UserProps> {
         )
     }
 
-    public render() {
-        if (this.props.loading || !this.props.user) {
-            return (
-                <Page title="Loading..."><Loading /></Page>
-            )
-        }
-
-        return (
-            <Page title={this.props.user.displayName}>
-                <Row>
-                    <Column className="col-md-6">
-                        <Panel title="Allgemeine Informationen">
-                            <FormEntry id="displayName" title="Name">{this.props.user.displayName}</FormEntry>
-                        </Panel>
-                        <Panel title="Rechte">
-                            {this.renderRolePart()}
-                        </Panel>
-                    </Column>
-                    <Column className="col-md-6">
-                        <Panel title="Bexio Informationen">
-                            {this.renderBexioPart()}
-                        </Panel>
-                    </Column>
-                </Row>
-            </Page>
-        )
-    }
+    return (
+        <Page title={user.data.getUser.displayName}>
+            <Row>
+                <Column className="col-md-6">
+                    <Panel title="Allgemeine Informationen">
+                        <FormEntry id="displayName" title="Name">{user.data.getUser.displayName}</FormEntry>
+                    </Panel>
+                    <Panel title="Rechte">
+                        {renderRolePart()}
+                    </Panel>
+                </Column>
+                <Column className="col-md-6">
+                    <Panel title="Bexio Informationen">
+                        {renderBexioPart()}
+                    </Panel>
+                </Column>
+            </Row>
+        </Page>
+    )
 }
-
-const mapStateToProps = (state: State, props: any) => {
-    if (props.location.pathname === '/me') {
-        return {
-            user: state.data.user.data,
-            loading: state.data.user.loading
-        }
-    }
-
-    return {
-        user: state.data.users.byId[props.match.params.id],
-        loading: state.data.users.loading
-    }
-}
-
-const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>, props: any) => {
-    if (props.location.pathname === '/me') {
-        return {
-            fetchUsers: () => {
-                dispatch(Data.fetchUser())
-            }
-        }
-    }
-
-    return {
-        fetchUsers: () => {
-            dispatch(Data.fetchUsers())
-        }
-    }
-}
-
-
-//@ts-ignore
-export const User = connect(mapStateToProps, mapDispatchToProps)(_User)

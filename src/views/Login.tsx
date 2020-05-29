@@ -1,102 +1,54 @@
-import React, { Component } from "react"
-import { connect } from "react-redux"
-import { State } from '../reducers/IndexReducer'
-import { History, Location } from "history"
+import React from "react"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { ThunkDispatch } from "redux-thunk"
-import { AnyAction } from "redux"
-import { Data } from "../actions/DataActions"
-import { SingleDataInterface } from "../reducers/DataReducer"
 import Loading from "../components/Loading"
-import { UI } from "../actions/UIActions"
 import Config from "../Config"
-import User from "../entities/User"
+import { useQuery } from "react-apollo"
+import { GET_ME } from "../graphql/UserQueries"
+import { RouteComponentProps } from "react-router-dom"
+import { useDispatch } from "react-redux"
+import { UI } from "../actions/UIActions"
 
-export interface LoginProps {
-    user: SingleDataInterface<User>,
-    history: History,
-    location: Location<{ prevLocation: string, errorShown: boolean }>,
-    fetchUser: Function,
-    showError: (message?: string) => void,
-    showSuccess: (message?: string) => void
-}
+export default function Login(props: RouteComponentProps<{}, {}, { prevLocation: string, unAuthenticated: boolean }>) {
+    const me = useQuery(GET_ME)
+    const dispatch = useDispatch()
 
-export class _Login extends Component<LoginProps, { loaded: boolean }> {
-    private mounted = false
-
-    constructor(props: LoginProps) {
-        super(props)
-        this.state = {
-            loaded: false
-        }
+    if (me.loading) {
+        return <Loading />
     }
 
-    public async componentDidMount() {
-        this.mounted = true
-        await this.props.fetchUser()
-
-        if (this.mounted) {
-            this.setState({
-                loaded: true
-            })
-        }
-    }
-
-    public async componentWillUnmount() {
-        this.mounted = false
-    }
-
-    public render() {
-        if (this.props.user.data) {
-            this.props.showSuccess('Willkommen zurück')
-
-            if (this.props.location.state && this.props.location.state.prevLocation) {
-                this.props.history.push(this.props.location.state.prevLocation)
-            } else {
-                this.props.history.push('/dashboard')
-            }
-            return null
-        } else if (this.props.user.loading || !this.state.loaded) {
-            return (<Loading fullscreen={true} />)
+    if (me.data) {
+        if (props.location.state && props.location.state.prevLocation) {
+            props.history.push(props.location.state.prevLocation)
         } else {
-            if (this.props.location.state && !this.props.location.state.errorShown) {
-                this.props.showError('Sorry.... zuerst einloggen!')
-                this.props.history.replace(this.props.location.pathname, Object.assign({}, this.props.location.state, { errorShown: true }))
-            }
+            props.history.push('/dashboard')
+        }
+        return null
+    }
 
-            return (
-                <div id="login">
-                    <h2>Login</h2>
-                    < div className="form-group" >
-                        <a className="btn btn-secondary btn-block" href={Config.apiEndpoint + "/api/auth/azure"}>
-                            <FontAwesomeIcon icon={['fab', 'microsoft']} className="icon"></FontAwesomeIcon>
+    if (props.location.state && !props.location.state.unAuthenticated) {
+        props.history.replace(props.location.pathname, Object.assign({}, props.location.state, { errorShown: true }))
+    }
+
+    if (props.location.state?.unAuthenticated) {
+        dispatch(UI.showError('Bitte logge dich ein'))
+    }
+
+    return (
+        <div className="d-flex vw-100 vh-100" id="login-container">
+            <div id="login">
+                <h2>Login</h2>
+                <div className="form-group" >
+                    <a className="btn btn-secondary btn-block d-flex justify-content-between" href={Config.apiEndpoint + "/api/auth/azure"}>
+                        <span className="icon">
+                            <FontAwesomeIcon icon={['fab', 'microsoft']} ></FontAwesomeIcon>
+                        </span>
+                        <span>
                             VK-Login
-                        </a>
-                    </div >
+                        </span>
+                        <span></span>
+                    </a>
                 </div >
-            )
-        }
-    }
+            </div >
+        </div>
+    )
 }
-
-const mapStateToProps = (state: State) => {
-    return {
-        user: state.data.user
-    }
-}
-
-const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>) => {
-    return {
-        fetchUser: () => {
-            return dispatch(Data.fetchUser())
-        },
-        showError: (message = "Ooppss...! Versuche es später erneut") => {
-            dispatch(UI.showError(message))
-        },
-        showSuccess: (message = 'Yeeppiii') => {
-            dispatch(UI.showSuccess(message))
-        }
-    }
-}
-
-export const Login = connect(mapStateToProps, mapDispatchToProps)(_Login)

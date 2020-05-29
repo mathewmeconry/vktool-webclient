@@ -1,63 +1,47 @@
-import React, { Component } from 'react'
-import { Route, Redirect } from 'react-router-dom';
-import { connect } from "react-redux";
-import { State } from '../reducers/IndexReducer';
-import { AuthRoles } from '../interfaces/AuthRoles';
-import User from '../entities/User';
-import { RouteProps } from 'react-router';
-import { Dispatch } from 'redux';
-import { UI } from '../actions/UIActions';
-import { Error403 } from './Errors/403';
+import React from 'react'
+import { Route, Redirect } from 'react-router-dom'
+import { AuthRoles } from '../interfaces/AuthRoles'
+import { RouteProps } from 'react-router'
+import { Error403 } from './Errors/403'
+import { useQuery } from 'react-apollo'
+import { GET_MY_ROLES } from '../graphql/UserQueries'
+import Loading from './Loading'
 
-export interface SecureRouteProps {
-    user?: User,
-    showError?: (message: string) => void
+export interface SecureRouteProps extends RouteProps {
     exact: boolean,
     path: string,
     roles: Array<AuthRoles>
-    component: any
+    component: any,
+    showError?: boolean
 }
 
-export default class _SecureRoute extends Component<RouteProps & SecureRouteProps> {
-    public render() {
-        for (let role of this.props.roles) {
-            if (this.props.user && (this.props.user.roles.includes(role) || this.props.user.roles.includes(AuthRoles.ADMIN))) {
-                return (
-                    <Route exact={this.props.exact} path={this.props.path} component={this.props.component} />
-                )
-            }
-        }
+export default function SecureRoute(props: SecureRouteProps) {
+    const { loading, error, data } = useQuery(GET_MY_ROLES)
 
-        if (this.props.user && this.props.showError) {
-            this.props.showError('Not Authorized!')
-            return <Route exact={this.props.exact} path={this.props.path} component={Error403} />
-        }
-
-        return (
-            <Route exact={this.props.exact} path={this.props.path} component={() => {
-                return (<Redirect push to={{
-                    pathname: "/login",
-                    state: {
-                        prevLocation: (this.props.location || { pathname: '' }).pathname
-                    },
-                }} />)
-            }} />
-        )
+    if (loading || !data) {
+        return <Loading fullscreen={true} />
     }
-}
 
-const mapDispatchToProps = (dispatch: Dispatch) => {
-    return {
-        showError: (message: string) => {
-            dispatch(UI.showError(message))
+    for (let role of props.roles) {
+        if (data.me.roles.includes(role) || data.me.roles.includes(AuthRoles.ADMIN)) {
+            return (
+                <Route exact={props.exact} path={props.path} component={props.component} />
+            )
         }
     }
-}
 
-const mapStateToProps = (state: State) => {
-    return {
-        user: state.data.user.data
+    if (props.showError) {
+        return <Route exact={props.exact} path={props.path} component={Error403} />
     }
-}
 
-export const SecureRoute = connect(mapStateToProps, mapDispatchToProps)(_SecureRoute)
+    return (
+        <Route exact={props.exact} path={props.path} component={() => {
+            return (<Redirect push to={{
+                pathname: "/login",
+                state: {
+                    prevLocation: (props.location || { pathname: '' }).pathname
+                },
+            }} />)
+        }} />
+    )
+}

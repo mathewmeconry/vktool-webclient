@@ -1,98 +1,80 @@
-import React, { Component } from "react";
-import { ThunkDispatch } from "redux-thunk";
-import { State } from "../reducers/IndexReducer";
-import { AnyAction } from "redux";
-import { Data } from "../actions/DataActions";
-import { connect } from "react-redux";
-import { AddPayout as AddPayoutInterface } from "../interfaces/Payout";
-import { Page } from "../components/Page";
-import Row from "../components/Row";
-import Column from "../components/Column";
-import Panel from "../components/Panel";
-import { History } from "history";
-import Button from '../components/Button';
+import React, { useState } from "react"
+import { Page } from "../components/Page"
+import Row from "../components/Row"
+import Column from "../components/Column"
+import Panel from "../components/Panel"
+import Button from '../components/Button'
+import Input from "../components/Input"
+import { useMutation } from "react-apollo"
+import { ADD_PAYOUT } from "../graphql/PayoutQueries"
+import { RouteComponentProps } from "react-router"
+import { useDispatch } from "react-redux"
+import { UI } from "../actions/UIActions"
 
-export class _AddPayout extends Component<{ history: History, save: (data: AddPayoutInterface) => Promise<AnyAction> }, { from?: string, until: string }> {
-    private formEl?: HTMLFormElement
+export default function AddPayout(props: RouteComponentProps) {
+    let formEl: HTMLFormElement
+    const [from, setFrom] = useState<Date>()
+    const [until, setUntil] = useState<Date>()
+    const [addPayout, { data }] = useMutation(ADD_PAYOUT)
+    const dispatch = useDispatch()
 
-    constructor(props: { history: History, save: (data: AddPayoutInterface) => Promise<AnyAction> }) {
-        super(props)
-
-        this.onInputChange = this.onInputChange.bind(this)
-        this.onSave = this.onSave.bind(this)
-
-        this.state = {
-            from: '',
-            until: ''
+    function onInputChange(name: string, value: any) {
+        switch (name) {
+            case 'from':
+                setFrom(value as Date)
+                break
+            case 'until':
+                setUntil(value as Date)
+                break
         }
     }
 
-    private validate(): boolean {
-        if (this.formEl) {
-            let valid = this.formEl.checkValidity()
-            this.formEl.className = 'was-validated'
+    async function onSave(event: React.MouseEvent<HTMLButtonElement>): Promise<boolean> {
+        event.preventDefault()
+        if (formEl) {
+            let valid = formEl.checkValidity()
+            formEl.className = 'was-validated'
 
+            if (valid) {
+                const result = await addPayout({
+                    variables: {
+                        until,
+                        from
+                    }
+                })
+                if (result.errors) {
+                    return false
+                }
+                dispatch(UI.showSuccess('Gespeichert'))
+                props.history.push('/payouts')
+            } else {
+                dispatch(UI.showError('Korrigiere zuerst die Fehler'))
+            }
             return valid
         }
+        dispatch(UI.showError('Korrigiere zuerst die Fehler'))
         return false
     }
 
-    private onInputChange(event: React.ChangeEvent<HTMLInputElement>) {
-        const target = event.target;
-        const value = target.type === 'checkbox' ? target.checked : target.value;
-        const name = target.name;
+    return (
+        <Page title="Auszahlung hinzufügen">
+            <Row>
+                <Column>
+                    <Panel>
+                        <form id="addPayout" ref={(ref: HTMLFormElement) => { formEl = ref }}>
+                            <h5>Von (optional)</h5>
+                            <Input type="date" name="from" key="from" value={from} onChange={onInputChange} editable={true} />
+                            <br></br>
 
-        //@ts-ignore
-        this.setState({
-            [name]: value
-        });
-    }
+                            <h5>Bis</h5>
+                            <Input type="date" name="until" key="until" value={until} onChange={onInputChange} editable={true} required={true} />
+                            <br></br>
 
-    private async onSave(event: React.MouseEvent<HTMLButtonElement>) {
-        event.preventDefault()
-        if (this.formEl) {
-            if (this.validate()) {
-                await this.props.save({
-                    from: new Date(this.state.from || '01/01/1970'),
-                    until: new Date(this.state.until)
-                })
-                this.props.history.push('/payouts')
-            }
-        }
-    }
-
-    public render() {
-        return (
-            <Page title="Auszahlung hinzufügen">
-                <Row>
-                    <Column>
-                        <Panel>
-                            <form id="addPayout" ref={(ref: HTMLFormElement) => { this.formEl = ref }}>
-                                <h5>Von (optional)</h5>
-                                <input name="from" type="date" className="form-control" value={this.state.from} onChange={this.onInputChange} />
-                                <br></br>
-
-                                <h5>Bis</h5>
-                                <input name="until" type="date" className="form-control" value={this.state.until} onChange={this.onInputChange} required={true} />
-                                <br></br>
-
-                                <Button variant="primary" block={true} onClick={this.onSave}>Speichern</Button>
-                            </form>
-                        </Panel>
-                    </Column>
-                </Row>
-            </Page >
-        )
-    }
+                            <Button variant="primary" block={true} onClick={onSave}>Speichern</Button>
+                        </form>
+                    </Panel>
+                </Column>
+            </Row>
+        </Page >
+    )
 }
-
-const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>) => {
-    return {
-        save: (data: AddPayoutInterface) => {
-            dispatch(Data.addPayout(data))
-        }
-    }
-}
-
-//@ts-ignore
-export const AddPayout = connect(() => {}, mapDispatchToProps)(_AddPayout)
