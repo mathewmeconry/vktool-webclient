@@ -34,7 +34,7 @@ export default class ContactLogoff extends Component<{ contactId: number } & Rou
         const actions: Array<React.ReactElement> = [<Button variant="success" className="view" onMouseUp={this.logoffView}><FontAwesomeIcon icon="eye" /></Button>]
 
         return (
-            <Query<{ getContactLogoffs: Logoff[] }> query={GET_LOGOFFS_BY_CONTACT} variables={{ id: this.props.contactId }}>
+            <Query<{ getContactLogoffs: Logoff[] }> query={GET_LOGOFFS_BY_CONTACT} variables={{ id: this.props.contactId }} fetchPolicy='cache-and-network'>
                 {(result) => {
                     if (result.loading) return (
                         <Panel title={`Abmeldungen`} scrollable={true}>

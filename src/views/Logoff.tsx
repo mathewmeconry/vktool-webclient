@@ -15,7 +15,7 @@ import { useQuery, useMutation } from "react-apollo"
 import { GET_LOGOFF, CHANGE_LOGOFF_STATE } from "../graphql/LogoffQueries"
 
 export default function Logoff(props: RouteComponentProps<{ id: string }>) {
-    const logoff = useQuery<{ getLogoff: LogoffEntity }>(GET_LOGOFF, { variables: { id: parseInt(props.match.params.id) } })
+    const logoff = useQuery<{ getLogoff: LogoffEntity }>(GET_LOGOFF, { variables: { id: parseInt(props.match.params.id) }, fetchPolicy: 'cache-and-network' })
     const [changeStateMutation] = useMutation(CHANGE_LOGOFF_STATE)
 
     async function changeState(state: LogoffState) {

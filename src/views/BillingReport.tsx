@@ -31,7 +31,7 @@ import Table from '../components/Table'
 
 
 export default function BillingReport(props: RouteComponentProps<{ id: string }>) {
-    const { loading, error, data, refetch } = useQuery<{ getBillingReport: BillingReportEntity.default }>(GET_BILLINGREPORT, { variables: { id: parseInt(props.match.params.id) } })
+    const { loading, error, data, refetch } = useQuery<{ getBillingReport: BillingReportEntity.default }>(GET_BILLINGREPORT, { variables: { id: parseInt(props.match.params.id), fetchPolicy: 'cache-and-network' } })
     const [billingReport, setBillingReport] = useState<BillingReportEntity.default>()
     const [showModal, setShowModal] = useState(false)
     const [editable, setEditable] = useState(false)

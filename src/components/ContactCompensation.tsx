@@ -32,7 +32,7 @@ export class ContactCompensation extends Component<{ contactId: number } & Route
     public render() {
         const actions: Array<React.ReactElement> = [<Button variant="success" className="view" onMouseUp={this.compensationView}><FontAwesomeIcon icon="eye" /></Button>]
 
-        return (<Query<{ getContactCompensations: Compensation[] }> query={GET_COMPENSATIONS_BY_CONTACT} variables={{ id: this.props.contactId }}>
+        return (<Query<{ getContactCompensations: Compensation[] }> query={GET_COMPENSATIONS_BY_CONTACT} variables={{ id: this.props.contactId }} fetchPolicy='cache-and-network'>
             {(result) => {
                 if (result.loading) return (
                     <Panel title={`Entschädigungen`} scrollable={true}>

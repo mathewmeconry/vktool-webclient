@@ -16,7 +16,7 @@ import CustomCompensation from "../entities/CustomCompensation"
 import OrderCompensation from "../entities/OrderCompensation"
 
 export default function Compensation(props: RouteComponentProps<{ id: string }>) {
-    const { loading, data, refetch } = useQuery(GET_COMPENSATION, { variables: { id: parseInt(props.match.params.id) } })
+    const { loading, data, refetch } = useQuery(GET_COMPENSATION, { variables: { id: parseInt(props.match.params.id) }, fetchPolicy: 'cache-and-network' })
     const [approveMutation] = useMutation<{ getOrderCompensation: OrderCompensation, getCustomCompensation: CustomCompensation }>(APPROVE_COMPENSATION)
 
     if (loading || !data) return <Loading />
