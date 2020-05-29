@@ -9,7 +9,7 @@ import { AuthRoles } from "../interfaces/AuthRoles"
 export interface ActionProps {
     icon: IconProp,
     to?: string,
-    onClick?: (event: React.MouseEvent<HTMLButtonElement>) => Promise<void>,
+    onClick?: (event: React.MouseEvent<HTMLButtonElement>) => Promise<any>,
     state?: any
     disabled?: boolean
     loading?: boolean

@@ -13,13 +13,24 @@ import { Link } from "react-router-dom"
 import { AuthRoles } from "../interfaces/AuthRoles"
 import { useQuery, useMutation } from "react-apollo"
 import { GET_LOGOFF, CHANGE_LOGOFF_STATE } from "../graphql/LogoffQueries"
+import { useDispatch } from "react-redux"
+import { UI } from "../actions/UIActions"
 
 export default function Logoff(props: RouteComponentProps<{ id: string }>) {
     const logoff = useQuery<{ getLogoff: LogoffEntity }>(GET_LOGOFF, { variables: { id: parseInt(props.match.params.id) }, fetchPolicy: 'cache-and-network' })
     const [changeStateMutation] = useMutation(CHANGE_LOGOFF_STATE)
+    const dispatch = useDispatch()
 
     async function changeState(state: LogoffState) {
-        await changeStateMutation({ variables: { id: logoff.data?.getLogoff.id, state, notify: true } })
+        const result = await changeStateMutation({ variables: { id: logoff.data?.getLogoff.id, state, notify: true } })
+        if (result.errors) {
+            return false
+        }
+        if (state === LogoffState.APPROVED) {
+            dispatch(UI.showSuccess('Bewilligt'))
+        } else {
+            dispatch(UI.showError('Abgelehnt'))
+        }
         logoff.refetch()
     }
 

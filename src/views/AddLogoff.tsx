@@ -14,6 +14,8 @@ import { ADD_LOGOFFS } from "../graphql/LogoffQueries"
 import { RouteComponentProps } from "react-router"
 import { ValueType } from "react-select/lib/types"
 import { useMutation } from "react-apollo"
+import { useDispatch } from "react-redux"
+import { UI } from "../actions/UIActions"
 
 export interface AddLogoffState { contact?: Contact, logoffs: Array<ExtendedLogoffBase>, notify: boolean }
 
@@ -28,6 +30,7 @@ export default function AddLogoff(props: RouteComponentProps) {
     const [notify, setNotify] = useState(true)
     const [logoffs, setLogoffs] = useState<Partial<ExtendedLogoffBase>[]>([])
     const [addLogoffs, { data }] = useMutation(ADD_LOGOFFS)
+    const dispatch = useDispatch()
 
     function onSelectChange(contacts: Contact[]) {
         if (contacts) {
@@ -67,14 +70,14 @@ export default function AddLogoff(props: RouteComponentProps) {
         }
     }
 
-    function onSave(event: React.MouseEvent<HTMLButtonElement>): boolean {
+    async function onSave(event: React.MouseEvent<HTMLButtonElement>): Promise<boolean> {
         event.preventDefault()
         if (formEl) {
             let valid = formEl.checkValidity()
             formEl.className = 'was-validated'
 
             if (valid) {
-                addLogoffs({
+                const result = await addLogoffs({
                     variables: {
                         data: logoffs.map(item => {
                             return {
@@ -88,10 +91,17 @@ export default function AddLogoff(props: RouteComponentProps) {
                         notify
                     }
                 })
+                if (result.errors) {
+                    return false
+                }
+                dispatch(UI.showSuccess('Gespeichert'))
                 props.history.push('/draft/logoffs')
+            } else {
+                dispatch(UI.showError('Korrigiere zuerst die Fehler'))
             }
             return valid
         }
+        dispatch(UI.showError('Korrigiere zuerst die Fehler'))
         return false
     }
 

@@ -6,6 +6,8 @@ import Panel from "../components/Panel"
 import { RouteComponentProps } from "react-router"
 import { useMutation } from "react-apollo"
 import { ADD_COLLECTIONPOINT } from "../graphql/CollectionPointQueries"
+import { useDispatch } from "react-redux"
+import { UI } from "../actions/UIActions"
 
 export default function AddCollectionPoint(props: RouteComponentProps) {
     let formEl: HTMLFormElement
@@ -14,6 +16,7 @@ export default function AddCollectionPoint(props: RouteComponentProps) {
     const [postcode, setPostcode] = useState('')
     const [city, setCity] = useState('')
     const [addCollectionPoint, { data }] = useMutation(ADD_COLLECTIONPOINT)
+    const dispatch = useDispatch()
 
     function onInputChange(event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
         const target = event.target
@@ -36,14 +39,14 @@ export default function AddCollectionPoint(props: RouteComponentProps) {
         }
     }
 
-    function save(event: React.MouseEvent<HTMLButtonElement>): boolean {
+    async function save(event: React.MouseEvent<HTMLButtonElement>): Promise<boolean> {
         event.preventDefault()
         if (formEl) {
             let valid = formEl.checkValidity()
             formEl.className = 'was-validated'
 
             if (valid) {
-                addCollectionPoint({
+                const result = await addCollectionPoint({
                     variables: {
                         data: {
                             name,
@@ -53,10 +56,17 @@ export default function AddCollectionPoint(props: RouteComponentProps) {
                         }
                     }
                 })
+                if (result.errors) {
+                    return false
+                }
+                dispatch(UI.showSuccess('Gespeichert'))
                 props.history.push('/draft/collection-points')
+            } else {
+                dispatch(UI.showError('Korrigiere zuerst die Fehler'))
             }
             return valid
         }
+        dispatch(UI.showError('Korrigiere zuerst die Fehler'))
         return false
     }
 

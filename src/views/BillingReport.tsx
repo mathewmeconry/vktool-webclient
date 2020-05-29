@@ -28,6 +28,8 @@ import GraphQLTable from '../components/GraphqlTable'
 import { PaginationSortDirections } from '../graphql/Interfaces'
 import { GET_MY_ROLES, GET_MY_ID } from '../graphql/UserQueries'
 import Table from '../components/Table'
+import { UI } from '../actions/UIActions'
+import { useDispatch } from 'react-redux'
 
 
 export default function BillingReport(props: RouteComponentProps<{ id: string }>) {
@@ -44,6 +46,7 @@ export default function BillingReport(props: RouteComponentProps<{ id: string }>
     const [changeBillingReportStateMutation] = useMutation(CHANGE_BILLINGREPORT_STATE)
     const [addOrderCompensationsMutation] = useMutation(ADD_ORDERCOMPENSATIONS)
     const [deleteCompensationMutation] = useMutation(DELETE_COMPENSATION)
+    const dispatch = useDispatch()
 
     if (loading) return <Loading />
     if (error) return null
@@ -72,22 +75,30 @@ export default function BillingReport(props: RouteComponentProps<{ id: string }>
     }
 
     async function approve(): Promise<void> {
-        await changeBillingReportStateMutation({
+        const result = await changeBillingReportStateMutation({
             variables: {
                 id: data?.getBillingReport.id,
                 state: 'APPROVED'
             }
         })
+        if (result.errors) {
+            return
+        }
+        dispatch(UI.showSuccess('Bewilligt'))
         refetchAndSet()
     }
 
     async function decline(): Promise<void> {
-        await changeBillingReportStateMutation({
+        const result = await changeBillingReportStateMutation({
             variables: {
                 id: data?.getBillingReport.id,
                 state: 'DECLINED'
             }
         })
+        if (result.errors) {
+            return
+        }
+        dispatch(UI.showError('Abgelehnt'))
         refetchAndSet()
     }
 
@@ -103,11 +114,15 @@ export default function BillingReport(props: RouteComponentProps<{ id: string }>
 
     async function deleteCompensationConfirmed() {
         if (toDeleteCompensation) {
-            await deleteCompensationMutation({
+            const result = await deleteCompensationMutation({
                 variables: {
                     id: toDeleteCompensation.id
                 }
             })
+            if (result.errors) {
+                return
+            }
+            dispatch(UI.showSuccess('Gespeichert'))
             setShowModal(false)
             setToDeleteCompensation(undefined)
             refetchAndSet()
@@ -136,13 +151,17 @@ export default function BillingReport(props: RouteComponentProps<{ id: string }>
             }
         }
 
-        await addOrderCompensationsMutation({
+        const result = await addOrderCompensationsMutation({
             variables: {
                 data: compensationEntries
             }
         })
-        refetchAndSet()
 
+        if (result.errors) {
+            return
+        }
+        dispatch(UI.showSuccess('Gespeichert'))
+        refetchAndSet()
         setShowModal(false)
     }
 
@@ -173,7 +192,7 @@ export default function BillingReport(props: RouteComponentProps<{ id: string }>
 
     async function onSave() {
         if (billingReport) {
-            await editBillingReportMutation({
+            const result = await editBillingReportMutation({
                 variables: {
                     data: {
                         id: billingReport.id,
@@ -186,6 +205,10 @@ export default function BillingReport(props: RouteComponentProps<{ id: string }>
                     }
                 }
             })
+            if (result.errors) {
+                return
+            }
+            dispatch(UI.showSuccess('Gespeichert'))
             refetchAndSet()
             setEditable(false)
         }

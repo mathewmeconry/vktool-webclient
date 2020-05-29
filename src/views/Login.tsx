@@ -5,9 +5,12 @@ import Config from "../Config"
 import { useQuery } from "react-apollo"
 import { GET_ME } from "../graphql/UserQueries"
 import { RouteComponentProps } from "react-router-dom"
+import { useDispatch } from "react-redux"
+import { UI } from "../actions/UIActions"
 
-export default function Login(props: RouteComponentProps<{}, {}, { prevLocation: string, errorShown: boolean }>) {
+export default function Login(props: RouteComponentProps<{}, {}, { prevLocation: string, unAuthenticated: boolean }>) {
     const me = useQuery(GET_ME)
+    const dispatch = useDispatch()
 
     if (me.loading) {
         return <Loading />
@@ -22,8 +25,12 @@ export default function Login(props: RouteComponentProps<{}, {}, { prevLocation:
         return null
     }
 
-    if (props.location.state && !props.location.state.errorShown) {
+    if (props.location.state && !props.location.state.unAuthenticated) {
         props.history.replace(props.location.pathname, Object.assign({}, props.location.state, { errorShown: true }))
+    }
+
+    if (props.location.state?.unAuthenticated) {
+        dispatch(UI.showError('Bitte logge dich ein'))
     }
 
     return (

@@ -19,6 +19,8 @@ import { useMutation } from 'react-apollo'
 import { ADD_BILLINGREPORT } from '../graphql/BillingReportQueries'
 import { ADD_ORDERCOMPENSATIONS } from '../graphql/CompensationQueries'
 import BillingReport from '../entities/BillingReport'
+import { useDispatch } from 'react-redux'
+import { UI } from '../actions/UIActions'
 
 export interface AddBillingReportProps {
     history: History
@@ -34,6 +36,7 @@ export default function AddBillingReport(props: AddBillingReportProps) {
     const [remarks, setRemarks] = useState<string>()
     const [addBillingReport, { }] = useMutation<{ addBillingReport: BillingReport }>(ADD_BILLINGREPORT)
     const [addOrderCompensations, { }] = useMutation(ADD_ORDERCOMPENSATIONS)
+    const dispatch = useDispatch()
 
 
     function onNext(data: StringIndexed<any>) {
@@ -78,6 +81,10 @@ export default function AddBillingReport(props: AddBillingReportProps) {
             }
         })
 
+        if (result.errors) {
+            return false
+        }
+
         const data = []
         for (const id in vks) {
             const vk = vks[id]
@@ -90,12 +97,15 @@ export default function AddBillingReport(props: AddBillingReportProps) {
             })
         }
 
-        await addOrderCompensations({
+        const compResult = await addOrderCompensations({
             variables: {
                 data
             }
         })
-
+        if (compResult.errors) {
+            return false
+        }
+        dispatch(UI.showSuccess('Gespeichert'))
         props.history.push('/billing-reports')
 
         return true

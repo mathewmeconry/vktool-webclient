@@ -9,6 +9,8 @@ import MemberSelect from '../components/MemberSelect'
 import { ADD_CUSTOMCOMPENSATION } from '../graphql/CompensationQueries'
 import { Button } from "react-bootstrap"
 import Contact from "../entities/Contact"
+import { useDispatch } from "react-redux"
+import { UI } from "../actions/UIActions"
 
 export default function AddCollectionPoint(props: RouteComponentProps) {
     let formEl: HTMLFormElement
@@ -17,6 +19,7 @@ export default function AddCollectionPoint(props: RouteComponentProps) {
     const [description, setDescription] = useState<string>()
     const [amount, setAmount] = useState<number>()
     const [addCustomCompensation, { data }] = useMutation(ADD_CUSTOMCOMPENSATION)
+    const dispatch = useDispatch()
 
     function onInputChange(event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
         const target = event.target
@@ -51,7 +54,7 @@ export default function AddCollectionPoint(props: RouteComponentProps) {
             formEl.className = 'was-validated'
 
             if (valid) {
-                await addCustomCompensation({
+                const result = await addCustomCompensation({
                     variables: {
                         data: {
                             memberId: member,
@@ -61,10 +64,17 @@ export default function AddCollectionPoint(props: RouteComponentProps) {
                         }
                     }
                 })
+                if (result.errors) {
+                    return false
+                }
+                dispatch(UI.showSuccess('Gespeichert'))
                 props.history.push('/compensations')
+            } else {
+                dispatch(UI.showError('Korrigiere zuerst die Fehler'))
             }
             return valid
         }
+        dispatch(UI.showError('Korrigiere zuerst die Fehler'))
         return false
     }
 

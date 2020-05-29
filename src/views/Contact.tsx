@@ -20,6 +20,8 @@ import ContactLogoff from "../components/ContactLogoffs"
 import { useQuery, useMutation } from "react-apollo"
 import { GET_CONTACT, EDIT_CONTACT } from "../graphql/ContactQueries"
 import { GET_MY_ROLES } from "../graphql/UserQueries"
+import { useDispatch } from "react-redux"
+import { UI } from "../actions/UIActions"
 
 export default function Contact(props: RouteComponentProps<{ id: string }>) {
     const [editable, setEditable] = useState(false)
@@ -27,6 +29,8 @@ export default function Contact(props: RouteComponentProps<{ id: string }>) {
     const myroles = useQuery<{ me: User }>(GET_MY_ROLES)
     const { loading, error, data, refetch } = useQuery<{ getContact: ContactEntity.default }>(GET_CONTACT, { variables: { id: parseInt(props.match.params.id) } })
     const [contact, setContact] = useState<ContactEntity.default>(data?.getContact as ContactEntity.default)
+    const dispatch = useDispatch()
+
     if (loading) {
         return (
             <Page title="Kontakt">
@@ -69,8 +73,8 @@ export default function Contact(props: RouteComponentProps<{ id: string }>) {
         onInputChange('moreMails', [...(contact.moreMails || []).slice(0, index), ...(contact.moreMails || []).slice(index + 1)])
     }
 
-    async function onSave() {
-        await editContactMutation({
+    async function onSave(): Promise<boolean> {
+        const result = await editContactMutation({
             variables: {
                 data: {
                     id: contact.id,
@@ -84,8 +88,13 @@ export default function Contact(props: RouteComponentProps<{ id: string }>) {
                 }
             }
         })
+        if (result.errors) {
+            return false
+        }
+        dispatch(UI.showSuccess('Gespeichert'))
         setEditable(false)
         setContact((await refetch()).data.getContact)
+        return true
     }
 
     async function onAbort() {

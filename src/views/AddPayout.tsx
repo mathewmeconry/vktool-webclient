@@ -8,12 +8,15 @@ import Input from "../components/Input"
 import { useMutation } from "react-apollo"
 import { ADD_PAYOUT } from "../graphql/PayoutQueries"
 import { RouteComponentProps } from "react-router"
+import { useDispatch } from "react-redux"
+import { UI } from "../actions/UIActions"
 
 export default function AddPayout(props: RouteComponentProps) {
     let formEl: HTMLFormElement
     const [from, setFrom] = useState<Date>()
     const [until, setUntil] = useState<Date>()
     const [addPayout, { data }] = useMutation(ADD_PAYOUT)
+    const dispatch = useDispatch()
 
     function onInputChange(name: string, value: any) {
         switch (name) {
@@ -26,23 +29,30 @@ export default function AddPayout(props: RouteComponentProps) {
         }
     }
 
-    function onSave(event: React.MouseEvent<HTMLButtonElement>): boolean {
+    async function onSave(event: React.MouseEvent<HTMLButtonElement>): Promise<boolean> {
         event.preventDefault()
         if (formEl) {
             let valid = formEl.checkValidity()
             formEl.className = 'was-validated'
 
             if (valid) {
-                addPayout({
+                const result = await addPayout({
                     variables: {
                         until,
                         from
                     }
                 })
+                if (result.errors) {
+                    return false
+                }
+                dispatch(UI.showSuccess('Gespeichert'))
                 props.history.push('/payouts')
+            } else {
+                dispatch(UI.showError('Korrigiere zuerst die Fehler'))
             }
             return valid
         }
+        dispatch(UI.showError('Korrigiere zuerst die Fehler'))
         return false
     }
 

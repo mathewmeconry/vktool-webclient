@@ -20,6 +20,8 @@ import { GET_PAYOUT, SEND_PAYOUT_MAIL, SEND_PAYOUT_BEXIO, RECLAIM_PAYOUT, TRANSF
 import Compensation from "../entities/Compensation"
 import axios from 'axios'
 import { default as PayoutEntity } from '../entities/Payout'
+import { useDispatch } from "react-redux"
+import { UI } from "../actions/UIActions"
 
 export default function Payout(props: RouteComponentProps<{ id: string }>) {
     const payout = useQuery<{ getPayout: PayoutEntity }>(GET_PAYOUT, { variables: { id: parseInt(props.match.params.id) } })
@@ -32,6 +34,8 @@ export default function Payout(props: RouteComponentProps<{ id: string }>) {
     const [sendBexioMutation] = useMutation(SEND_PAYOUT_BEXIO)
     const [reclaimMutation] = useMutation(RECLAIM_PAYOUT)
     const [transferMutation] = useMutation(TRANSFER_PAYOUT)
+
+    const dispatch = useDispatch()
 
     function onCheck(event: React.ChangeEvent<HTMLInputElement>) {
         if (event.currentTarget.parentNode && event.currentTarget.parentNode.parentNode && event.currentTarget.parentNode.parentNode.parentElement) {
@@ -63,23 +67,35 @@ export default function Payout(props: RouteComponentProps<{ id: string }>) {
     }
 
     async function sendMails(): Promise<void> {
-        await sendMailMutation({ variables: { id: payout.data?.getPayout.id, memberIds: selected } })
+        const result = sendMailMutation({ variables: { id: payout.data?.getPayout.id, memberIds: selected } })
+        dispatch(UI.showSuccess('Mailversand gestarted'))
         setShowModal(false)
     }
 
     async function sendToBexio(): Promise<void> {
-        await sendBexioMutation({ variables: { id: payout.data?.getPayout.id, memberIds: selected } })
+        sendBexioMutation({ variables: { id: payout.data?.getPayout.id, memberIds: selected } })
+        dispatch(UI.showSuccess('Bexioübertrag gestarted'))
         setShowModal(false)
     }
 
     async function reclaim(): Promise<void> {
-        await reclaimMutation({ variables: { id: payout.data?.getPayout.id } })
+        const result = await reclaimMutation({ variables: { id: payout.data?.getPayout.id } })
+        if (result.errors) {
+            return
+        }
+        dispatch(UI.showSuccess('Abgeschlossen'))
     }
 
     async function transfer(): Promise<void> {
         if (selected.length > 0) {
-            await transferMutation({ variables: { id: payout.data?.getPayout.id, memberIds: selected } })
+            const result = await transferMutation({ variables: { id: payout.data?.getPayout.id, memberIds: selected } })
+            if (result.errors) {
+                return
+            }
+            dispatch(UI.showSuccess('Übertragen'))
+            return
         }
+        dispatch(UI.showError('Zuerst eine Auswahl tätigen'))
     }
 
     async function downloader(blob: Blob, filename: string) {

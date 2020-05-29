@@ -2,6 +2,7 @@ import { ThunkAction } from "redux-thunk"
 import { State } from "../reducers/IndexReducer"
 import { AnyAction, Dispatch } from "redux"
 import { push } from "connected-react-router"
+import { ExecutionResult } from "react-apollo"
 
 export const UIActions = {
     NAVIBAR_TOGGLE: 'navibar_toggle',

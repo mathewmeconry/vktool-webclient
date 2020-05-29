@@ -14,10 +14,13 @@ import { useQuery, useMutation } from "react-apollo"
 import { GET_COMPENSATION, APPROVE_COMPENSATION } from "../graphql/CompensationQueries"
 import CustomCompensation from "../entities/CustomCompensation"
 import OrderCompensation from "../entities/OrderCompensation"
+import { UI } from '../actions/UIActions'
+import { useDispatch } from 'react-redux'
 
 export default function Compensation(props: RouteComponentProps<{ id: string }>) {
     const { loading, data, refetch } = useQuery(GET_COMPENSATION, { variables: { id: parseInt(props.match.params.id) }, fetchPolicy: 'cache-and-network' })
     const [approveMutation] = useMutation<{ getOrderCompensation: OrderCompensation, getCustomCompensation: CustomCompensation }>(APPROVE_COMPENSATION)
+    const dispatch = useDispatch()
 
     if (loading || !data) return <Loading />
 
@@ -31,7 +34,12 @@ export default function Compensation(props: RouteComponentProps<{ id: string }>)
     if (!compensation) return <Error404 />
 
     async function approve() {
-        await approveMutation({ variables: { id: compensation.id } })
+        const result = await approveMutation({ variables: { id: compensation.id } })
+        if (result.errors) {
+            return false
+        }
+        dispatch(UI.showSuccess('Bewilligt'))
+
         const response = await refetch({ id: parseInt(props.match.params.id) })
         compensation = response.data.getOrderCompensation || response.data.getCustomCompensation
     }
