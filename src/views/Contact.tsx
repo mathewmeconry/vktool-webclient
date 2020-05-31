@@ -22,6 +22,7 @@ import { GET_CONTACT, EDIT_CONTACT } from "../graphql/ContactQueries"
 import { GET_MY_ROLES } from "../graphql/UserQueries"
 import { useDispatch } from "react-redux"
 import { UI } from "../actions/UIActions"
+import { Error403 } from "../components/Errors/403"
 
 export default function Contact(props: RouteComponentProps<{ id: string }>) {
     const [editable, setEditable] = useState(false)
@@ -46,6 +47,10 @@ export default function Contact(props: RouteComponentProps<{ id: string }>) {
                 <Loading />
             </Page>
         )
+    }
+
+    if ((error?.message && error?.message.indexOf('Access denied!') > -1) || !contact) {
+        return <Error403 />
     }
 
     function onSelectChange(state: string): (opts: CollectionPoint) => void {
