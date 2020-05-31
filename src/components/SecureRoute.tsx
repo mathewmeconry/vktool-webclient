@@ -22,15 +22,16 @@ export default function SecureRoute(props: SecureRouteProps) {
         return <Loading fullscreen={true} />
     }
 
+    if (props.showError) {
+        return <Route exact={props.exact} path={props.path} component={Error403} />
+    }
+
     for (let role of props.roles) {
         if (data.me.roles.includes(role) || data.me.roles.includes(AuthRoles.ADMIN)) {
             return (
                 <Route exact={props.exact} path={props.path} component={props.component} />
             )
         }
-    }
-
-    if (props.showError) {
         return <Route exact={props.exact} path={props.path} component={Error403} />
     }
 

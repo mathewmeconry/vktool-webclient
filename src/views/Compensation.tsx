@@ -16,11 +16,16 @@ import CustomCompensation from "../entities/CustomCompensation"
 import OrderCompensation from "../entities/OrderCompensation"
 import { UI } from '../actions/UIActions'
 import { useDispatch } from 'react-redux'
+import { Error403 } from '../components/Errors/403'
 
 export default function Compensation(props: RouteComponentProps<{ id: string }>) {
-    const { loading, data, refetch } = useQuery(GET_COMPENSATION, { variables: { id: parseInt(props.match.params.id) }, fetchPolicy: 'cache-and-network' })
+    const { loading, data, error, refetch } = useQuery(GET_COMPENSATION, { variables: { id: parseInt(props.match.params.id) }, fetchPolicy: 'cache-and-network' })
     const [approveMutation] = useMutation<{ getOrderCompensation: OrderCompensation, getCustomCompensation: CustomCompensation }>(APPROVE_COMPENSATION)
     const dispatch = useDispatch()
+
+    if (error?.message && error?.message.indexOf('Access denied!') > -1) {
+        return <Error403 />
+    }
 
     if (loading || !data) return <Loading />
 

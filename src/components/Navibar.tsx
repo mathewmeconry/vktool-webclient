@@ -30,7 +30,7 @@ export default function Navibar(props: { open: boolean }) {
             <ol>
                 {renderElement(<NavibarElement to="/dashboard" text="Dashboard" leftIcon="tachometer-alt" />, [AuthRoles.AUTHENTICATED])}
                 {renderElement(<NavibarElement to="/members" text="Mitglieder" leftIcon="users" />, [AuthRoles.MEMBERS_READ])}
-                {renderElement(<NavibarElement to="/mailing-lists" text="Verteiler" leftIcon="mail-bulk" />, [AuthRoles.MEMBERS_READ])}
+                {renderElement(<NavibarElement to="/mailing-lists" text="Verteiler" leftIcon="mail-bulk" />, [AuthRoles.MAILING_LISTS])}
                 {renderElement(
                     <NavibarLevelHeader text="Aufgebot" leftIcon="address-book" id="draft" level={1}>
                         {renderElement(<NavibarElement to="/draft/collection-points" leftIcon="map-marker-alt" text="Abholpunkte" />, [AuthRoles.DRAFT_READ])}
