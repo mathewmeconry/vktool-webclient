@@ -30,7 +30,7 @@ export default function Navibar(props: { open: boolean }) {
             <ol>
                 {renderElement(<NavibarElement to="/dashboard" text="Dashboard" leftIcon="tachometer-alt" />, [AuthRoles.AUTHENTICATED])}
                 {renderElement(<NavibarElement to="/members" text="Mitglieder" leftIcon="users" />, [AuthRoles.MEMBERS_READ])}
-                {renderElement(<NavibarElement to="/mailing-lists" text="Verteiler" leftIcon="mail-bulk" />, [AuthRoles.MEMBERS_READ])}
+                {renderElement(<NavibarElement to="/mailing-lists" text="Verteiler" leftIcon="mail-bulk" />, [AuthRoles.MAILING_LISTS])}
                 {renderElement(
                     <NavibarLevelHeader text="Aufgebot" leftIcon="address-book" id="draft" level={1}>
                         {renderElement(<NavibarElement to="/draft/collection-points" leftIcon="map-marker-alt" text="Abholpunkte" />, [AuthRoles.DRAFT_READ])}
@@ -42,7 +42,7 @@ export default function Navibar(props: { open: boolean }) {
                 {renderElement(
                     <NavibarLevelHeader text="Verrechnungsrapporte" leftIcon="file-signature" id="billingreports" level={1}>
                         {renderElement(<NavibarElement to="/billing-reports/add" leftIcon="plus" text="Erstellen" />, [AuthRoles.BILLINGREPORTS_CREATE])}
-                        {renderElement(<NavibarElement to="/billing-reports" leftIcon="list" text="Alle" />, [AuthRoles.BILLINGREPORTS_READ])}
+                        <NavibarElement to="/billing-reports" leftIcon="list" text="Alle" />
                         <NavibarElement to="https://vkazu.sharepoint.com/:w:/r/Vorlagen/Verrechungsrapport.docx?d=w66977fb79dfd4ab3832ca05fd6d9b8d2&csf=1&e=Spme13" text="Word Vorlage" leftIcon="file-word" />
                     </NavibarLevelHeader>
                     , [AuthRoles.BILLINGREPORTS_READ, AuthRoles.BILLINGREPORTS_CREATE]

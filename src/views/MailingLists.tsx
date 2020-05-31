@@ -8,9 +8,12 @@ import { useQuery } from "react-apollo"
 import { GET_ALL_MEMBERS } from "../graphql/ContactQueries"
 import Loading from "../components/Loading"
 import Contact from "../entities/Contact"
+import { useDispatch } from "react-redux"
+import { UI } from "../actions/UIActions"
 
 export default function MailingLists() {
     const { loading, error, data } = useQuery<{ getMembersAll: Contact[] }>(GET_ALL_MEMBERS)
+    const dispatch = useDispatch()
 
     if (loading || !data) {
         return (<Page title="Verteiler"><Loading /></Page>)
@@ -84,6 +87,7 @@ export default function MailingLists() {
         (navigator as any).permissions.query({ name: "clipboard-write" }).then((result: { state: string }) => {
             if (result.state == "granted" || result.state == "prompt") {
                 (navigator as any).clipboard.writeText(data)
+                dispatch(UI.showSuccess('Kopiert'))
             }
         })
     }

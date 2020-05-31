@@ -18,9 +18,9 @@ export default function Login(props: RouteComponentProps<{}, {}, { prevLocation:
 
     if (me.data) {
         if (props.location.state && props.location.state.prevLocation) {
-            props.history.push(props.location.state.prevLocation)
+            props.history.replace(props.location.state.prevLocation)
         } else {
-            props.history.push('/dashboard')
+            props.history.replace('/dashboard')
         }
         return null
     }
