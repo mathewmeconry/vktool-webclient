@@ -3,7 +3,7 @@ import Select from 'react-select'
 import { ValueType } from "react-select/lib/types"
 import Contact from "../entities/Contact"
 import { useQuery } from "react-apollo"
-import { GET_ALL_MEMBERS } from '../graphql/ContactQueries'
+import { GET_ALL_MEMBERS_SELECT } from '../graphql/ContactQueries'
 import LoadingDots from "./LoadingDots"
 
 interface MemberSelectProps {
@@ -15,7 +15,7 @@ interface MemberSelectProps {
 }
 
 export default function MemberSelect(props: MemberSelectProps) {
-    const { loading, error, data } = useQuery<{ getMembersAll: Contact[] }>(GET_ALL_MEMBERS)
+    const { loading, error, data } = useQuery<{ getMembersAll: Contact[] }>(GET_ALL_MEMBERS_SELECT)
 
     let valueProps = []
     if (props.defaultValue instanceof Array) {
