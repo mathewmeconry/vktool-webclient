@@ -1,5 +1,15 @@
 import { gql } from "apollo-boost";
 
+export const GET_ALL_MEMBERS_SELECT = gql`
+  query GET_ALL_MEMBERS_SELECT {
+    getMembersAll {
+      id
+      firstname
+      lastname
+    }
+  }
+`;
+
 export const GET_ALL_MEMBERS = gql`
   query GET_ALL_MEMBERS {
     getMembersAll {
@@ -53,23 +63,23 @@ export const GET_MEMBERS = gql`
       total
       items {
         id
-        firstname,
-        lastname,
-        rank,
-        functions,
-        address,
-        postcode,
-        city,
+        firstname
+        lastname
+        rank
+        functions
+        address
+        postcode
+        city
         collectionPoint {
           id
-          address,
-          postcode,
+          address
+          postcode
           city
         }
-        phoneFixed,
-        phoneFixedSecond,
-        phoneMobile,
-        mail,
+        phoneFixed
+        phoneFixedSecond
+        phoneMobile
+        mail
         mailSecond
       }
     }
@@ -123,7 +133,7 @@ export const GET_MEMBERS_FILTERS = gql`
       displayName
     }
   }
-`
+`;
 
 export const EDIT_CONTACT = gql`
   mutation EDIT_CONTACT($data: EditContact!) {

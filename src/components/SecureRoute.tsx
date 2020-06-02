@@ -32,17 +32,20 @@ export default function SecureRoute(props: SecureRouteProps) {
                 <Route exact={props.exact} path={props.path} component={props.component} />
             )
         }
-        return <Route exact={props.exact} path={props.path} component={Error403} />
     }
 
-    return (
-        <Route exact={props.exact} path={props.path} component={() => {
-            return (<Redirect push to={{
-                pathname: "/login",
-                state: {
-                    prevLocation: (props.location || { pathname: '' }).pathname
-                },
-            }} />)
-        }} />
-    )
+    if (error && error.message.indexOf('Access denied!') > -1) {
+        return (
+            <Route exact={props.exact} path={props.path} component={() => {
+                return (<Redirect push to={{
+                    pathname: "/login",
+                    state: {
+                        prevLocation: (props.location || { pathname: '' }).pathname
+                    },
+                }} />)
+            }} />
+        )
+    }
+
+    return <Route exact={props.exact} path={props.path} component={Error403} />
 }

@@ -65,6 +65,6 @@ export default function CollectionPointSelect(props: CollectionPointSelectProps)
         isMulti={props.isMulti || false}
         onChange={onChange}
         value={valueProps}
-        required={!!props.required}
+        required={!!props.required}        
     />)
 }
