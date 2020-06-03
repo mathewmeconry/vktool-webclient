@@ -10,6 +10,7 @@ import StringIndexed from '../interfaces/StringIndexed'
 import Base from '../entities/Base'
 import { Pagination } from 'react-bootstrap'
 import Select from 'react-select'
+import { InputPaginationFilter } from './GraphQLDataList'
 
 export interface GraphQLTableColumn {
     text: string
@@ -50,7 +51,6 @@ export default function GraphQLTable<T extends Base & { [index: string]: any }>(
     useEffect(() => { setCursor(0) }, [props.queryVariables?.searchString, props.queryVariables?.filter])
 
     if (loading && !props.queryVariables?.searchString && !data) return <Loading />
-    if (error) return null
     if (!data) return <Loading />
 
     const dataSet: PaginationResponse<T> = data[Object.keys(data)[0]]
