@@ -13,6 +13,7 @@ import { PaginationSortDirections } from "../graphql/Interfaces"
 import Logoff, { LogoffState } from "../entities/Logoff"
 import ReactDatePicker from "react-datepicker"
 import Input from "../components/Input"
+import Config from "../Config"
 
 export default function Logoffs(props: RouteComponentProps) {
     const [showModal, setShowModal] = useState(false)
@@ -27,20 +28,20 @@ export default function Logoffs(props: RouteComponentProps) {
 
     function getFilterValue(fromFilter: Date | null, untilFilter: Date | null, stateFilter?: string) {
         const filters: {
-            field: string;
-            operator: PaginationFilterOperator;
-            value: Date | string | null;
+            field: string
+            operator: PaginationFilterOperator
+            value: Date | string | null
         }[] = [
-            {
-                field: 'Logoff.from',
-                operator: PaginationFilterOperator['<='],
-                value: untilFilter
-            }, {
-                field: 'Logoff.until',
-                operator: PaginationFilterOperator['>='],
-                value: fromFilter
-            }
-        ]
+                {
+                    field: 'Logoff.from',
+                    operator: PaginationFilterOperator['<='],
+                    value: untilFilter
+                }, {
+                    field: 'Logoff.until',
+                    operator: PaginationFilterOperator['>='],
+                    value: fromFilter
+                }
+            ]
 
         if (stateFilter) {
             filters.push({
@@ -172,6 +173,12 @@ export default function Logoffs(props: RouteComponentProps) {
                                     value={stateFilter}
                                     onChange={(name, value) => { (value !== 'Alle') ? setStateFilter(value) : setStateFilter(undefined) }}
                                 />
+                            </div>
+                            <div className="text-center">
+                                Export
+                                <div>
+                                    <Action key="excel-export" onClick={async () => { window.open(`${Config.apiEndpoint}/api/logoffs/excel?from=${fromFilter?.toISOString()}&until=${untilFilter?.toISOString()}&state=${stateFilter?.toLowerCase()}`) }} icon='file-excel'></Action>
+                                </div>
                             </div>
                         </div>),
                         displayName: 'Benutzerdefiniert',
