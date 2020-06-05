@@ -44,6 +44,7 @@ export const GET_LOGOFFS = gql`
     $sortDirection: String
     $searchString: String
     $filter: Int
+    $customFilter: [InputPaginationFilter!]
   ) {
     getAllLogoffs(
       cursor: $cursor
@@ -52,6 +53,7 @@ export const GET_LOGOFFS = gql`
       sortDirection: $sortDirection
       searchString: $searchString
       filter: $filter
+      customFilter: $customFilter
     ) {
       cursor
       total

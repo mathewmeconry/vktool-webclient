@@ -4,7 +4,7 @@ import { Page } from "../components/Page"
 import Row from "../components/Row"
 import Column from "../components/Column"
 import Panel from "../components/Panel"
-import { Button } from "react-bootstrap"
+import { Button, Col } from "react-bootstrap"
 import { LogoffBase } from "../interfaces/Logoffs"
 import MemberSelect from "../components/MemberSelect"
 import Table from "../components/Table"
@@ -111,16 +111,16 @@ export default function AddLogoff(props: RouteComponentProps) {
                 <Column>
                     <Panel>
                         <form id="addLogoffs" ref={(ref: HTMLFormElement) => { formEl = ref }}>
-                            <div className="row">
-                                <div className="col">
+                            <Row>
+                                <Col>
                                     <h5>Mitglied</h5>
                                     <MemberSelect onChange={onSelectChange} defaultValue={(member) ? [member.toString()] : undefined} required={true} />
-                                </div>
-                                <div className="col-1">
+                                </Col>
+                                <Col lg={2} md={3} sm={4}>
                                     <h5>Benachrichtigen</h5>
                                     <Input type="checkbox" className="d-flex justify-content-center" name="notify" key="notify" value={notify} onChange={onInputChange} editable={true} />
-                                </div>
-                            </div>
+                                </Col>
+                            </Row>
                             <br></br>
                             <Table<ExtendedLogoffBase>
                                 columns={[

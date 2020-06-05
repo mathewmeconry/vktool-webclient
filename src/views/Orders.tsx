@@ -15,8 +15,7 @@ export default function Orders(props: RouteComponentProps) {
                 { text: 'Auftragsnummer', keys: ['documentNr'], sortable: true },
                 { text: 'Titel', keys: ['title'], sortable: true },
                 { text: 'Kunde', keys: { 'contact': ['firstname', 'lastname'] }, sortKey: 'contact.firstname', sortable: true },
-                { text: 'Total', keys: ['total'], sortable: true, prefix: 'CHF ' },
-                { text: 'Auftragsdaten', keys: ['execDates'], format: 'toLocaleDateString' }
+                { text: 'Total', keys: ['total'], sortable: true, prefix: 'CHF ' }
             ]}
             defaultSortBy='documentNr'
             defaultSortDirection={PaginationSortDirections.DESC}

@@ -59,10 +59,10 @@ export default function Dashboard(props: RouteComponentProps) {
                         {renderShortcuts()}
                     </Panel>
                 </Column>
-                {renderCompensations()}
             </Row>
             <Row>
                 {renderLogoffs()}
+                {renderCompensations()}
             </Row>
         </Page>
     )
