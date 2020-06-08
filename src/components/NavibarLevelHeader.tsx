@@ -60,7 +60,7 @@ export default class _NavibarLevelHeader extends Component<PropsWithChildren<Nav
 
 const mapStateToProps = (state: State) => {
     return {
-        open_level: state.ui.navibar_level
+        open_level: state.ui.navibarLevel
     }
 }
 
