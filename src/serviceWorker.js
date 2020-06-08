@@ -5,7 +5,7 @@
 // it offline capabilities. However, it also means that developers (and contacts)
 // will only see deployed updates on subsequent visits to a page, after all the
 // existing tabs open on the page have been closed, since previously cached
-// resources are updated in the background.
+// resources are updated in the background. 
 
 // To learn more about the benefits of this model and instructions on how to
 // opt-in, read http://bit.ly/CRA-PWA
@@ -21,7 +21,7 @@ const isLocalhost = Boolean(
 );
 
 export function register(config) {
-  if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator) {
+  if ('serviceWorker' in navigator) {
     // The URL constructor is available in all browsers that support SW.
     const publicUrl = new URL(process.env.PUBLIC_URL, window.location.href);
     if (publicUrl.origin !== window.location.origin) {
@@ -66,7 +66,6 @@ function registerValidSW(swUrl, config) {
 
         installingWorker.onstatechange = () => {
           if (installingWorker.state === 'installed') {
-            installingWorker.postMessage({ type: 'SKIP_WAITING' });
             if (navigator.serviceWorker.controller) {
               // At this point, the updated precached content has been fetched,
               // but the previous service worker will still serve the older

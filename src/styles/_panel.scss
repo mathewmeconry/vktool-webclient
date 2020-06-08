@@ -16,7 +16,7 @@
   }
   .panel-header.d-flex .btn-toolbar {
     @extend .flex-fill;
-    width: 100%;
+    width: 50vw;
   }
   .panel-header.d-flex .btn-toolbar .btn-group {
     overflow-x: scroll;
@@ -28,7 +28,7 @@
   }
   .panel-actions {
     @include float-right;
-    padding: 5px 10px 0 0;
+    padding: 10px;
     width: min-content;
   }
   .panel-body {

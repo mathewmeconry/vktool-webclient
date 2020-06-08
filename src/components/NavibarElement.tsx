@@ -1,12 +1,12 @@
-import React, { Component } from "react";
+import React, { Component } from "react"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { NavLink } from "react-router-dom";
-import { IconProp } from "@fortawesome/fontawesome-svg-core";
-import { UI } from "../actions/UIActions";
-import { connect } from "react-redux";
-import { AnyAction } from "redux";
-import { ThunkDispatch } from "redux-thunk";
-import { State } from "../reducers/IndexReducer";
+import { NavLink } from "react-router-dom"
+import { IconProp } from "@fortawesome/fontawesome-svg-core"
+import { UI } from "../actions/UIActions"
+import { connect } from "react-redux"
+import { AnyAction } from "redux"
+import { ThunkDispatch } from "redux-thunk"
+import { State } from "../reducers/IndexReducer"
 import CurrentDevice from 'current-device'
 import { withRouter } from 'react-router-dom'
 
@@ -20,6 +20,7 @@ export interface NavibarElementProps {
     onMouseUp?: (event: React.MouseEvent<HTMLElement>) => void,
     onClose?: () => void,
     toggleNavibar?: () => void
+    className?: string
 }
 
 export class _NavibarElement extends Component<NavibarElementProps> {
@@ -41,13 +42,13 @@ export class _NavibarElement extends Component<NavibarElementProps> {
     private renderLinkElement(to: string, content: Array<JSX.Element>, onMouseUp: (event: React.MouseEvent<HTMLElement>) => void) {
         if (to.match(/^(http|https):\/\//)) {
             return (
-                <a href={to} className="navibar-element" onMouseUp={onMouseUp} target="_blank">
+                <a href={to} className={`navibar-element ${this.props.className || ''}`} onMouseUp={onMouseUp} target="_blank">
                     {content}
                 </a>
             )
         } else {
             return (
-                <NavLink exact to={to} className="navibar-element" activeClassName="navibar-element-active" onMouseUp={onMouseUp} >
+                <NavLink exact to={to} className={`navibar-element ${this.props.className || ''}`} activeClassName="navibar-element-active" onMouseUp={onMouseUp} >
                     {content}
                 </ NavLink>
             )
@@ -84,7 +85,7 @@ export class _NavibarElement extends Component<NavibarElementProps> {
 
 const mapStateToProps = (state: State) => {
     return {
-        navibar_open: state.ui.navibar_open
+        navibar_open: state.ui.navibarOpen
     }
 }
 

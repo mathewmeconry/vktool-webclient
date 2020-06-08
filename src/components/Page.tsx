@@ -43,7 +43,7 @@ export class _Page extends Component<PropsWithChildren<PageProps>> {
 
 const mapStateToProps = (state: State) => {
     return {
-        open: state.ui.navibar_open
+        open: state.ui.navibarOpen
     }
 }
 
