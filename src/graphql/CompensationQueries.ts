@@ -16,6 +16,7 @@ export const GET_COMPENSATION = gql`
       from
       until
       charge
+      paied
       member {
         id
         firstname
@@ -48,6 +49,7 @@ export const GET_COMPENSATION = gql`
       amount
       description
       approved
+      paied
       creator {
         id
         displayName
