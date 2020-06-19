@@ -89,7 +89,7 @@ export default function AddCollectionPoint(props: RouteComponentProps) {
                             <br></br>
 
                             <h5>Datum</h5>
-                            <input name="date" type="date" className="form-control" value={(date) ? date.toISOString().split('T')[0] : undefined} onChange={onInputChange} required={true} />
+                            <input name="date" type="date" className="form-control" value={(date) ? date.toLocaleDateString() : undefined} onChange={onInputChange} required={true} />
                             <br></br>
 
                             <h5>Beschreibung</h5>
