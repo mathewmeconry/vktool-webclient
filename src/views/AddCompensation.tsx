@@ -15,7 +15,7 @@ import { UI } from "../actions/UIActions"
 export default function AddCollectionPoint(props: RouteComponentProps) {
     let formEl: HTMLFormElement
     const [member, setMember] = useState<number>()
-    const [date, setDate] = useState<Date>()
+    const [date, setDate] = useState<string>()
     const [description, setDescription] = useState<string>()
     const [amount, setAmount] = useState<number>()
     const [addCustomCompensation, { data }] = useMutation(ADD_CUSTOMCOMPENSATION)
@@ -28,7 +28,7 @@ export default function AddCollectionPoint(props: RouteComponentProps) {
 
         switch (name) {
             case 'date':
-                setDate(new Date(value))
+                setDate(value)
                 break
             case 'description':
                 setDescription(value)
@@ -53,12 +53,12 @@ export default function AddCollectionPoint(props: RouteComponentProps) {
             let valid = formEl.checkValidity()
             formEl.className = 'was-validated'
 
-            if (valid) {
+            if (valid && date) {
                 const result = await addCustomCompensation({
                     variables: {
                         data: {
                             memberId: member,
-                            date,
+                            date: new Date(date),
                             description,
                             amount
                         }
@@ -89,7 +89,7 @@ export default function AddCollectionPoint(props: RouteComponentProps) {
                             <br></br>
 
                             <h5>Datum</h5>
-                            <input name="date" type="date" className="form-control" value={(date) ? date.toLocaleDateString() : undefined} onChange={onInputChange} required={true} />
+                            <input name="date" type="date" className="form-control" value={date} onChange={onInputChange} required={true} />
                             <br></br>
 
                             <h5>Beschreibung</h5>
