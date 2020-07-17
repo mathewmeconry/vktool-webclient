@@ -6,7 +6,7 @@
     background-color: $navibar_background;
     transition: width $navibar_transition_speed;
     position: fixed;
-    z-index: 2;
+    z-index: 5;
     top: 0;
     @include float-left;
 }

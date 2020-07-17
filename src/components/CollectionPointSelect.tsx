@@ -53,6 +53,8 @@ export default function CollectionPointSelect(props: CollectionPointSelectProps)
                 ops = opt as Array<{ label: string, value: string }>
             }
             if (props.onChange) props.onChange(collectionPoints.find(r => r.id === parseInt((opt as { label: string, value: string }).value)))
+        } else {
+            props.onChange(null)
         }
     }
 
@@ -65,6 +67,6 @@ export default function CollectionPointSelect(props: CollectionPointSelectProps)
         isMulti={props.isMulti || false}
         onChange={onChange}
         value={valueProps}
-        required={!!props.required}        
+        required={!!props.required}
     />)
 }
