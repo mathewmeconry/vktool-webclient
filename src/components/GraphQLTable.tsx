@@ -225,6 +225,7 @@ export default function GraphQLTable<T extends Base & { [index: string]: any }>(
                         }
                     }}
                     isClearable={false}
+                    isSearchable={false}
                 />
             </div>
         </div>
