@@ -21,13 +21,18 @@ export default function Dashboard(props: RouteComponentProps) {
 
     function renderShortcuts() {
         const shortcuts = []
-        if (roles.data.me.roles.includes(AuthRoles.BILLINGREPORTS_CREATE) || roles.data.me.roles.indexOf(AuthRoles.ADMIN)) {
+        if (roles.data.me.roles.includes(AuthRoles.BILLINGREPORTS_CREATE) || roles.data.me.roles.includes(AuthRoles.ADMIN)) {
             shortcuts.push(<Link key="billingreport" to="/billing-reports/add/" className="btn btn-block btn-outline-primary">Verrechnungsrapport erstellen</Link>)
         }
 
-        if (me.data.me.bexioContact && (roles.data.me.roles.includes(AuthRoles.CONTACTS_READ) || roles.data.me.roles.indexOf(AuthRoles.ADMIN))) {
+        if (me.data.me.bexioContact && (roles.data.me.roles.includes(AuthRoles.CONTACTS_READ) || roles.data.me.roles.includes(AuthRoles.ADMIN))) {
             shortcuts.push(<Link key="profile" to={`/contact/${me.data.me.bexioContact.id}`} className="btn btn-block btn-outline-primary">Mein Profil</Link>)
         }
+
+        if (shortcuts.length === 0) {
+            shortcuts.push('Leider gibt es noch keine Shortcuts für dich')
+        }
+
         return shortcuts
     }
 
