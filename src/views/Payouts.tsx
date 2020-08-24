@@ -3,6 +3,8 @@ import { RouteComponentProps } from "react-router"
 import GraphQLDataList from "../components/GraphQLDataList"
 import { GET_PAYOUTS } from '../graphql/PayoutQueries'
 import { PaginationSortDirections } from '../graphql/Interfaces'
+import Action from '../components/Action'
+import { AuthRoles } from '../interfaces/AuthRoles'
 
 
 export default function Payouts(props: RouteComponentProps) {
@@ -18,6 +20,9 @@ export default function Payouts(props: RouteComponentProps) {
             ]}
             defaultSortBy='until'
             defaultSortDirection={PaginationSortDirections.DESC}
+            panelActions={[
+                <Action icon="plus" to="/payouts/add" roles={[AuthRoles.PAYOUTS_CREATE]} />,
+            ]}
             {...props}
         />
     )
