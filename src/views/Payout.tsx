@@ -245,8 +245,8 @@ export default function Payout(props: RouteComponentProps<{ id: string }>) {
             <Row>
                 <Column className="col-md-6">
                     <Panel title="Informationen">
-                        <FormEntry id="from" title="Von" value={new Date(payout.data?.getPayout.from).toLocaleDateString()} type="date"></FormEntry>
-                        <FormEntry id="until" title="Bis" value={new Date(payout.data?.getPayout.until).toLocaleDateString()} type="date"></FormEntry>
+                        <FormEntry id="from" title="Von" value={new Date(payout.data?.getPayout.from)} type="date"></FormEntry>
+                        <FormEntry id="until" title="Bis" value={new Date(payout.data?.getPayout.until)} type="date"></FormEntry>
                         <FormEntry id="countCompensations" title="Anzahl Entschädiungen" value={payout.data?.getPayout.compensations.length} editable={false}></FormEntry>
                         <FormEntry id="total" title="Total" value={`CHF ${payout.data?.getPayout.total.toFixed(2)}`} ></FormEntry>
                     </Panel>

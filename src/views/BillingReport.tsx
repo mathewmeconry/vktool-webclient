@@ -283,7 +283,7 @@ export default function BillingReport(props: RouteComponentProps<{ id: string }>
                     <FormEntry id="orderTitle" title="Auftrag">
                         {renderOrder()}
                     </FormEntry>
-                    <FormEntry id="date" title="Datum" value={(billingReport.date) ? new Date(billingReport?.date).toLocaleDateString() : ''} type='date' editable={editable} onChange={onInputChange}></FormEntry>
+                    <FormEntry id="date" title="Datum" value={(billingReport.date) ? new Date(billingReport?.date) : ''} type='date' editable={editable} onChange={onInputChange}></FormEntry>
                     <FormEntry id="creator" title="Ersteller">{(billingReport?.creator as User).displayName}</FormEntry>
                     <FormEntry id="state" title="Status"><div className={"badge " + statusBadgeClass}>{billingReport?.state}</div></FormEntry>
                     <FormEntry id="els" title="ELs">
