@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@apollo/client": "^3.2.0",
     "@apollo/react-hooks": "^3.1.5",
     "@babel/core": "7.1.0",
     "@babel/plugin-proposal-optional-chaining": "^7.8.3",
@@ -92,8 +93,9 @@
   "scripts": {
     "start": "node scripts/start.js",
     "startClient": "node scripts/start.js",
-    "build": "node scripts/build.js",
-    "test": "node scripts/test.js"
+    "build": "graphql-codegen --config graphql-codegen.yml && node scripts/build.js",
+    "test": "node scripts/test.js",
+    "generate": "graphql-codegen --config graphql-codegen.yml"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -154,6 +156,12 @@
     ]
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "1.17.8",
+    "@graphql-codegen/fragment-matcher": "1.17.8",
+    "@graphql-codegen/introspection": "1.17.8",
+    "@graphql-codegen/typescript": "1.17.8",
+    "@graphql-codegen/typescript-operations": "^1.17.8",
+    "@graphql-codegen/typescript-react-apollo": "^2.0.6",
     "@types/react-bootstrap-typeahead": "^3.4.0",
     "@types/react-dom": "^16.0.11",
     "@types/react-fontawesome": "^1.6.4",

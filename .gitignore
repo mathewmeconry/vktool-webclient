@@ -3,3 +3,5 @@ dist/
 yarn-error.log
 node_modules/
 build/
+src/generated
+src/graphql.fragmentTypes.json
