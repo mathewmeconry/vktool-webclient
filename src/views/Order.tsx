@@ -20,6 +20,12 @@ export default function Order(props: RouteComponentProps<{ id: string }>) {
         )
     }
 
+    function decodeHTML(html: string): string {
+        var txt = document.createElement('textarea')
+        txt.innerHTML = html
+        return txt.value
+    };
+
     function renderPositions() {
         let positionsRendered = []
         if (order.data?.getOrder.positions) {
@@ -30,7 +36,7 @@ export default function Order(props: RouteComponentProps<{ id: string }>) {
                             {position.pos}
                         </Column>
                         <Column>
-                            <div dangerouslySetInnerHTML={{ __html: position.text || '' }}></div>
+                            <div dangerouslySetInnerHTML={{ __html: decodeHTML(position.text || '') }}></div>
                         </Column>
                         {(position.positionTotal) ? <Column className="col-2">CHF {position.positionTotal}</Column> : ''}
                     </Row>

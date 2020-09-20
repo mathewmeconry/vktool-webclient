@@ -6,6 +6,7 @@ import Input from "./Input"
 interface FormEntryProps {
     id: string
     title: string
+    unsecure?: boolean
     editable?: boolean
     value?: any
     type?: string
@@ -13,9 +14,20 @@ interface FormEntryProps {
 }
 
 export default class FormEntry extends Component<FormEntryProps> {
+
+    private decodeHTML(html: string): string {
+        let txt = document.createElement('textarea')
+        txt.innerHTML = html.toString()
+        return txt.value
+    };
+
     public renderChildren() {
         if (typeof this.props.value !== 'undefined') {
             return <Input name={this.props.id} editable={this.props.editable} onChange={this.props.onChange} type={this.props.type} value={this.props.value} />
+        }
+
+        if (this.props.unsecure) {
+            return <div dangerouslySetInnerHTML={{ __html: this.decodeHTML(this.props.children?.toString() || '') }}></div>
         }
 
         return this.props.children

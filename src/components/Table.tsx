@@ -8,6 +8,7 @@ export interface TableColumn {
     text: string
     keys: Array<string> | { [index: string]: Array<string> }
     content?: JSX.Element
+    editContent?: (tdKey: string, value: string, onChange: (name: string, value: string) => void, required?: boolean, ...args: any[]) => JSX.Element
     link?: boolean
     linkPrefix?: string,
     sortable?: boolean,
@@ -445,6 +446,8 @@ export default class Table<T extends { id: string | number }> extends Component<
 
                     if (column.link) {
                         row.push(<td className={column.className || ''} key={`${dataEntry.id}-${tdKey}`}><a key={`${dataEntry.id}-${tdKey}-a`} href={((column.linkPrefix) ? column.linkPrefix : '') + content.join(' ')} target={(column.linkPrefix && (column.linkPrefix.match(/w+:/i) || []).length > 0) ? "" : "_blank"}>{((column.prefix) ? column.prefix : '') + content.join(' ') + ((column.suffix) ? column.suffix : '')}</a></td>)
+                    } else if (column.editable && column.editContent !== undefined) {
+                        row.push(<td className={column.className || ''} key={`${dataEntry.id}-${tdKey}`}>{column.editContent(tdKey, content.join(' '), (name, value) => this.onColumnDataChange(tdKey, dataEntry.id, value, false), column.required)}</td>)
                     } else if (column.editable) {
                         row.push(<td className={column.className || ''} key={`${dataEntry.id}-${tdKey}`}><Input name={tdKey} value={content.join(' ')} editable={true} type={column.type} onChange={(name, value) => this.onColumnDataChange(tdKey, dataEntry.id, value)} options={column.options} required={column.required} /></td>)
                     } else {
@@ -469,7 +472,9 @@ export default class Table<T extends { id: string | number }> extends Component<
                 }
 
 
-                if (column.editable) {
+                if (column.editable && column.editContent !== undefined) {
+                    newRow.push(<td className={column.className || ''} key={`${trKey}-${tdKey}`}>{column.editContent(tdKey, '', (name, value) => this.onColumnDataChange(tdKey, trKey, value, true), column.required)}</td>)
+                } else if (column.editable) {
                     newRow.push(<td className={column.className || ''} key={`${trKey}-${tdKey}`}><Input name={`${trKey}-${tdKey}`} value={''} editable={true} type={column.type} onChange={(name, value) => this.onColumnDataChange(tdKey, null, value, true)} options={column.options} /></td>)
                 } else {
                     newRow.push(<td className={column.className || ''} key={`${trKey}-${tdKey}`}></td>)
@@ -482,7 +487,7 @@ export default class Table<T extends { id: string | number }> extends Component<
 
     public render() {
         return (
-            <div className="table-responsive">
+            <div className="table-responsive" style={{ overflow: 'unset' }}>
                 <table className={`table table-striped ${this.props.className || ''}`} ref={this.ref}>
                     <thead key="table-head">
                         <tr key="table-head-row">

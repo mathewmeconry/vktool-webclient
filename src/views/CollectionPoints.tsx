@@ -12,7 +12,7 @@ export default function CollectionPoints(props: RouteComponentProps) {
         <GraphQLDataList<CollectionPoint>
             query={GET_COLLECTIONPOINTS}
             title='Abholpunkte'
-            panelActions={[<Action icon="plus" to="/draft/collection-point/add" roles={[AuthRoles.DRAFT_CREATE, AuthRoles.DRAFT_EDIT]} />]}
+            panelActions={[<Action icon="plus" to="/draft/collection-point/add" roles={[AuthRoles.COLLECTIONPOINT_CREATE, AuthRoles.COLLECTIONPOINT_EDIT]} />]}
             viewLocation='/collection-point/'
             tableColumns={[
                 { text: 'Name', keys: ['name'], sortable: true },
