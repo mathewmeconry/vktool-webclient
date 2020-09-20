@@ -17,6 +17,7 @@ import OrderCompensation from "../entities/OrderCompensation"
 import { UI } from '../actions/UIActions'
 import { useDispatch } from 'react-redux'
 import { Error403 } from '../components/Errors/403'
+import Table from '../components/Table'
 
 export default function Compensation(props: RouteComponentProps<{ id: string }>) {
     const { loading, data, error, refetch } = useQuery(GET_COMPENSATION, { variables: { id: parseInt(props.match.params.id) }, fetchPolicy: 'cache-and-network' })
@@ -84,6 +85,26 @@ export default function Compensation(props: RouteComponentProps<{ id: string }>)
         }
     }
 
+    function renderMaterialChangelog2Product() {
+        if ((compensation as CustomCompensation).materialChangelogToProducts) {
+            return (
+                <Column className="col-md-6">
+                    <Panel title="Materialfassung">
+                        <Table
+                            columns={[
+                                { keys: { product: ['internName'] }, text: 'Produkt' },
+                                { keys: ['amount'], text: 'Anzahl' },
+                                { keys: { product: ['salePrice'] }, text: 'Preis' }
+                            ]}
+                            data={(compensation as CustomCompensation).materialChangelogToProducts}
+                        ></Table>
+                        <Link to={"/warehouse/changelog/" + (compensation as CustomCompensation).materialChangelogToProducts[0].changelog.id} className="btn btn-outline-primary btn-block">Fassung öffnen</Link>
+                    </Panel>
+                </Column>
+            )
+        }
+    }
+
     let statusBadgeClass = 'badge-success'
     if (!compensation.approved) {
         statusBadgeClass = 'badge-warning'
@@ -113,6 +134,7 @@ export default function Compensation(props: RouteComponentProps<{ id: string }>)
             </Row>
             <Row>
                 {renderBillingReport()}
+                {renderMaterialChangelog2Product()}
                 <Column className="col-md-6">
                     <Panel title="Auszahlung">
                         <FormEntry id="paied" title="Ausbezahlt">{(compensation.paied) ? '✓' : '⨯'}</FormEntry>

@@ -10,6 +10,17 @@ export const GET_ALL_MEMBERS_SELECT = gql`
   }
 `;
 
+export const GET_ALL_SUPPLIERS_SELECT = gql`
+  query GET_ALL_SUPPLIERS_SELECT {
+    getSuppliersAll {
+      id
+      firstname
+      lastname
+    }
+  }
+`;
+
+
 export const GET_ALL_MEMBERS = gql`
   query GET_ALL_MEMBERS {
     getMembersAll {
