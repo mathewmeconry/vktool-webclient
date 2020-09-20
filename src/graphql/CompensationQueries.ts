@@ -61,6 +61,18 @@ export const GET_COMPENSATION = gql`
       transferCompensation {
         id
       }
+      materialChangelogToProducts {
+        id
+        product {
+          id
+          internName
+          salePrice
+        }
+        amount
+        changelog {
+          id
+        }
+      }
     }
   }
 `;
