@@ -10,6 +10,7 @@ interface FormEntryProps {
     editable?: boolean
     value?: any
     type?: string
+    required?: boolean
     onChange?: (name: string, value: any) => void
 }
 
@@ -23,7 +24,7 @@ export default class FormEntry extends Component<FormEntryProps> {
 
     public renderChildren() {
         if (typeof this.props.value !== 'undefined') {
-            return <Input name={this.props.id} editable={this.props.editable} onChange={this.props.onChange} type={this.props.type} value={this.props.value} />
+            return <Input name={this.props.id} editable={this.props.editable} onChange={this.props.onChange} type={this.props.type} value={this.props.value} required={!!this.props.required}/>
         }
 
         if (this.props.unsecure) {

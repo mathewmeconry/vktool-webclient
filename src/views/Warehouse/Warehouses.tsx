@@ -12,6 +12,7 @@ export default function Warehouses(props: RouteComponentProps) {
         <GraphQLDataList
             query={GET_WAREHOUSES}
             title='Lagerräume/Fahrzeuge'
+            viewLocation='/warehouse/'
             tableColumns={[
                 { text: 'Name', keys: ['name'], sortable: true },
                 { text: 'Max. Gewicht in kg', keys: ['maxWeight'], sortable: true }

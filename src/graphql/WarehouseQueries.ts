@@ -33,11 +33,31 @@ export const ADD_WAREHOUSE = gql`
   }
 `;
 
+export const EDIT_WAREHOUSE = gql`
+  mutation EDIT_WAREHOUSE($id: Int!, $name: String!, $maxWeight: Int) {
+    editWarehouse(id: $id, name: $name, maxWeight: $maxWeight) {
+      id
+      name
+      maxWeight
+    }
+  }
+`;
+
 export const GET_ALL_WAREHOUSE_SELECT = gql`
   query GET_ALL_WAREHOUSE_SELECT {
     getWarehousesAll {
       id
       name
+    }
+  }
+`;
+
+export const GET_WAREHOUSE = gql`
+  query GET_WAREHOUSE($id: Int!) {
+    getWarehouse(id: $id) {
+      id
+      name
+      maxWeight 
     }
   }
 `;
