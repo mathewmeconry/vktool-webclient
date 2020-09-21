@@ -1,0 +1,24 @@
+@include media-breakpoint-down(sm) {
+    table.table-sm-rows {
+        thead {
+            display: none;
+        }
+        tbody tr {
+            display: table;
+            width: 100%;
+            td {
+                display: table-row;
+
+                .btn-group {
+                    width: 100%;
+                    label {
+                        margin: 0;
+                    }
+                }
+            }
+            td[data-th]:before {
+                content: attr(data-th);
+            }
+        }
+    }
+}

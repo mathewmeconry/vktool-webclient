@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { Button, Tabs, Tab, ButtonGroup, ToggleButton } from "react-bootstrap"
+import { Tabs, Tab, ButtonGroup, ToggleButton } from "react-bootstrap"
 import { useDispatch } from "react-redux"
 import { RouteComponentProps } from "react-router"
 import Column from "../../components/Column"
@@ -18,6 +18,7 @@ import Product from "../../entities/Product"
 import { useMutation } from "react-apollo"
 import { ADD_MATERIAL_CHANGELOG } from '../../graphql/MaterialChangelogQueries'
 import { UI } from "../../actions/UIActions"
+import Button from "../../components/Button"
 
 enum InOutTypes {
     MEMBER = 'member',
@@ -154,16 +155,17 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
                             <h5>Zu*</h5>
                             {renderInOut('out', outType, setOutType, outState, setOutState)}
                             <br></br>
+                            <h5>Produkte</h5>
                             <Table<AddMaterialChangelogToProduct>
                                 columns={[
-                                    { keys: ['productId'], text: 'Produkt', editable: true, editContent: (tdKey, value, onChange, required) => <ProductSelect key={tdKey} onChange={(value: Product[]) => onChange(tdKey, value[0].id.toString())} defaultValue={[value]} isMulti={false} required={required} />, onChange: onProductChange, required: true },
+                                    { keys: ['productId'], className: "col-6", text: 'Produkt', editable: true, editContent: (tdKey, value, onChange, required) => <ProductSelect key={tdKey} onChange={(value: Product[]) => onChange(tdKey, value[0].id.toString())} defaultValue={[value]} isMulti={false} required={required} />, onChange: onProductChange, required: true },
                                     { keys: ['amount'], text: 'Anzahl', editable: true, type: 'number', onChange: onProductChange, required: true },
                                     { keys: ['number'], text: 'Nummer', editable: true, type: 'number', onChange: onProductChange, required: false },
-                                    { keys: ['remarks'], text: 'Bemerkungen', editable: true, type: 'text', onChange: onProductChange, required: false },
                                     { keys: ['charge'], text: 'Verrechnen', editable: true, editContent: renderCharge, onChange: onProductChange, required: true },
                                 ]}
                                 addNew={true}
                                 data={products as AddMaterialChangelogToProduct[]}
+                                className="table-sm-rows"
                             />
                             <Button variant="primary" block={true} onClick={onSave}>Speichern</Button>
                         </form>

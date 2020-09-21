@@ -46,18 +46,18 @@ export default function MaterialChangelog(props: RouteComponentProps<{ id: strin
             <Row>
                 <Column className="col-12">
                     <Panel title="" scrollable={false}>
-                        <Row className="text-center align-items-center" style={{ fontSize: '15pt' }}>
+                        <Row className="text-center align-items-center">
                             <Column className="col-4">
-                                <p className="text-uppercase">Von</p>
-                                {(changelog.in.hasOwnProperty('name') ? (changelog.in as Warehouse).name : `${(changelog.in as Contact).firstname} ${(changelog.in as Contact).lastname}`)}
+                                <h5 className="text-uppercase">Von</h5>
+                                <h5>{(changelog.in.hasOwnProperty('name') ? (changelog.in as Warehouse).name : `${(changelog.in as Contact).firstname} ${(changelog.in as Contact).lastname}`)}</h5>
                                 {(changelog.in as Contact).firstname && <Link to={`/contact/${changelog.in.id}`} className="btn btn-link btn-block">Kontakt öffnen</Link>}
                             </Column>
                             <Column className="col-4">
                                 <FontAwesomeIcon icon="long-arrow-alt-right" />
                             </Column>
                             <Column className="col-4">
-                                <p className="text-uppercase">Zu</p>
-                                {(changelog.out.hasOwnProperty('name') ? (changelog.out as Warehouse).name : `${(changelog.out as Contact).firstname} ${(changelog.out as Contact).lastname}`)}
+                                <h5 className="text-uppercase">Zu</h5>
+                                <h5>{(changelog.out.hasOwnProperty('name') ? (changelog.out as Warehouse).name : `${(changelog.out as Contact).firstname} ${(changelog.out as Contact).lastname}`)}</h5>
                                 {(changelog.out as Contact).firstname && <Link to={`/contact/${changelog.out.id}`} className="btn btn-link btn-block">Kontakt öffnen</Link>}
                             </Column>
                         </Row>

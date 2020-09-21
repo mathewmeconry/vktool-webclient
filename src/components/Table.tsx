@@ -429,7 +429,7 @@ export default class Table<T extends { id: string | number }> extends Component<
                 let tdKey = (column.keys instanceof Array) ? column.keys.join('-') : Object.keys(column.keys).map((el: string) => ((column.keys as StringIndexed<Array<string>>)[el].join('-'))).join('-')
 
                 if (column.content) {
-                    row.push(<td key={tdKey}>{column.content || ''}</td>)
+                    row.push(<td data-th={column.text} key={tdKey}>{column.content || ''}</td>)
                 } else {
                     let content: Array<string> = []
                     if (column.keys instanceof Array) {
@@ -445,13 +445,13 @@ export default class Table<T extends { id: string | number }> extends Component<
                     }
 
                     if (column.link) {
-                        row.push(<td className={column.className || ''} key={`${dataEntry.id}-${tdKey}`}><a key={`${dataEntry.id}-${tdKey}-a`} href={((column.linkPrefix) ? column.linkPrefix : '') + content.join(' ')} target={(column.linkPrefix && (column.linkPrefix.match(/w+:/i) || []).length > 0) ? "" : "_blank"}>{((column.prefix) ? column.prefix : '') + content.join(' ') + ((column.suffix) ? column.suffix : '')}</a></td>)
+                        row.push(<td data-th={column.text} className={column.className || ''} key={`${dataEntry.id}-${tdKey}`}><a key={`${dataEntry.id}-${tdKey}-a`} href={((column.linkPrefix) ? column.linkPrefix : '') + content.join(' ')} target={(column.linkPrefix && (column.linkPrefix.match(/w+:/i) || []).length > 0) ? "" : "_blank"}>{((column.prefix) ? column.prefix : '') + content.join(' ') + ((column.suffix) ? column.suffix : '')}</a></td>)
                     } else if (column.editable && column.editContent !== undefined) {
-                        row.push(<td className={column.className || ''} key={`${dataEntry.id}-${tdKey}`}>{column.editContent(tdKey, content.join(' '), (name, value) => this.onColumnDataChange(tdKey, dataEntry.id, value, false), column.required)}</td>)
+                        row.push(<td data-th={column.text} className={column.className || ''} key={`${dataEntry.id}-${tdKey}`}>{column.editContent(tdKey, content.join(' '), (name, value) => this.onColumnDataChange(tdKey, dataEntry.id, value, false), column.required)}</td>)
                     } else if (column.editable) {
-                        row.push(<td className={column.className || ''} key={`${dataEntry.id}-${tdKey}`}><Input name={tdKey} value={content.join(' ')} editable={true} type={column.type} onChange={(name, value) => this.onColumnDataChange(tdKey, dataEntry.id, value)} options={column.options} required={column.required} /></td>)
+                        row.push(<td data-th={column.text} className={column.className || ''} key={`${dataEntry.id}-${tdKey}`}><Input name={tdKey} value={content.join(' ')} editable={true} type={column.type} onChange={(name, value) => this.onColumnDataChange(tdKey, dataEntry.id, value)} options={column.options} required={column.required} /></td>)
                     } else {
-                        row.push(<td className={column.className || ''} key={`${dataEntry.id}-${tdKey}`}>{`${column.prefix || ''}${content.join(' ')}${column.suffix || ''}`}</td>)
+                        row.push(<td data-th={column.text} className={column.className || ''} key={`${dataEntry.id}-${tdKey}`}>{`${column.prefix || ''}${content.join(' ')}${column.suffix || ''}`}</td>)
                     }
                 }
             }
@@ -473,11 +473,11 @@ export default class Table<T extends { id: string | number }> extends Component<
 
 
                 if (column.editable && column.editContent !== undefined) {
-                    newRow.push(<td className={column.className || ''} key={`${trKey}-${tdKey}`}>{column.editContent(tdKey, '', (name, value) => this.onColumnDataChange(tdKey, trKey, value, true), column.required)}</td>)
+                    newRow.push(<td data-th={column.text} className={column.className || ''} key={`${trKey}-${tdKey}`}>{column.editContent(tdKey, '', (name, value) => this.onColumnDataChange(tdKey, trKey, value, true), column.required)}</td>)
                 } else if (column.editable) {
-                    newRow.push(<td className={column.className || ''} key={`${trKey}-${tdKey}`}><Input name={`${trKey}-${tdKey}`} value={''} editable={true} type={column.type} onChange={(name, value) => this.onColumnDataChange(tdKey, null, value, true)} options={column.options} /></td>)
+                    newRow.push(<td data-th={column.text} className={column.className || ''} key={`${trKey}-${tdKey}`}><Input name={`${trKey}-${tdKey}`} value={''} editable={true} type={column.type} onChange={(name, value) => this.onColumnDataChange(tdKey, null, value, true)} options={column.options} /></td>)
                 } else {
-                    newRow.push(<td className={column.className || ''} key={`${trKey}-${tdKey}`}></td>)
+                    newRow.push(<td data-th={column.text} className={column.className || ''} key={`${trKey}-${tdKey}`}></td>)
                 }
             }
             rows.push(<tr key={trKey}>{newRow}</tr>)
