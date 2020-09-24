@@ -95,7 +95,7 @@ export default function Warehouse(props: RouteComponentProps<{ id: string }>) {
                     <Panel actions={renderPanelActions()}>
                         <form id="editWarehouse" ref={(ref: HTMLFormElement) => { formEl = ref }}>
                             <FormEntry id="name" title="Name" value={warehouse?.name} editable={editable} onChange={onInputChange} required={true} />
-                            <FormEntry id="maxWeight" title="Maximal Gewicht" value={warehouse?.maxWeight} editable={editable} onChange={onInputChange} />
+                            <FormEntry id="maxWeight" title="Maximal Gewicht" value={warehouse?.maxWeight} editable={editable} onChange={onInputChange} append="kg"/>
                         </form>
                     </Panel>
                 </Column>

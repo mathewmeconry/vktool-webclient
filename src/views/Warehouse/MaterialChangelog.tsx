@@ -1,7 +1,7 @@
 import { RouteComponentProps } from "react-router"
 import { Page } from "../../components/Page"
 import React, { useState } from "react"
-import { useQuery } from "react-apollo"
+import { useMutation, useQuery } from "react-apollo"
 import { default as MaterialChangelogEntity } from "../../entities/MaterialChangelog"
 import { GET_MATERIAL_CHANGELOG } from "../../graphql/MaterialChangelogQueries"
 import Loading from "../../components/Loading"
@@ -17,7 +17,7 @@ import Table from "../../components/Table"
 import { Link } from "react-router-dom"
 
 export default function MaterialChangelog(props: RouteComponentProps<{ id: string }>) {
-    const { loading, error, data, refetch } = useQuery<{ getMaterialChangelog: MaterialChangelogEntity & { in: Contact | Warehouse, out: Contact | Warehouse } }>(GET_MATERIAL_CHANGELOG, { variables: { id: parseInt(props.match.params.id) } })
+    const { loading, error, data } = useQuery<{ getMaterialChangelog: MaterialChangelogEntity & { in: Contact | Warehouse, out: Contact | Warehouse } }>(GET_MATERIAL_CHANGELOG, { variables: { id: parseInt(props.match.params.id) } })
     const [changelog, setChangelog] = useState<MaterialChangelogEntity & { in: Contact | Warehouse, out: Contact | Warehouse }>(data?.getMaterialChangelog as MaterialChangelogEntity & { in: Contact | Warehouse, out: Contact | Warehouse })
 
     if (loading) {
@@ -82,7 +82,7 @@ export default function MaterialChangelog(props: RouteComponentProps<{ id: strin
                                 { keys: ['number'], text: 'Nummer', sortable: true },
                                 { keys: ['charge'], text: 'Verrechnet', sortable: true },
                             ]}
-                            data={changelog.products}
+                            data={changelog.changes}
                         />
                     </Panel>
                 </Column>

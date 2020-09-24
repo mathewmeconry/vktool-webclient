@@ -94,7 +94,7 @@ export default function Compensation(props: RouteComponentProps<{ id: string }>)
                             columns={[
                                 { keys: { product: ['internName'] }, text: 'Produkt' },
                                 { keys: ['amount'], text: 'Anzahl' },
-                                { keys: { product: ['salePrice'] }, text: 'Preis' }
+                                { keys: { product: ['salePrice'] }, text: 'Preis', prefix: 'CHF ' }
                             ]}
                             data={(compensation as CustomCompensation).materialChangelogToProducts}
                         ></Table>

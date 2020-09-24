@@ -11,7 +11,9 @@ interface FormEntryProps {
     value?: any
     type?: string
     required?: boolean
-    onChange?: (name: string, value: any) => void
+    onChange?: (name: string, value: any) => void,
+    prepend?: string,
+    append?: string
 }
 
 export default class FormEntry extends Component<FormEntryProps> {
@@ -23,8 +25,12 @@ export default class FormEntry extends Component<FormEntryProps> {
     };
 
     public renderChildren() {
+        if (!this.props.editable && this.props.value !== 'undefined') {
+            return `${this.props.prepend || ''} ${this.props.value || ''} ${this.props.append || ''}`
+        }
+
         if (typeof this.props.value !== 'undefined') {
-            return <Input name={this.props.id} editable={this.props.editable} onChange={this.props.onChange} type={this.props.type} value={this.props.value} required={!!this.props.required}/>
+            return <Input name={this.props.id} editable={this.props.editable} onChange={this.props.onChange} type={this.props.type} value={this.props.value} required={!!this.props.required} prepend={this.props.prepend} append={this.props.append} />
         }
 
         if (this.props.unsecure) {

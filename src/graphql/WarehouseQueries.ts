@@ -48,6 +48,7 @@ export const GET_ALL_WAREHOUSE_SELECT = gql`
     getWarehousesAll {
       id
       name
+      maxWeight
     }
   }
 `;

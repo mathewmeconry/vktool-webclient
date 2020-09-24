@@ -82,7 +82,7 @@ export default function Product(props: RouteComponentProps<{ id: string }>) {
                         <FormEntry id="internDescription" title="Beschreibung" unsecure={true}>{productResult.internDescription}</FormEntry>
                         <FormEntry id="purchasePrice" title="Einkaufspreis">{productResult.purchasePrice || 0} CHF</FormEntry>
                         <FormEntry id="salePrice" title="Verkaufspreis">{productResult.salePrice || 0} CHF</FormEntry>
-                        <FormEntry id="weight" title="Gewicht in kg" editable={editable} onChange={(name, value) => setWeight(value)} value={(editable) ? weight : undefined}>{weight} kg</FormEntry>
+                        <FormEntry id="weight" title="Gewicht in kg" editable={editable} onChange={(name, value) => setWeight(value)} value={weight} append="kg"/>
                     </Panel>
                 </Column>
                 <Column className="col-md-6">

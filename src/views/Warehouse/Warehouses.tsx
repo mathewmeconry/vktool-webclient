@@ -15,7 +15,7 @@ export default function Warehouses(props: RouteComponentProps) {
             viewLocation='/warehouse/'
             tableColumns={[
                 { text: 'Name', keys: ['name'], sortable: true },
-                { text: 'Max. Gewicht in kg', keys: ['maxWeight'], sortable: true }
+                { text: 'Max. Gewicht in kg', keys: ['maxWeight'], sortable: true, suffix: ' kg' }
             ]}
             defaultSortBy='name'
             defaultSortDirection={PaginationSortDirections.ASC}

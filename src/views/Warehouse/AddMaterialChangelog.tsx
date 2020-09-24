@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { Tabs, Tab, ButtonGroup, ToggleButton } from "react-bootstrap"
 import { useDispatch } from "react-redux"
 import { RouteComponentProps } from "react-router"
@@ -15,10 +15,11 @@ import Contact from "../../entities/Contact"
 import Warehouse from "../../entities/Warehouse"
 import { AddMaterialChangelogToProduct } from "../../interfaces/WareHouse"
 import Product from "../../entities/Product"
-import { useMutation } from "react-apollo"
+import { useMutation, useQuery } from "react-apollo"
 import { ADD_MATERIAL_CHANGELOG } from '../../graphql/MaterialChangelogQueries'
 import { UI } from "../../actions/UIActions"
 import Button from "../../components/Button"
+import { GET_ALL_PRODUCT_SELECT } from "../../graphql/ProductQueries"
 
 enum InOutTypes {
     MEMBER = 'member',
@@ -33,30 +34,68 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
     const [outType, setOutType] = useState<InOutTypes>(InOutTypes.MEMBER)
     const [outState, setOutState] = useState<Contact | Warehouse | undefined>()
     const [products, setProducts] = useState<AddMaterialChangelogToProduct[]>([])
-    const [addChangelog, { data }] = useMutation(ADD_MATERIAL_CHANGELOG)
+    const [addChangelog] = useMutation(ADD_MATERIAL_CHANGELOG)
     const dispatch = useDispatch()
+    const [wasValidated, setWasValidated] = useState(false)
+    const [isOverloaded, setOverloaded] = useState(false)
+    const { data, error, loading } = useQuery<{ getProductsAll: Product[] }>(GET_ALL_PRODUCT_SELECT)
+
+    useEffect(() => {
+        if (outType === InOutTypes.WAREHOUSE) {
+            const warehouse = outState as Warehouse
+            if (warehouse && warehouse.maxWeight && !loading && data?.getProductsAll) {
+                const currentWeight = products.filter(p => p.productId).map((selectedProduct) => {
+                    const product = data.getProductsAll.find(p => p.id === parseInt(selectedProduct.productId))
+                    if (product) {
+                        return (product.weight || 0) * (parseInt(selectedProduct.amount) || 0)
+                    }
+                    return 0
+                }).reduce((p, c) => p + c, 0)
+                if (warehouse.maxWeight < currentWeight) {
+                    setOverloaded(true)
+                    return
+                }
+            }
+        }
+        setOverloaded(false)
+    }, [products, outState, loading, data])
 
     function renderInOut(id: string, active: InOutTypes, setActive: React.Dispatch<React.SetStateAction<InOutTypes>>, selectedValue: Contact | Warehouse | undefined, setSelectedValue: React.Dispatch<React.SetStateAction<Contact | Warehouse | undefined>>) {
+        let classNames = ''
+        if (wasValidated) {
+            if (selectedValue) {
+                classNames = 'border border-success rounded'
+            } else {
+                classNames = 'border border-danger rounded'
+            }
+        }
         return (
             <Tabs id={id} activeKey={active} onSelect={(eventKey: any) => { setActive(eventKey), setSelectedValue(undefined) }} className="nav-fill" variant="pills">
                 <Tab eventKey={InOutTypes.MEMBER} title="Mitglied">
-                    <MemberSelect onChange={(contact: Contact[]) => setSelectedValue(contact[0])} isMulti={false} defaultValue={[selectedValue?.id?.toString() || '']} />
+                    <MemberSelect onChange={(contact: Contact[]) => setSelectedValue(contact[0])} isMulti={false} defaultValue={[selectedValue?.id?.toString() || '']} className={classNames} />
                 </Tab>
                 <Tab eventKey={InOutTypes.SUPPLIER} title="Lieferant">
-                    <SupplierSelect onChange={(contact: Contact[]) => setSelectedValue(contact[0])} isMulti={false} defaultValue={[selectedValue?.id?.toString() || '']} />
+                    <SupplierSelect onChange={(contact: Contact[]) => setSelectedValue(contact[0])} isMulti={false} defaultValue={[selectedValue?.id?.toString() || '']} className={classNames} />
                 </Tab>
                 <Tab eventKey={InOutTypes.WAREHOUSE} title="Lagerraum/Fahrzeug">
-                    <WarehouseSelect onChange={(warehouse: Warehouse[]) => setSelectedValue(warehouse[0])} isMulti={false} defaultValue={[selectedValue?.id?.toString() || '']} />
+                    <WarehouseSelect onChange={(warehouse: Warehouse[]) => setSelectedValue(warehouse[0])} isMulti={false} defaultValue={[selectedValue?.id?.toString() || '']} className={classNames} />
+                    {id === 'out' && renderOverloaded()}
                 </Tab>
             </Tabs>
         )
     }
 
+    function renderOverloaded() {
+        const warehouse = outState as Warehouse
+        if (isOverloaded && warehouse && warehouse.maxWeight) {
+            return <p className="text-danger">Das maximal Gewicht von {warehouse.maxWeight} kg wurde überschritten!</p>
+        }
+        return null
+    }
+
     function onProductChange(id: string | number | null, name: string, value: any, newly: boolean): void {
         if (newly) {
-            const product: Partial<AddMaterialChangelogToProduct> = {
-                id: products.length.toString()
-            }
+            const product: Partial<AddMaterialChangelogToProduct> = {}
             product[name as keyof AddMaterialChangelogToProduct] = value
             switch (name as keyof AddMaterialChangelogToProduct) {
                 case 'amount':
@@ -91,6 +130,7 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
     async function onSave(event: React.MouseEvent<HTMLButtonElement>): Promise<boolean> {
         event.preventDefault()
         if (formEl) {
+            setWasValidated(true)
             let valid = formEl.checkValidity()
             formEl.className = 'was-validated'
 
@@ -143,6 +183,19 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
         )
     }
 
+    async function removeTableItem(event: React.MouseEvent<HTMLButtonElement>) {
+        event.preventDefault()
+        if (event.currentTarget.parentNode && event.currentTarget.parentNode.parentElement) {
+            let id = event.currentTarget.parentNode.parentElement.getAttribute('data-key')
+
+            if (id) {
+                const clone = [...products]
+                clone.splice(parseInt(id), 1)
+                setProducts(clone)
+            }
+        }
+    }
+
     return (
         <Page title="Material">
             <Row>
@@ -162,10 +215,12 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
                                     { keys: ['amount'], text: 'Anzahl', editable: true, type: 'number', onChange: onProductChange, required: true },
                                     { keys: ['number'], text: 'Nummer', editable: true, type: 'number', onChange: onProductChange, required: false },
                                     { keys: ['charge'], text: 'Verrechnen', editable: true, editContent: renderCharge, onChange: onProductChange, required: true },
+                                    { text: 'Actions', keys: ['id'], content: <button className="btn btn-danger" onClick={removeTableItem}>⨯</button> }
                                 ]}
                                 addNew={true}
                                 data={products as AddMaterialChangelogToProduct[]}
                                 className="table-sm-rows"
+                                onDataChange={(...args) => console.log(args)}
                             />
                             <Button variant="primary" block={true} onClick={onSave}>Speichern</Button>
                         </form>

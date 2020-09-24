@@ -3,7 +3,6 @@ import Contact from "./Contact";
 import MaterialChangelogToProduct from "./MaterialChangelogToProduct";
 import User from "./User";
 import Warehouse from "./Warehouse";
-import Product from "./Product"
 
 export default class MaterialChangelog extends Base {
   public date: Date;
@@ -45,6 +44,4 @@ export default class MaterialChangelog extends Base {
   public deletedBy?: User;
 
   public deletedById?: number;
-
-  public products: Product[]
 }

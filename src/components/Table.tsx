@@ -21,7 +21,7 @@ export interface TableColumn {
     type?: string,
     options?: string[],
     required?: boolean,
-    onChange?: (id: string | number | null, field: string, value: any, newly: boolean) => void
+    onChange?: (id: string | number | null, field: string, value: any, newly: boolean) => void,
 }
 
 export type FilterKey = string | { [index: string]: FilterKey }
@@ -447,16 +447,15 @@ export default class Table<T extends { id: string | number }> extends Component<
                     if (column.link) {
                         row.push(<td data-th={column.text} className={column.className || ''} key={`${dataEntry.id}-${tdKey}`}><a key={`${dataEntry.id}-${tdKey}-a`} href={((column.linkPrefix) ? column.linkPrefix : '') + content.join(' ')} target={(column.linkPrefix && (column.linkPrefix.match(/w+:/i) || []).length > 0) ? "" : "_blank"}>{((column.prefix) ? column.prefix : '') + content.join(' ') + ((column.suffix) ? column.suffix : '')}</a></td>)
                     } else if (column.editable && column.editContent !== undefined) {
-                        row.push(<td data-th={column.text} className={column.className || ''} key={`${dataEntry.id}-${tdKey}`}>{column.editContent(tdKey, content.join(' '), (name, value) => this.onColumnDataChange(tdKey, dataEntry.id, value, false), column.required)}</td>)
+                        row.push(<td data-th={column.text} className={column.className || ''} key={`${dataEntry.id}-${tdKey}`}>{column.prefix || ''}{column.editContent(tdKey, content.join(' '), (name, value) => this.onColumnDataChange(tdKey, dataEntry.id || id.replace(/^_/, ''), value, false), column.required)}{column.suffix || ''}</td>)
                     } else if (column.editable) {
-                        row.push(<td data-th={column.text} className={column.className || ''} key={`${dataEntry.id}-${tdKey}`}><Input name={tdKey} value={content.join(' ')} editable={true} type={column.type} onChange={(name, value) => this.onColumnDataChange(tdKey, dataEntry.id, value)} options={column.options} required={column.required} /></td>)
+                        row.push(<td data-th={column.text} className={column.className || ''} key={`${dataEntry.id}-${tdKey}`}><Input name={tdKey} value={content.join(' ')} editable={true} type={column.type} onChange={(name, value) => this.onColumnDataChange(tdKey, dataEntry.id || id.replace(/^_/, ''), value)} options={column.options} required={column.required} append={column.suffix} prepend={column.prefix} /></td>)
                     } else {
                         row.push(<td data-th={column.text} className={column.className || ''} key={`${dataEntry.id}-${tdKey}`}>{`${column.prefix || ''}${content.join(' ')}${column.suffix || ''}`}</td>)
                     }
                 }
             }
             let trKey = id
-            if (this.props.data instanceof Array) trKey = dataEntry.id.toString()
             rows.push(<tr key={trKey} data-key={trKey.replace(/^_/, '')}>{row}</tr>)
         }
 
@@ -473,11 +472,11 @@ export default class Table<T extends { id: string | number }> extends Component<
 
 
                 if (column.editable && column.editContent !== undefined) {
-                    newRow.push(<td data-th={column.text} className={column.className || ''} key={`${trKey}-${tdKey}`}>{column.editContent(tdKey, '', (name, value) => this.onColumnDataChange(tdKey, trKey, value, true), column.required)}</td>)
+                    newRow.push(<td data-th={column.text} className={column.className || ''} key={`${trKey}-${tdKey}`}>{column.prefix || ''}{column.editContent(tdKey, '', (name, value) => this.onColumnDataChange(tdKey, trKey, value, true), column.required)}{column.suffix || ''}</td>)
                 } else if (column.editable) {
-                    newRow.push(<td data-th={column.text} className={column.className || ''} key={`${trKey}-${tdKey}`}><Input name={`${trKey}-${tdKey}`} value={''} editable={true} type={column.type} onChange={(name, value) => this.onColumnDataChange(tdKey, null, value, true)} options={column.options} /></td>)
+                    newRow.push(<td data-th={column.text} className={column.className || ''} key={`${trKey}-${tdKey}`}><Input name={`${trKey}-${tdKey}`} value={''} editable={true} type={column.type} onChange={(name, value) => this.onColumnDataChange(tdKey, null, value, true)} options={column.options} append={column.suffix} prepend={column.prefix} /></td>)
                 } else {
-                    newRow.push(<td data-th={column.text} className={column.className || ''} key={`${trKey}-${tdKey}`}></td>)
+                    newRow.push(<td data-th={column.text} className={column.className || ''} key={`${trKey}-${tdKey}`}>{column.prefix || ''}{column.suffix || ''}</td>)
                 }
             }
             rows.push(<tr key={trKey}>{newRow}</tr>)

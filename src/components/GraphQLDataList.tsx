@@ -50,6 +50,8 @@ export interface GraphQLDataListProps<T> extends React.Props<any> {
     customFilters?: CustomFilter[]
     selectedCustomFilter?: Array<InputPaginationFilter>
     forceRerender?: Array<any>
+    suffix?: string
+    prefix?: string
 }
 
 export default function GraphQLDataList<T extends Base>(props: GraphQLDataListProps<T> & RouteComponentProps) {

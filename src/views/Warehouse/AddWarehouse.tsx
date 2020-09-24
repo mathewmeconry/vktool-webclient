@@ -56,7 +56,7 @@ export default function AddWarehouse(props: RouteComponentProps) {
                             <Input type="text" name="name" key="name" value={name} onChange={(name, value) => setName(value)} editable={true} required={true} />
                             <br></br>
                             <h5>Maximal Gewicht in kg</h5>
-                            <Input type="number" name="maxWeight" key="maxWeight" value={maxWeight} onChange={(name, value) => setMaxWeight(parseInt(value))} editable={true} required={false} />
+                            <Input type="number" name="maxWeight" key="maxWeight" value={maxWeight} onChange={(name, value) => setMaxWeight(parseInt(value))} editable={true} required={false} append="kg" />
                             <br></br>
 
                             <Button variant="primary" block={true} onClick={onSave}>Speichern</Button>

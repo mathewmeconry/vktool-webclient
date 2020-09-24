@@ -69,6 +69,7 @@ export const GET_ALL_PRODUCT_SELECT = gql`
       id
       internName
       internCode
+      weight
     }
   }
 `;

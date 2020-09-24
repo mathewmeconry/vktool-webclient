@@ -39,7 +39,7 @@ export const GET_MATERIAL_CHANGELOG = gql`
           name
         }
       }
-      products {
+      changes {
         id
         amount
         charge

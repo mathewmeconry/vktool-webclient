@@ -11,7 +11,8 @@ interface WarehouseSelectProps {
     isMulti?: boolean
     onChange: Function,
     ref?: Function,
-    required?: boolean
+    required?: boolean,
+    className?: string
 }
 
 export default function WarehouseSelect(props: WarehouseSelectProps) {
@@ -66,6 +67,7 @@ export default function WarehouseSelect(props: WarehouseSelectProps) {
         onChange={onChange}
         value={valueProps}
         required={!!props.required}
+        className={props.className}
     />)
 
 }

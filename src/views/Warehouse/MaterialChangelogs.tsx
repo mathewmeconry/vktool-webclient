@@ -117,8 +117,8 @@ export default function MaterialChangelogs(props: RouteComponentProps) {
                     { text: 'Von', keys: { in: ['firstname', 'lastname', 'name'] }, sortable: false },
                     { text: 'Zu', keys: { out: ['firstname', 'lastname', 'name'] }, sortable: false }
                 ]}
-                defaultSortBy='date'
-                defaultSortDirection={PaginationSortDirections.ASC}
+                defaultSortBy='id'
+                defaultSortDirection={PaginationSortDirections.DESC}
                 searchable={false}
                 panelActions={[
                     <Action icon="plus" to="/warehouse/changelogs/add" roles={[AuthRoles.MATERIAL_CHANGELOG_CREATE]} />,
