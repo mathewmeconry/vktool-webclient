@@ -1,10 +1,10 @@
-import { gql } from "apollo-boost";
+import gql from "graphql-tag";
 
 export const GET_RANKS = gql`
-    query GET_RANKS() {
-        getRanks() {
-            id
-            name
-        }
+  query GET_RANKS {
+    getRanks {
+      id
+      name
     }
+  }
 `;

@@ -1,5 +1,4 @@
-import { gql } from "apollo-boost";
-
+import gql from "graphql-tag";
 
 export const GET_PAYOUTS = gql`
   query GET_PAYOUTS(
@@ -30,11 +29,11 @@ export const GET_PAYOUTS = gql`
 export const GET_PAYOUT = gql`
   query GET_PAYOUT($id: Int!) {
     getPayout(id: $id) {
-      id,
-      from,
-      until,
+      id
+      from
+      until
       compensations {
-        id,
+        id
         member {
           id
           firstname
@@ -45,8 +44,7 @@ export const GET_PAYOUT = gql`
       total
     }
   }
-`
-
+`;
 
 export const ADD_PAYOUT = gql`
   mutation ADD_PAYOUT($until: DateTime!, $from: DateTime) {
@@ -60,13 +58,13 @@ export const SEND_PAYOUT_MAIL = gql`
   mutation SEND_PAYOUT_MAIL($id: Int!, $memberIds: [Int!]) {
     sendPayoutMails(id: $id, memberIds: $memberIds)
   }
-`
+`;
 
 export const SEND_PAYOUT_BEXIO = gql`
   mutation SEND_PAYOUT_BEXIO($id: Int!, $memberIds: [Int!]) {
     send2Bexio(id: $id, memberIds: $memberIds)
   }
-`
+`;
 
 export const RECLAIM_PAYOUT = gql`
   mutation RECLAIM_PAYOUT($id: Int!) {
@@ -74,10 +72,10 @@ export const RECLAIM_PAYOUT = gql`
       id
     }
   }
-`
+`;
 
 export const TRANSFER_PAYOUT = gql`
   mutation TRANSFER_PAYOUT($id: Int!, $memberIds: [Int!]!) {
     transferPayout(id: $id, memberIds: $memberIds)
   }
-`
+`;

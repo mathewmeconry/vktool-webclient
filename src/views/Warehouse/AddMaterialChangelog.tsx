@@ -19,6 +19,7 @@ import { useMutation, useQuery } from "react-apollo"
 import { ADD_MATERIAL_CHANGELOG } from '../../graphql/MaterialChangelogQueries'
 import { UI } from "../../actions/UIActions"
 import Button from "../../components/Button"
+import FileUploader from '../../components/FileUploader'
 import { GET_ALL_PRODUCT_SELECT } from "../../graphql/ProductQueries"
 
 enum InOutTypes {
@@ -222,6 +223,8 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
                                 className="table-sm-rows"
                                 onDataChange={(...args) => console.log(args)}
                             />
+                            <h5>Dateien / Bilder</h5>
+                            <FileUploader />
                             <Button variant="primary" block={true} onClick={onSave}>Speichern</Button>
                         </form>
                     </Panel>

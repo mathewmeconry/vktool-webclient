@@ -1,4 +1,4 @@
-import { gql } from "apollo-boost";
+import gql from "graphql-tag";
 
 export const DELETE_MATERIAL_CHANGELOG = gql`
   mutation DELETE_MATERIAL_CHANGELOG($id: Int!) {

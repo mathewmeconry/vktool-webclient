@@ -1,4 +1,4 @@
-import { gql } from "apollo-boost";
+import gql from "graphql-tag";
 
 export const GET_LOGOFFS_BY_CONTACT = gql`
   query GET_LOGOFFS_BY_CONTACT($id: Int!) {
