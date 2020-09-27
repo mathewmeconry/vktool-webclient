@@ -281,7 +281,7 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
                             />
                             <br></br>
                             <h5>Dateien / Bilder</h5>
-                            <FileUploader onDone={(file: IFile) => { setFiles([...files, file]) }} />
+                            <FileUploader onDone={(file: IFile) => { setFiles([...files, file]) }} onRemove={(name: string) => { setFiles([...files].filter(f => f.name !== name)) }} />
                             <br></br>
                             {renderSignature()}
                             <Button variant="primary" block={true} onClick={onSave}>Speichern</Button>

@@ -7,7 +7,8 @@ import { IFile } from '../../interfaces/File'
 import FilePreview from './FilePreview'
 
 interface FileUploaderProps {
-  onDone: (file: IFile) => void
+  onDone: (file: IFile) => void,
+  onRemove: (name: string) => void
 }
 
 export default function FileUploader(props: FileUploaderProps) {
@@ -33,7 +34,7 @@ export default function FileUploader(props: FileUploaderProps) {
         }).catch(e => file.meta.status = 'error_upload')
         break
       case 'removed':
-
+        props.onRemove(file.file.name)
     }
   }
   return (
