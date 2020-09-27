@@ -249,12 +249,9 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
         }
     }
 
-    if (isSignature) {
-        return renderSignatureDialog()
-    }
-
     return (
         <Page title="Material">
+            {isSignature && renderSignatureDialog()}
             <Row>
                 <Column>
                     <Panel scrollable={false}>

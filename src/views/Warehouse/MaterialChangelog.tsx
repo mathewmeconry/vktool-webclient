@@ -100,10 +100,10 @@ export default function MaterialChangelog(props: RouteComponentProps<{ id: strin
                 </Column>
             </Row>
             <Row>
-                <Column className="col-6">
+                <Column className="col-md-6 col-sm-12">
                     <Files files={changelog.files} />
                 </Column>
-                <Column className="col-6">
+                <Column className="col-md-6 col-sm-12">
                     {renderSignature()}
                 </Column>
             </Row>
