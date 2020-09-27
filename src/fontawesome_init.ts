@@ -36,7 +36,9 @@ import {
   faAngleLeft,
   faAngleDown,
   faMailBulk,
-  faLongArrowAltRight
+  faLongArrowAltRight,
+  faExclamationCircle,
+  faTimesCircle
 } from "@fortawesome/free-solid-svg-icons";
 import { fab } from "@fortawesome/free-brands-svg-icons";
 //@ts-ignore
@@ -79,5 +81,7 @@ library.add(
   faAngleLeft,
   faAngleDown,
   faMailBulk,
-  faLongArrowAltRight
+  faLongArrowAltRight,
+  faExclamationCircle,
+  faTimesCircle
 );
