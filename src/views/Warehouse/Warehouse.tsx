@@ -12,6 +12,7 @@ import Loading from "../../components/Loading"
 import { Page } from "../../components/Page"
 import Panel from "../../components/Panel"
 import Row from "../../components/Row"
+import Stock, { StockType } from "../../components/Stock"
 import { default as WarehouseEntity } from "../../entities/Warehouse"
 import { EDIT_WAREHOUSE, GET_WAREHOUSE } from "../../graphql/WarehouseQueries"
 import { AuthRoles } from "../../interfaces/AuthRoles"
@@ -95,9 +96,14 @@ export default function Warehouse(props: RouteComponentProps<{ id: string }>) {
                     <Panel actions={renderPanelActions()}>
                         <form id="editWarehouse" ref={(ref: HTMLFormElement) => { formEl = ref }}>
                             <FormEntry id="name" title="Name" value={warehouse?.name} editable={editable} onChange={onInputChange} required={true} />
-                            <FormEntry id="maxWeight" title="Maximal Gewicht" value={warehouse?.maxWeight} editable={editable} onChange={onInputChange} append="kg"/>
+                            <FormEntry id="maxWeight" title="Maximal Gewicht" value={warehouse?.maxWeight} editable={editable} onChange={onInputChange} append="kg" />
                         </form>
                     </Panel>
+                </Column>
+            </Row>
+            <Row>
+                <Column>
+                    <Stock id={parseInt(props.match.params.id)} type={StockType.WAREHOUSE} />
                 </Column>
             </Row>
         </Page>

@@ -257,10 +257,10 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
                     <Panel scrollable={false}>
                         <form id="addWarehouse" ref={(ref: HTMLFormElement) => { formEl = ref }}>
                             <h5>Von*</h5>
-                            {renderInOut('in', inType, setInType, inState, setInState)}
+                            {renderInOut('out', outType, setOutType, outState, setOutState)}
                             <br></br>
                             <h5>Zu*</h5>
-                            {renderInOut('out', outType, setOutType, outState, setOutState)}
+                            {renderInOut('in', inType, setInType, inState, setInState)}
                             <br></br>
                             <h5>Produkte</h5>
                             <Table<AddMaterialChangelogToProduct>

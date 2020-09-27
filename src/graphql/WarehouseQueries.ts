@@ -58,7 +58,19 @@ export const GET_WAREHOUSE = gql`
     getWarehouse(id: $id) {
       id
       name
-      maxWeight 
+      maxWeight
+    }
+  }
+`;
+
+export const GET_WAREHOUSE_STOCK = gql`
+  query GET_WAREHOUSE_STOCK($id: ID!) {
+    getWarehouseStock(id: $id) {
+      amount
+      number
+      product {
+        internName
+      }
     }
   }
 `;
