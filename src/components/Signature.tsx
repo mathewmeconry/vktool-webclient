@@ -25,7 +25,6 @@ export default function Signature(props: SignatureProps) {
 
     function updateCanvas() {
         if (props.fullscreen) {
-            screen.orientation.lock('landscape')
             setCanvasProps({
                 width: window.outerWidth - 40,
                 height: window.outerHeight - 100
