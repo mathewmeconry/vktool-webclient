@@ -15,6 +15,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import FormEntry from "../../components/FormEntry"
 import Table from "../../components/Table"
 import { Link } from "react-router-dom"
+import Files from "../../components/Files"
 
 export default function MaterialChangelog(props: RouteComponentProps<{ id: string }>) {
     const { loading, error, data } = useQuery<{ getMaterialChangelog: MaterialChangelogEntity & { in: Contact | Warehouse, out: Contact | Warehouse } }>(GET_MATERIAL_CHANGELOG, { variables: { id: parseInt(props.match.params.id) } })
@@ -39,6 +40,17 @@ export default function MaterialChangelog(props: RouteComponentProps<{ id: strin
 
     if ((error?.message && error?.message.indexOf('Access denied!') > -1) || !changelog) {
         return <Error403 />
+    }
+
+    function renderSignature() {
+        if (changelog.signature) {
+            return (
+                <Panel title="Unterschrift">
+                    <img src={changelog.signature} style={{width: '100%'}} />
+                </Panel>
+            )
+        }
+        return null
     }
 
     return (
@@ -85,6 +97,14 @@ export default function MaterialChangelog(props: RouteComponentProps<{ id: strin
                             data={changelog.changes}
                         />
                     </Panel>
+                </Column>
+            </Row>
+            <Row>
+                <Column className="col-6">
+                    <Files files={changelog.files} />
+                </Column>
+                <Column className="col-6">
+                    {renderSignature()}
                 </Column>
             </Row>
         </Page >

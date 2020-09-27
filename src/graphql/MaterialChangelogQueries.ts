@@ -39,6 +39,11 @@ export const GET_MATERIAL_CHANGELOG = gql`
           name
         }
       }
+      files {
+        name
+        filename
+      }
+      signature
       changes {
         id
         amount

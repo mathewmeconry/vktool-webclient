@@ -1,3 +1,4 @@
+import { IFile } from "../interfaces/File"
 import Base from "./Base";
 import Contact from "./Contact";
 import MaterialChangelogToProduct from "./MaterialChangelogToProduct";
@@ -32,6 +33,10 @@ export default class MaterialChangelog extends Base {
   public outWarehouse?: Warehouse;
 
   public outWarehouseId?: number;
+
+  public files: IFile[]
+
+  public signature?: string
 
   public updatedAt: Date;
 

@@ -19,8 +19,11 @@ import { useMutation, useQuery } from "react-apollo"
 import { ADD_MATERIAL_CHANGELOG } from '../../graphql/MaterialChangelogQueries'
 import { UI } from "../../actions/UIActions"
 import Button from "../../components/Button"
-import FileUploader from '../../components/FileUploader'
+import FileUploader from '../../components/FileUploader/FileUploader'
 import { GET_ALL_PRODUCT_SELECT } from "../../graphql/ProductQueries"
+import { IFile } from "../../interfaces/File"
+import Signature from "../../components/Signature"
+import currentDevice from 'current-device'
 
 enum InOutTypes {
     MEMBER = 'member',
@@ -39,6 +42,9 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
     const dispatch = useDispatch()
     const [wasValidated, setWasValidated] = useState(false)
     const [isOverloaded, setOverloaded] = useState(false)
+    const [files, setFiles] = useState<IFile[]>([])
+    const [isSignature, setIsSignature] = useState(false)
+    const [signature, setSignature] = useState('')
     const { data, error, loading } = useQuery<{ getProductsAll: Product[] }>(GET_ALL_PRODUCT_SELECT)
 
     useEffect(() => {
@@ -144,7 +150,9 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
                             inType: [InOutTypes.MEMBER, InOutTypes.SUPPLIER].includes(inType) ? 'CONTACT' : 'WAREHOUSE',
                             outType: [InOutTypes.MEMBER, InOutTypes.SUPPLIER].includes(outType) ? 'CONTACT' : 'WAREHOUSE',
                             date: new Date(),
-                            products: products.map(p => { return { changelogId: -1, charge: p.charge === 'true', amount: parseInt(p.amount), number: (p.number) ? parseInt(p.number) : undefined, productId: parseInt(p.productId) } })
+                            products: products.map(p => { return { changelogId: -1, charge: p.charge === 'true', amount: parseInt(p.amount), number: (p.number) ? parseInt(p.number) : undefined, productId: parseInt(p.productId) } }),
+                            files,
+                            signature
                         }
                     }
                 })
@@ -184,6 +192,50 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
         )
     }
 
+    function renderSignatureDialog() {
+        return <Signature fullscreen={true} onClose={() => { setIsSignature(false) }} onEnd={(data) => setSignature(data)} />
+    }
+
+    function renderSignature() {
+        if ((inType === InOutTypes.MEMBER && inState) || (outType === InOutTypes.MEMBER && outState)) {
+            let variant: 'primary' | 'danger' | 'success' = 'primary'
+            if (wasValidated) {
+                if (signature) {
+                    variant = 'success'
+                } else {
+                    variant = 'danger'
+                }
+            }
+            let signatureBlock = (
+                <>
+                    {signature && <img src={signature} className="signature-preview" />}
+                    <Button onClick={() => setIsSignature(true)} block={true} variant={variant}>Unterschreiben</Button>
+                </>
+            )
+
+            if (!currentDevice.mobile()) {
+                let classNames = ''
+                if (wasValidated) {
+                    if (signature) {
+                        classNames = 'border border-success rounded'
+                    } else {
+                        classNames = 'border border-danger rounded'
+                    }
+                }
+                signatureBlock = <Signature fullscreen={false} className={classNames} onEnd={(data) => setSignature(data)} />
+            }
+
+            return (
+                <>
+                    <h5>Unterschrift*</h5>
+                    {signatureBlock}
+                    <br></br>
+                </>
+            )
+        }
+        return null
+    }
+
     async function removeTableItem(event: React.MouseEvent<HTMLButtonElement>) {
         event.preventDefault()
         if (event.currentTarget.parentNode && event.currentTarget.parentNode.parentElement) {
@@ -195,6 +247,10 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
                 setProducts(clone)
             }
         }
+    }
+
+    if (isSignature) {
+        return renderSignatureDialog()
     }
 
     return (
@@ -223,8 +279,11 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
                                 className="table-sm-rows"
                                 onDataChange={(...args) => console.log(args)}
                             />
+                            <br></br>
                             <h5>Dateien / Bilder</h5>
-                            <FileUploader />
+                            <FileUploader onDone={(file: IFile) => { setFiles([...files, file]) }} />
+                            <br></br>
+                            {renderSignature()}
                             <Button variant="primary" block={true} onClick={onSave}>Speichern</Button>
                         </form>
                     </Panel>
