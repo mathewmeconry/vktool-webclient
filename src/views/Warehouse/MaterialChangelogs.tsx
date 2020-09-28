@@ -114,8 +114,8 @@ export default function MaterialChangelogs(props: RouteComponentProps) {
                 viewLocation='/warehouse/changelog/'
                 tableColumns={[
                     { text: 'Datum', keys: ['date'], sortable: true, format: 'toLocaleDateString' },
-                    { text: 'Von', keys: { in: ['firstname', 'lastname', 'name'] }, sortable: false },
-                    { text: 'Zu', keys: { out: ['firstname', 'lastname', 'name'] }, sortable: false }
+                    { text: 'Von', keys: { out: ['firstname', 'lastname', 'name'] }, sortable: false },
+                    { text: 'Zu', keys: { in: ['firstname', 'lastname', 'name'] }, sortable: false }
                 ]}
                 defaultSortBy='id'
                 defaultSortDirection={PaginationSortDirections.DESC}
