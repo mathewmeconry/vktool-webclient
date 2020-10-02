@@ -18,6 +18,7 @@
     "@types/react-datepicker": "^2.10.0",
     "@types/redux-devtools-extension": "^2.13.2",
     "@types/redux-persist": "^4.3.1",
+    "@zxing/library": "^0.17.1",
     "apollo-client": "^2.6.10",
     "apollo-link-batch-http": "^1.2.14",
     "apollo-link-error": "^1.1.13",
