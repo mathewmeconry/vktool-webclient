@@ -38,7 +38,8 @@ import {
   faMailBulk,
   faLongArrowAltRight,
   faExclamationCircle,
-  faTimesCircle
+  faTimesCircle,
+  faQrcode
 } from "@fortawesome/free-solid-svg-icons";
 import { fab } from "@fortawesome/free-brands-svg-icons";
 //@ts-ignore
@@ -83,5 +84,6 @@ library.add(
   faMailBulk,
   faLongArrowAltRight,
   faExclamationCircle,
-  faTimesCircle
+  faTimesCircle,
+  faQrcode
 );

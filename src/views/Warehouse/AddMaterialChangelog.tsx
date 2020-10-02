@@ -24,6 +24,9 @@ import { GET_ALL_PRODUCT_SELECT } from "../../graphql/ProductQueries"
 import { IFile } from "../../interfaces/File"
 import Signature from "../../components/Signature"
 import currentDevice from 'current-device'
+import QRScanner from "../../components/QRScanner"
+import { Result } from '@zxing/library'
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 
 enum InOutTypes {
     MEMBER = 'member',
@@ -45,6 +48,7 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
     const [files, setFiles] = useState<IFile[]>([])
     const [isSignature, setIsSignature] = useState(false)
     const [signature, setSignature] = useState('')
+    const [isScanning, setScanning] = useState(false)
     const { data, error, loading } = useQuery<{ getProductsAll: Product[] }>(GET_ALL_PRODUCT_SELECT)
 
     useEffect(() => {
@@ -236,6 +240,27 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
         return null
     }
 
+    function renderScanningDialog() {
+        if (isScanning) {
+            return <QRScanner onClose={() => setScanning(false)} validate={validateScan} onData={onScanData} />
+        }
+        return null
+    }
+
+    function validateScan(result: Result): boolean {
+        if (products.find(p => JSON.stringify(p) === result.getText()) !== undefined) {
+            const obj = JSON.parse(result.getText())
+            if (obj.hasOwnProperty('productId')) {
+                return (obj.amount > 1 && !obj.number) || (obj.number && obj.amount === 1)
+            }
+        }
+        return false
+    }
+
+    function onScanData(result: Result): void {
+        products.push(JSON.parse(result.getText()))
+    }
+
     async function removeTableItem(event: React.MouseEvent<HTMLButtonElement>) {
         event.preventDefault()
         if (event.currentTarget.parentNode && event.currentTarget.parentNode.parentElement) {
@@ -252,6 +277,7 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
     return (
         <Page title="Material">
             {isSignature && renderSignatureDialog()}
+            {renderScanningDialog()}
             <Row>
                 <Column>
                     <Panel scrollable={false}>
@@ -274,8 +300,8 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
                                 addNew={true}
                                 data={products as AddMaterialChangelogToProduct[]}
                                 className="table-sm-rows"
-                                onDataChange={(...args) => console.log(args)}
                             />
+                            {currentDevice.mobile() && <Button variant="primary" block={true} onClick={() => setScanning(true)}><FontAwesomeIcon icon="qrcode"></FontAwesomeIcon> Scannen</Button>}
                             <br></br>
                             <h5>Dateien / Bilder</h5>
                             <FileUploader onDone={(file: IFile) => { setFiles([...files, file]) }} onRemove={(name: string) => { setFiles([...files].filter(f => f.name !== name)) }} />
