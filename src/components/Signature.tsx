@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { RefObject, useEffect, useRef, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import SignaturePad from 'react-signature-canvas'
 
@@ -15,6 +15,26 @@ export default function Signature(props: SignatureProps) {
     const canvasRef = useRef<SignaturePad>(null)
     const [canvasProps, setCanvasProps] = useState<React.CanvasHTMLAttributes<HTMLCanvasElement>>({})
 
+    async function lockScreen(ref: RefObject<HTMLElement>) {
+        if (ref.current?.requestFullscreen) {
+            try {
+                await ref.current?.requestFullscreen()
+                await screen.orientation.lock('landscape')
+            } catch (e) {
+                // ignore error here
+            }
+        }
+    }
+
+    async function unlockScreen() {
+        try {
+            await document.exitFullscreen()
+            await screen.orientation.unlock()
+        } catch (e) {
+            // ignore error here
+        }
+    }
+
     useEffect(() => {
         updateCanvas()
         window.addEventListener('resize', updateCanvas)
@@ -22,6 +42,12 @@ export default function Signature(props: SignatureProps) {
             canvasRef.current?.fromDataURL(props.data)
         }
     }, [false])
+
+    useEffect(() => {
+        if (divRef) {
+            lockScreen(divRef)
+        }
+    }, [divRef])
 
     function updateCanvas() {
         if (props.fullscreen) {
@@ -46,7 +72,8 @@ export default function Signature(props: SignatureProps) {
     return (
         <div className={`border signature-div ${props.fullscreen ? 'fullscreen' : ''} ${props.className}`} ref={divRef}>
             {props.fullscreen && <h2>Unterschrift</h2>}
-            {props.fullscreen && <FontAwesomeIcon icon="times-circle" className="close" onClick={() => {
+            {props.fullscreen && <FontAwesomeIcon icon="times-circle" className="close" onClick={async () => {
+                await unlockScreen()
                 if (props.onClose) {
                     props.onClose()
                 }
