@@ -48,7 +48,8 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
     const [files, setFiles] = useState<IFile[]>([])
     const [isSignature, setIsSignature] = useState(false)
     const [signature, setSignature] = useState('')
-    const [isScanning, setScanning] = useState(false)
+    const [isProductScanning, setProductScanning] = useState(false)
+    const [isTypeScanning, setTypeScanning] = useState<'' | 'in' | 'out'>('')
     const { data, error, loading } = useQuery<{ getProductsAll: Product[] }>(GET_ALL_PRODUCT_SELECT)
 
     useEffect(() => {
@@ -71,7 +72,13 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
         setOverloaded(false)
     }, [products, outState, loading, data])
 
-    function renderInOut(id: string, active: InOutTypes, setActive: React.Dispatch<React.SetStateAction<InOutTypes>>, selectedValue: Contact | Warehouse | undefined, setSelectedValue: React.Dispatch<React.SetStateAction<Contact | Warehouse | undefined>>) {
+    useEffect(() => {
+        if (inType as string === 'scan' || outType as string === 'scan') {
+            setTypeScanning((inType as string === 'scan') ? 'in' : 'out')
+        }
+    }, [inType, outType])
+
+    function renderInOut(id: 'in' | 'out', active: InOutTypes | 'scan', setActive: React.Dispatch<React.SetStateAction<InOutTypes>>, selectedValue: Contact | Warehouse | undefined, setSelectedValue: React.Dispatch<React.SetStateAction<Contact | Warehouse | undefined>>) {
         let classNames = ''
         if (wasValidated) {
             if (selectedValue) {
@@ -81,7 +88,7 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
             }
         }
         return (
-            <Tabs id={id} activeKey={active} onSelect={(eventKey: any) => { setActive(eventKey), setSelectedValue(undefined) }} className="nav-fill" variant="pills">
+            <Tabs id={id} activeKey={active} onSelect={(eventKey: any) => { setActive(eventKey); setSelectedValue(undefined) }} className="nav-fill" variant="pills">
                 <Tab eventKey={InOutTypes.MEMBER} title="Mitglied">
                     <MemberSelect onChange={(contact: Contact[]) => setSelectedValue(contact[0])} isMulti={false} defaultValue={[selectedValue?.id?.toString() || '']} className={classNames} />
                 </Tab>
@@ -90,8 +97,9 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
                 </Tab>
                 <Tab eventKey={InOutTypes.WAREHOUSE} title="Lagerraum/Fahrzeug">
                     <WarehouseSelect onChange={(warehouse: Warehouse[]) => setSelectedValue(warehouse[0])} isMulti={false} defaultValue={[selectedValue?.id?.toString() || '']} className={classNames} />
-                    {id === 'out' && renderOverloaded()}
+                    {id === 'in' && renderOverloaded()}
                 </Tab>
+                {currentDevice.mobile() && <Tab eventKey="scan" title="Scannen"></Tab>}
             </Tabs>
         )
     }
@@ -240,25 +248,61 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
         return null
     }
 
-    function renderScanningDialog() {
-        if (isScanning) {
-            return <QRScanner onClose={() => setScanning(false)} validate={validateScan} onData={onScanData} />
+    function renderProductScanningDialog() {
+        if (isProductScanning) {
+            return <QRScanner onClose={onProductScanClose} validate={validateProductScan} continous={true} />
         }
         return null
     }
 
-    function validateScan(result: Result): boolean {
-        if (products.find(p => JSON.stringify(p) === result.getText()) !== undefined) {
+    function validateProductScan(result: Result, previousResults: Result[]): boolean {
+        if ([...products.map(p => JSON.stringify(p)), ...previousResults.map(r => r.getText())].find(p => p === result.getText()) === undefined) {
             const obj = JSON.parse(result.getText())
             if (obj.hasOwnProperty('productId')) {
+                if (!obj.amount && !obj.number) {
+                    return true
+                }
                 return (obj.amount > 1 && !obj.number) || (obj.number && obj.amount === 1)
             }
         }
         return false
     }
 
-    function onScanData(result: Result): void {
-        products.push(JSON.parse(result.getText()))
+    function onProductScanClose(results: Result[]): void {
+        setProducts([...products, ...results.map(r => JSON.parse(r.getText()))])
+        setProductScanning(false)
+    }
+
+    function renderTypeScanningDialog() {
+        if (isTypeScanning) {
+            return <QRScanner onClose={onTypeScanClose} validate={validateTypeScan} continous={false} />
+        }
+        return null
+    }
+
+    function validateTypeScan(result: Result, previousResults: Result[]): boolean {
+        const resultObj = JSON.parse(result.getText())
+        return [InOutTypes.MEMBER, InOutTypes.SUPPLIER, InOutTypes.WAREHOUSE].includes(resultObj.type) && resultObj.id
+    }
+
+    function onTypeScanClose(results: Result[]): void {
+        if (results.length > 0) {
+            const resultObj = JSON.parse(results[0].getText())
+            if (isTypeScanning === 'in') {
+                setInType(resultObj.type)
+                setInState(resultObj)
+            } else {
+                setOutType(resultObj.type)
+                setOutState(resultObj)
+            }
+        } else {
+            if (isTypeScanning === 'in') {
+                setInType(InOutTypes.MEMBER)
+            } else {
+                setOutType(InOutTypes.MEMBER)
+            }
+        }
+        setTypeScanning('')
     }
 
     async function removeTableItem(event: React.MouseEvent<HTMLButtonElement>) {
@@ -277,7 +321,8 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
     return (
         <Page title="Material">
             {isSignature && renderSignatureDialog()}
-            {renderScanningDialog()}
+            {renderProductScanningDialog()}
+            {renderTypeScanningDialog()}
             <Row>
                 <Column>
                     <Panel scrollable={false}>
@@ -301,7 +346,7 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
                                 data={products as AddMaterialChangelogToProduct[]}
                                 className="table-sm-rows"
                             />
-                            {currentDevice.mobile() && <Button variant="primary" block={true} onClick={() => setScanning(true)}><FontAwesomeIcon icon="qrcode"></FontAwesomeIcon> Scannen</Button>}
+                            {currentDevice.mobile() && <Button variant="primary" block={true} onClick={() => setProductScanning(true)}><FontAwesomeIcon icon="qrcode"></FontAwesomeIcon> Scannen</Button>}
                             <br></br>
                             <h5>Dateien / Bilder</h5>
                             <FileUploader onDone={(file: IFile) => { setFiles([...files, file]) }} onRemove={(name: string) => { setFiles([...files].filter(f => f.name !== name)) }} />
