@@ -12,6 +12,7 @@ interface ProductSelectProps {
     onChange: Function,
     ref?: Function,
     required?: boolean
+    className?: string
 }
 
 export default function ProductSelect(props: ProductSelectProps) {
@@ -66,6 +67,7 @@ export default function ProductSelect(props: ProductSelectProps) {
         onChange={onChange}
         value={valueProps}
         required={!!props.required}
+        className={props.className}
     />)
 
 }

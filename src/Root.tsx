@@ -54,6 +54,7 @@ import AddMaterialChangelog from "./views/Warehouse/AddMaterialChangelog"
 import introspectionQueryResultData from './graphql.fragmentTypes.json'
 import MaterialChangelog from "./views/Warehouse/MaterialChangelog"
 import Warehouse from "./views/Warehouse/Warehouse"
+import QRCodeGenerator from "./views/Warehouse/QRCodeGenerator"
 
 export default function Root() {
     Config.loadConfig()
@@ -135,6 +136,7 @@ export default function Root() {
                             <SecureRoute exact path="/warehouse/changelogs" roles={[AuthRoles.MATERIAL_CHANGELOG_READ]} component={MaterialChangelogs} />
                             <SecureRoute exact path="/warehouse/changelogs/add" roles={[AuthRoles.MATERIAL_CHANGELOG_CREATE]} component={AddMaterialChangelog} />
                             <SecureRoute exact path="/warehouse/changelog/:id" roles={[AuthRoles.MATERIAL_CHANGELOG_READ]} component={MaterialChangelog} />
+                            <SecureRoute exact path="/warehouse/qr-code" roles={[AuthRoles.WAREHOUSE_READ, AuthRoles.PRODUCT_READ, AuthRoles.MATERIAL_CHANGELOG_READ]} component={QRCodeGenerator} />
                             <SecureRoute exact path="/warehouse/:id" roles={[AuthRoles.WAREHOUSE_READ, AuthRoles.WAREHOUSE_CREATE]} component={Warehouse} />
                             <Route path="/*" component={Error404} />
                         </Switch>

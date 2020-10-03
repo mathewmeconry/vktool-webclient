@@ -27,6 +27,7 @@ import currentDevice from 'current-device'
 import QRScanner from "../../components/QRScanner"
 import { Result } from '@zxing/library'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { QRCodePayload, QRCodeType } from "../../components/QRCode"
 
 enum InOutTypes {
     MEMBER = 'member',
@@ -257,8 +258,8 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
 
     function validateProductScan(result: Result, previousResults: Result[]): boolean {
         if ([...products.map(p => JSON.stringify(p)), ...previousResults.map(r => r.getText())].find(p => p === result.getText()) === undefined) {
-            const obj = JSON.parse(result.getText())
-            if (obj.hasOwnProperty('productId')) {
+            const obj: QRCodePayload = JSON.parse(result.getText())
+            if (obj.type === QRCodeType.PRODUCT) {
                 if (!obj.amount && !obj.number) {
                     return true
                 }
@@ -281,8 +282,11 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
     }
 
     function validateTypeScan(result: Result, previousResults: Result[]): boolean {
-        const resultObj = JSON.parse(result.getText())
-        return [InOutTypes.MEMBER, InOutTypes.SUPPLIER, InOutTypes.WAREHOUSE].includes(resultObj.type) && resultObj.id
+        const resultObj: QRCodePayload = JSON.parse(result.getText())
+        if([QRCodeType.WAREHOUSE, QRCodeType.MEMBER, QRCodeType.SUPPLIER].includes(resultObj.type) && resultObj.id) {
+            return true
+        }
+        return false
     }
 
     function onTypeScanClose(results: Result[]): void {

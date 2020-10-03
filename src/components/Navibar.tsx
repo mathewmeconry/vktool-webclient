@@ -43,6 +43,7 @@ export default function Navibar(props: { open: boolean }) {
                         {renderElement(<NavibarElement to="/warehouse/changelogs" leftIcon="exchange-alt" text="Änderungen" />, [AuthRoles.MATERIAL_CHANGELOG_READ])}
                         {renderElement(<NavibarElement to="/warehouse/products" leftIcon="boxes" text="Produkte" />, [AuthRoles.PRODUCT_READ])}
                         {renderElement(<NavibarElement to="/warehouse/warehouses" leftIcon="map-marker-alt" text="Lagerräume" />, [AuthRoles.WAREHOUSE_READ])}
+                        {renderElement(<NavibarElement to="/warehouse/qr-code" leftIcon="qrcode" text="QR Code Generator" />, [AuthRoles.WAREHOUSE_READ, AuthRoles.PRODUCT_READ, AuthRoles.MATERIAL_CHANGELOG_READ])}
                     </NavibarLevelHeader>
                     , [AuthRoles.PRODUCT_READ, AuthRoles.MATERIAL_CHANGELOG_READ]
                 )}
