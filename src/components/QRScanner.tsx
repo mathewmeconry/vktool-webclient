@@ -36,7 +36,7 @@ export default function QRScanner(props: QRScannerProps) {
                     setQRResult(result, true)
                     if (!props.continous) {
                         console.log('Done')
-                        //codeReader.stopContinuousDecode();
+                        codeReader.stopContinuousDecode();
                         videoRef.current?.pause()
                         close()
                     }
@@ -155,6 +155,7 @@ export default function QRScanner(props: QRScannerProps) {
     }
 
     async function close() {
+        codeReader.reset()
         await unlockScreen()
         if (props.onClose) {
             props.onClose(results)
