@@ -155,8 +155,6 @@ export default function QRScanner(props: QRScannerProps) {
     }
 
     async function close() {
-        codeReader.reset()
-        await unlockScreen()
         if (props.onClose) {
             props.onClose(results)
         }
@@ -172,6 +170,11 @@ export default function QRScanner(props: QRScannerProps) {
             lockScreen(divRef)
         }
     }, [divRef])
+
+    useEffect(() => {
+        codeReader.reset()
+        unlockScreen()
+    }, [])
 
     return (
         <div className={`qrscanner ${props.className}`} ref={divRef}>
