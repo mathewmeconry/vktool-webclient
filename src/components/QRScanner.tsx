@@ -13,6 +13,7 @@ export interface QRScannerProps {
     onClose?: (results: Result[]) => void
     className?: string
     validate: (result: Result, previousResults: Result[]) => boolean
+    alreadyScanned?: (result: Result, previousResults: Result[]) => boolean
     onData?: (result: Result) => void
     continous?: boolean
 }
@@ -36,10 +37,14 @@ export default function QRScanner(props: QRScannerProps) {
                     setQRResult(result, true)
                     if (!props.continous) {
                         console.log('Done')
-                        codeReader.stopContinuousDecode();
+                        codeReader.stopContinuousDecode()
                         videoRef.current?.pause()
                         close()
                     }
+                    return
+                }
+                if (props.alreadyScanned && props.alreadyScanned(result, results)) {
+                    setQRResult(result, true)
                     return
                 }
             } catch (e) {
@@ -56,52 +61,31 @@ export default function QRScanner(props: QRScannerProps) {
         }
     }
 
-    function setQRResult(result: Result, valid: boolean) {
-        if (canvasRef.current && videoRef.current) {
+    function setQRResult(result: Result, success: boolean) {
+        if (videoRef.current && canvasRef.current) {
             const ctx = canvasRef.current.getContext("2d")
-            const color = valid ? "green" : "red"
-
             if (ctx) {
                 const points: ResultPoint[] = result.getResultPoints() as any
-                const rotation = Math.atan2(
-                    points[1].y - points[0].y,
-                    points[1].x - points[0].x
-                )
                 const heightRatio =
                     canvasRef.current.height / videoRef.current.videoHeight
-                const widthRation =
+                const widthRatio =
                     canvasRef.current.width / videoRef.current.videoWidth
-                const pointsSorted = points.sort(
-                    (a, b) => (a.count || 0) - (b.count || 0)
-                )
-                const pointCount =
-                    (pointsSorted.length === 4
-                        ? pointsSorted[1].count
-                        : pointsSorted[0].count) || 1
-                ctx.fillStyle = color
-                ctx.strokeStyle = color
+                const lowestX = points.sort((a, b) => a.x - b.x)[0].x
+                const lowestY = points.sort((a, b) => a.y - b.y)[0].y
 
-                points.forEach((point, index) => {
-                    if (!point.count) {
-                        drawPoint(
-                            point.x * widthRation,
-                            point.y * heightRatio,
-                            point.estimatedModuleSize,
-                            1,
-                            rotation,
-                            ctx
-                        )
-                        return
-                    }
-                    drawPoint(
-                        point.x * widthRation,
-                        point.y * heightRatio,
-                        point.estimatedModuleSize,
-                        pointCount,
-                        rotation,
-                        ctx
-                    )
-                })
+                ctx.save()
+                ctx.translate(lowestX * widthRatio, lowestY * heightRatio)
+                ctx.scale(0.15, 0.15)
+                if (success) {
+                    ctx.fillStyle = 'green'
+                    const checkBox = new Path2D('M504 256c0 136.967-111.033 248-248 248S8 392.967 8 256 119.033 8 256 8s248 111.033 248 248zM227.314 387.314l184-184c6.248-6.248 6.248-16.379 0-22.627l-22.627-22.627c-6.248-6.249-16.379-6.249-22.628 0L216 308.118l-70.059-70.059c-6.248-6.248-16.379-6.248-22.628 0l-22.627 22.627c-6.248 6.248-6.248 16.379 0 22.627l104 104c6.249 6.249 16.379 6.249 22.628.001z')
+                    ctx.fill(checkBox, 'evenodd')
+                } else {
+                    ctx.fillStyle = 'red'
+                    const cross = new Path2D('M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm121.6 313.1c4.7 4.7 4.7 12.3 0 17L338 377.6c-4.7 4.7-12.3 4.7-17 0L256 312l-65.1 65.6c-4.7 4.7-12.3 4.7-17 0L134.4 338c-4.7-4.7-4.7-12.3 0-17l65.6-65-65.6-65.1c-4.7-4.7-4.7-12.3 0-17l39.6-39.6c4.7-4.7 12.3-4.7 17 0l65 65.7 65.1-65.6c4.7-4.7 12.3-4.7 17 0l39.6 39.6c4.7 4.7 4.7 12.3 0 17L312 256l65.6 65.1z')
+                    ctx.fill(cross, 'evenodd')
+                }
+                ctx.restore()
             }
         }
     }
@@ -113,25 +97,6 @@ export default function QRScanner(props: QRScannerProps) {
                 ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
             }
         }
-    }
-
-    function drawPoint(
-        x: number,
-        y: number,
-        pointSize: number,
-        count: number,
-        rotation: number,
-        ctx: CanvasRenderingContext2D
-    ) {
-        ctx.save()
-        ctx.translate(x, y)
-        ctx.rotate(rotation)
-        const rectSize = pointSize * count
-        ctx.fillRect(-rectSize / 2, -rectSize / 2, rectSize, rectSize)
-        ctx.lineWidth = pointSize
-        const strokeSize = pointSize * (4 + count)
-        ctx.strokeRect(-strokeSize / 2, -strokeSize / 2, strokeSize, strokeSize)
-        ctx.restore()
     }
 
     async function lockScreen(ref: RefObject<HTMLElement>) {
@@ -182,6 +147,7 @@ export default function QRScanner(props: QRScannerProps) {
                 icon="times-circle"
                 className="close"
                 onClick={close}
+                size="5x"
             />
             <canvas className="qrscanner-canvas" ref={canvasRef}></canvas>
             <video id="qr-video" className="qrscanner-video" ref={videoRef}></video>

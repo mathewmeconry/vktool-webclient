@@ -251,7 +251,7 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
 
     function renderProductScanningDialog() {
         if (isProductScanning) {
-            return <QRScanner onClose={onProductScanClose} validate={validateProductScan} continous={true} />
+            return <QRScanner onClose={onProductScanClose} validate={validateProductScan} alreadyScanned={productAlreadyScanned} continous={true} />
         }
         return null
     }
@@ -267,6 +267,10 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
             }
         }
         return false
+    }
+
+    function productAlreadyScanned(result: Result, previousResults: Result[]): boolean {
+        return !validateProductScan(result, previousResults)
     }
 
     function onProductScanClose(results: Result[]): void {
