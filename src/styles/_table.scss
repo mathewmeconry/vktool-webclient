@@ -17,6 +17,7 @@
                 }
             }
             td[data-th]:before {
+                display: block;
                 content: attr(data-th);
             }
         }
