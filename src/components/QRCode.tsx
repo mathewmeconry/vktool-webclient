@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { BrowserQRCodeSvgWriter } from "@zxing/library"
 import Canvg from 'canvg'
 
@@ -24,6 +24,8 @@ export interface QRCodePayload {
 export default function QRCode(props: QRCodeProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const codeWriter = new BrowserQRCodeSvgWriter()
+    const [imgData, setImgData] = useState('')
+
     useEffect(() => {
         if (props.content) {
             const clean = cleanContent(props.content)
@@ -56,12 +58,17 @@ export default function QRCode(props: QRCodeProps) {
             const ctx = canvasRef.current.getContext('2d')
             if (ctx) {
                 const v = await Canvg.from(ctx, svg.outerHTML)
-
                 // Start SVG rendering with animations and mouse handling.
-                v.start({ ignoreAnimation: true })
+                await v.render({ ignoreAnimation: true })
+                setImgData(canvasRef.current.toDataURL('base64'))
             }
         }
     }
 
-    return <canvas id="qr-code" ref={canvasRef} ></canvas>
+    return (
+        <>
+            <canvas id="qr-code" ref={canvasRef} style={{display: 'none'}}></canvas>
+            <img id="qr-code-img" src={imgData} ></img>
+        </>
+    )
 }
