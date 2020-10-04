@@ -68,6 +68,7 @@ export default function ProductSelect(props: ProductSelectProps) {
         value={valueProps}
         required={!!props.required}
         className={props.className}
+        styles={{ menu: (provided) => ({ ...provided, zIndex: 90 }) }}
     />)
 
 }

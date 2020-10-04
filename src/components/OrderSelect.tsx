@@ -64,6 +64,7 @@ export default function OrderSelect(props: OrderSelectProps) {
         onChange={onChange}
         value={valueProps}
         required={!!props.required}
+        styles={{ menu: (provided) => ({ ...provided, zIndex: 90 }) }}
     />)
 
 }

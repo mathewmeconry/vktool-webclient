@@ -68,6 +68,7 @@ export default function MemberSelect(props: MemberSelectProps) {
         value={valueProps}
         required={!!props.required}
         className={props.className}
+        styles={{ menu: (provided) => ({ ...provided, zIndex: 90 }) }}
     />)
 
 }

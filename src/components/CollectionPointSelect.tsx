@@ -68,5 +68,6 @@ export default function CollectionPointSelect(props: CollectionPointSelectProps)
         onChange={onChange}
         value={valueProps}
         required={!!props.required}
+        styles={{ menu: (provided) => ({ ...provided, zIndex: 90 }) }}
     />)
 }
