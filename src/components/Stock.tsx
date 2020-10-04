@@ -24,7 +24,11 @@ export default function Stock(props: StockProps) {
     }
 
     if (query.loading && !query.data) {
-        return <Loading />
+        return (
+            <Panel title="Material" >
+                <Loading />
+            </Panel>
+        )
     }
 
     let data = query.data?.getContactStock
