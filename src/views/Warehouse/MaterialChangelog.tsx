@@ -3,7 +3,7 @@ import { Page } from "../../components/Page"
 import React, { useState } from "react"
 import { useMutation, useQuery } from "react-apollo"
 import { default as MaterialChangelogEntity } from "../../entities/MaterialChangelog"
-import { GET_MATERIAL_CHANGELOG } from "../../graphql/MaterialChangelogQueries"
+import { GET_MATERIAL_CHANGELOG, SEND_MATERIAL_CHANGELOG_RECEIPT } from "../../graphql/MaterialChangelogQueries"
 import Loading from "../../components/Loading"
 import { Error403 } from "../../components/Errors/403"
 import Column from "../../components/Column"
@@ -16,10 +16,14 @@ import FormEntry from "../../components/FormEntry"
 import Table from "../../components/Table"
 import { Link } from "react-router-dom"
 import Files from "../../components/Files"
+import Config from "../../Config"
+import Action from "../../components/Action"
+import Button from "../../components/Button"
 
 export default function MaterialChangelog(props: RouteComponentProps<{ id: string }>) {
     const { loading, error, data } = useQuery<{ getMaterialChangelog: MaterialChangelogEntity & { in: Contact | Warehouse, out: Contact | Warehouse } }>(GET_MATERIAL_CHANGELOG, { variables: { id: parseInt(props.match.params.id) } })
     const [changelog, setChangelog] = useState<MaterialChangelogEntity & { in: Contact | Warehouse, out: Contact | Warehouse }>(data?.getMaterialChangelog as MaterialChangelogEntity & { in: Contact | Warehouse, out: Contact | Warehouse })
+    const [sendReceiptMail] = useMutation<boolean>(SEND_MATERIAL_CHANGELOG_RECEIPT)
 
     if (loading) {
         return (
@@ -46,23 +50,30 @@ export default function MaterialChangelog(props: RouteComponentProps<{ id: strin
         if (changelog.signature) {
             return (
                 <Panel title="Unterschrift">
-                    <img src={changelog.signature} style={{width: '100%'}} />
+                    <img src={changelog.signature} style={{ width: '100%' }} />
                 </Panel>
             )
         }
         return null
     }
 
+    async function sendReceipt() {
+        if (changelog) {
+            await sendReceiptMail({ variables: { id: changelog.id } })
+        }
+    }
+
     return (
         <Page title={`Materialfassung`}>
             <Row>
                 <Column className="col-12">
-                    <Panel title="" scrollable={false}>
+                    <Panel title="" scrollable={false} actions={[<Action key="pdf-export" onClick={async () => { window.open(`${Config.apiEndpoint}/api/materialchangelog/${changelog.id}/pdf`) }} icon='file-pdf' />]}>
                         <Row className="text-center align-items-center">
                             <Column className="col-4">
                                 <h5 className="text-uppercase">Von</h5>
                                 <h5>{(changelog.out.hasOwnProperty('name') ? (changelog.out as Warehouse).name : `${(changelog.out as Contact).firstname} ${(changelog.out as Contact).lastname}`)}</h5>
                                 {(changelog.out as Contact).firstname && <Link to={`/contact/${changelog.out.id}`} className="btn btn-link btn-block">Kontakt öffnen</Link>}
+                                {(changelog.out as Contact).firstname && <Button onClick={sendReceipt} variant="link">Quittung senden</Button>}
                             </Column>
                             <Column className="col-4">
                                 <FontAwesomeIcon icon="long-arrow-alt-right" />
@@ -71,6 +82,7 @@ export default function MaterialChangelog(props: RouteComponentProps<{ id: strin
                                 <h5 className="text-uppercase">Zu</h5>
                                 <h5>{(changelog.in.hasOwnProperty('name') ? (changelog.in as Warehouse).name : `${(changelog.in as Contact).firstname} ${(changelog.in as Contact).lastname}`)}</h5>
                                 {(changelog.in as Contact).firstname && <Link to={`/contact/${changelog.in.id}`} className="btn btn-link btn-block">Kontakt öffnen</Link>}
+                                {(changelog.in as Contact).firstname && <Button onClick={sendReceipt} variant="link">Quittung senden</Button>}
                             </Column>
                         </Row>
                     </Panel>

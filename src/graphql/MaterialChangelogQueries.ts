@@ -8,6 +8,12 @@ export const DELETE_MATERIAL_CHANGELOG = gql`
   }
 `;
 
+export const SEND_MATERIAL_CHANGELOG_RECEIPT = gql`
+  mutation SEND_MATERIAL_CHANGELOG_RECEIPT($id: Int!) {
+    sendReceiptMail(id: $id)
+  }
+`;
+
 export const GET_MATERIAL_CHANGELOG = gql`
   query GET_MATERIAL_CHANGELOG($id: Int!) {
     getMaterialChangelog(id: $id) {
