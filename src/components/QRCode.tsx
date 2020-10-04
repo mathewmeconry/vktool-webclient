@@ -58,7 +58,7 @@ export default function QRCode(props: QRCodeProps) {
                 const v = await Canvg.from(ctx, svg.outerHTML)
 
                 // Start SVG rendering with animations and mouse handling.
-                v.start()
+                v.start({ ignoreAnimation: true })
             }
         }
     }

@@ -24,7 +24,7 @@ export default function QRCodeGenerator() {
     const [content, setContent] = useState<QRCodePayload | undefined>()
 
     useEffect(() => {
-        if(activeTab !== QRCodeType.PRODUCT) {
+        if (activeTab !== QRCodeType.PRODUCT) {
             setAmount(undefined)
             setNumber(undefined)
             setCharge(undefined)
@@ -38,7 +38,7 @@ export default function QRCodeGenerator() {
     }, [amount])
 
     useEffect(() => {
-        if (number && amount && amount > 1) {
+        if (number) {
             setAmount(1)
         }
     }, [number])
@@ -67,6 +67,14 @@ export default function QRCodeGenerator() {
         setContent(content)
     }, [activeTab, type, amount, number, charge])
 
+    function onChargeChange(value: string) {
+        if(value === charge) {
+            setCharge(undefined)
+        } else {
+            setCharge(value)
+        }
+    }
+
     return (
         <Page title="QR Code Generator">
             <Row>
@@ -86,10 +94,10 @@ export default function QRCodeGenerator() {
                                 <ProductSelect onChange={(product: Product[]) => setType(product[0])} isMulti={false} defaultValue={[type?.id?.toString() || '']} />
                                 <br></br>
                                 <h5>Anzahl</h5>
-                                <Input editable={true} name="amount" type="number" onChange={(name, value) => setAmount(parseInt(value))} value={amount} required={true} />
+                                <Input editable={true} name="amount" type="number" onChange={(name, value) => setAmount(parseInt(value))} value={amount || ''} required={true} />
                                 <br></br>
                                 <h5>Nummer</h5>
-                                <Input editable={true} name="number" type="number" onChange={(name, value) => setNumber(parseInt(value))} value={number} required={true} />
+                                <Input editable={true} name="number" type="number" onChange={(name, value) => setNumber(parseInt(value))} value={number || ''} required={true} />
                                 <br></br>
                                 <h5>Verrechnen</h5>
                                 <ButtonGroup toggle>
@@ -101,7 +109,7 @@ export default function QRCodeGenerator() {
                                                 type="radio"
                                                 checked={charge === radio.value}
                                                 value={radio.value}
-                                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCharge(e.target.value)}
+                                                onClick={(e: React.MouseEvent<HTMLInputElement>) => onChargeChange(radio.value)}
                                                 required={true}
                                             >
                                             </input>
