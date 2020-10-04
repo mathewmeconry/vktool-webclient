@@ -25,34 +25,36 @@ export default function QRScanner(props: QRScannerProps) {
     const videoRef = useRef<HTMLVideoElement>(null)
     const results: Result[] = []
 
-    codeReader.decodeFromVideoDevice(null, "qr-video", (result) => {
-        resetCanvas()
-        if (result) {
-            try {
-                if (props.validate(result, results)) {
-                    if (props.onData) {
-                        props.onData(result)
+    function startScanner() {
+        codeReader.decodeFromVideoDevice(null, "qr-video", (result) => {
+            resetCanvas()
+            if (result) {
+                try {
+                    if (props.validate(result, results)) {
+                        if (props.onData) {
+                            props.onData(result)
+                        }
+                        results.push(result)
+                        setQRResult(result, true)
+                        if (!props.continous) {
+                            console.log('Done')
+                            codeReader.stopContinuousDecode()
+                            videoRef.current?.pause()
+                            close()
+                        }
+                        return
                     }
-                    results.push(result)
-                    setQRResult(result, true)
-                    if (!props.continous) {
-                        console.log('Done')
-                        codeReader.stopContinuousDecode()
-                        videoRef.current?.pause()
-                        close()
+                    if (props.alreadyScanned && props.alreadyScanned(result, results)) {
+                        setQRResult(result, true)
+                        return
                     }
-                    return
+                } catch (e) {
+                    console.error(`QRCode validation error ${result.getText()}`)
                 }
-                if (props.alreadyScanned && props.alreadyScanned(result, results)) {
-                    setQRResult(result, true)
-                    return
-                }
-            } catch (e) {
-                console.error(`QRCode validation error ${result.getText()}`)
+                setQRResult(result, false)
             }
-            setQRResult(result, false)
-        }
-    })
+        })
+    }
 
     function updateCanvasSize() {
         if (canvasRef.current && divRef.current) {
@@ -120,6 +122,8 @@ export default function QRScanner(props: QRScannerProps) {
     }
 
     async function close() {
+        codeReader.reset()
+        await unlockScreen()
         if (props.onClose) {
             props.onClose(results)
         }
@@ -137,8 +141,11 @@ export default function QRScanner(props: QRScannerProps) {
     }, [divRef])
 
     useEffect(() => {
-        codeReader.reset()
-        unlockScreen()
+        startScanner()
+        return () => {
+            codeReader.reset()
+            unlockScreen()
+        }
     }, [])
 
     return (
