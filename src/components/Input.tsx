@@ -12,7 +12,9 @@ export interface InputProps {
     editable?: boolean
     onChange?: (name: string, value: any) => void,
     required?: boolean
-    className?: string
+    className?: string,
+    prepend?: string,
+    append?: string
 }
 
 export default class Input extends Component<InputProps> {
@@ -21,21 +23,22 @@ export default class Input extends Component<InputProps> {
         if (this.props.onChange) onChange = this.props.onChange
         let value: Date | null
 
+        let input
         switch (this.props.type) {
             case 'checkbox':
-                return <Checkbox checked={this.props.value} editable={this.props.editable} onChange={(event) => onChange(this.props.name, event.target.checked)} label='' required={!!this.props.required} aria-describedby={this.props.name} className={this.props.className} />
+                input = <Checkbox checked={this.props.value} editable={this.props.editable} onChange={(event) => onChange(this.props.name, event.target.checked)} label='' required={!!this.props.required} aria-describedby={this.props.name} className={this.props.className} />
             case 'textarea':
-                return <textarea name={this.props.name} value={this.props.value} onChange={(event) => onChange(this.props.name, event.target.value)} className={'form-entry form-control' + ((!this.props.editable) ? '-plaintext' : '') + ` ${this.props.className}`} readOnly={!this.props.editable} required={!!this.props.required} aria-describedby={this.props.name} />
+                input = <textarea name={this.props.name} value={this.props.value} onChange={(event) => onChange(this.props.name, event.target.value)} className={'form-entry form-control' + ((!this.props.editable) ? '-plaintext' : '') + ` ${this.props.className}`} readOnly={!this.props.editable} required={!!this.props.required} aria-describedby={this.props.name} />
             case 'date':
                 value = this.props.value
                 if (typeof this.props.value === 'string') value = new Date(this.props.value)
                 if (this.props.value === '') value = null
 
                 if (this.props.editable) {
-                    return <ReactDatePicker name={this.props.name} onChange={(date, event) => onChange(this.props.name, date)} selected={value} className={'form-entry form-control' + ` ${this.props.className}`} allowSameDay={true} required={!!this.props.required} dateFormat="dd.MM.yyyy" disabledKeyboardNavigation={true} aria-describedby={this.props.name} />
+                    input = <ReactDatePicker name={this.props.name} onChange={(date, event) => onChange(this.props.name, date)} selected={value} className={'form-entry form-control' + ` ${this.props.className}`} allowSameDay={true} required={!!this.props.required} dateFormat="dd.MM.yyyy" disabledKeyboardNavigation={true} aria-describedby={this.props.name} />
                 } else {
-                    if (value instanceof Date) return value.toLocaleDateString()
-                    return ''
+                    if (value instanceof Date) input = value.toLocaleDateString()
+                    input = ''
                 }
             case 'datetime':
                 value = this.props.value
@@ -43,20 +46,45 @@ export default class Input extends Component<InputProps> {
                 if (this.props.value === '') value = null
 
                 if (this.props.editable) {
-                    return <ReactDatePicker name={this.props.name} onChange={(date, event) => onChange(this.props.name, date)} selected={value} showTimeSelect={true} className={'form-entry form-control' + ` ${this.props.className}`} required={!!this.props.required} timeFormat="HH:mm" dateFormat="dd.MM.yyyy HH:mm" disabledKeyboardNavigation={true} shouldCloseOnSelect={false} aria-describedby={this.props.name} />
+                    input = <ReactDatePicker name={this.props.name} onChange={(date, event) => onChange(this.props.name, date)} selected={value} showTimeSelect={true} className={'form-entry form-control' + ` ${this.props.className}`} required={!!this.props.required} timeFormat="HH:mm" dateFormat="dd.MM.yyyy HH:mm" disabledKeyboardNavigation={true} shouldCloseOnSelect={false} aria-describedby={this.props.name} />
                 } else {
-                    if (value instanceof Date) return value.toLocaleString()
-                    return ''
+                    if (value instanceof Date) input = value.toLocaleString()
+                    input = ''
                 }
             case 'select':
                 if (this.props.options) {
-                    return (<select name={this.props.name} value={this.props.value} onChange={(event) => onChange(this.props.name, event.target.value)} className={'form-entry form-control' + ((!this.props.editable) ? '-plaintext' : '') + ` ${this.props.className}`} required={!!this.props.required} aria-describedby={this.props.name}>
+                    input = (<select name={this.props.name} value={this.props.value} onChange={(event) => onChange(this.props.name, event.target.value)} className={'form-entry form-control' + ((!this.props.editable) ? '-plaintext' : '') + ` ${this.props.className}`} required={!!this.props.required} aria-describedby={this.props.name}>
                         {this.props.options.map(option => <option value={option}>{option}</option>)}
                     </select>)
                 }
             default:
-                return <input name={this.props.name} type={this.props.type || 'text'} value={this.props.value} onChange={(event) => onChange(this.props.name, event.target.value)} className={'form-entry form-control' + ((!this.props.editable) ? '-plaintext' : '') + ` ${this.props.className}`} readOnly={!this.props.editable} required={!!this.props.required} aria-describedby={this.props.name} />
-
+                input = <input name={this.props.name} type={this.props.type || 'text'} value={this.props.value} onChange={(event) => onChange(this.props.name, event.target.value)} className={'form-entry form-control' + ((!this.props.editable) ? '-plaintext' : '') + ` ${this.props.className}`} readOnly={!this.props.editable} required={!!this.props.required} aria-describedby={this.props.name} />
         }
+
+        let prepend = null
+        if (this.props.prepend) {
+            prepend = (
+                <div className="input-group-prepend">
+                    <span className="input-group-text">{this.props.prepend}</span>
+                </div>
+            )
+        }
+
+        let append = null
+        if (this.props.append) {
+            append = (
+                <div className="input-group-append">
+                    <span className="input-group-text">{this.props.append}</span>
+                </div>
+            )
+        }
+
+        return (
+            <div className="input-group">
+                {prepend}
+                {input}
+                {append}
+            </div>
+        )
     }
 }

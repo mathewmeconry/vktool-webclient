@@ -23,6 +23,7 @@ import { GET_MY_ROLES } from "../graphql/UserQueries"
 import { useDispatch } from "react-redux"
 import { UI } from "../actions/UIActions"
 import { Error403 } from "../components/Errors/403"
+import Stock, { StockType } from "../components/Stock"
 
 export default function Contact(props: RouteComponentProps<{ id: string }>) {
     const [editable, setEditable] = useState(false)
@@ -231,6 +232,11 @@ export default function Contact(props: RouteComponentProps<{ id: string }>) {
                 </Column>
                 <Column className="col-md-6">
                     <ContactLogoff contactId={contact.id}  {...props} />
+                </Column>
+            </Row>
+            <Row>
+                <Column className="col-md-6">
+                    <Stock type={StockType.CONTACT} id={contact.id} />
                 </Column>
             </Row>
         </Page>

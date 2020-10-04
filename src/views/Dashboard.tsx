@@ -10,6 +10,7 @@ import { AuthRoles } from "../interfaces/AuthRoles"
 import ContactLogoff from "../components/ContactLogoffs"
 import { useQuery } from "react-apollo"
 import { GET_ME, GET_MY_ROLES } from "../graphql/UserQueries"
+import Stock, { StockType } from "../components/Stock"
 
 export default function Dashboard(props: RouteComponentProps) {
     const me = useQuery(GET_ME)
@@ -56,6 +57,16 @@ export default function Dashboard(props: RouteComponentProps) {
         }
     }
 
+    function renderMaterial() {
+        if (me.data.me.bexioContact) {
+            return (
+                <Column className="col-md-6">
+                    <Stock type={StockType.CONTACT} id={me.data.me.bexioContact.id} />
+                </Column>
+            )
+        }
+    }
+
     return (
         <Page title="Dashboard">
             <Row>
@@ -68,6 +79,9 @@ export default function Dashboard(props: RouteComponentProps) {
             <Row>
                 {renderLogoffs()}
                 {renderCompensations()}
+            </Row>
+            <Row>
+                {renderMaterial()}
             </Row>
         </Page>
     )

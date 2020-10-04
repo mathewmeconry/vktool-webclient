@@ -32,12 +32,12 @@
     width: min-content;
   }
   .panel-body {
-    overflow: auto;
     padding: $panel_content_padding_mobile;
     clear: both;
   }
   .panel-body-scrollable {
     max-height: 50vh;
+    overflow: auto;
   }
 }
 

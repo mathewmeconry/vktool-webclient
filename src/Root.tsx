@@ -8,9 +8,10 @@ import SecureRoute from "./components/SecureRoute"
 import Config from './Config'
 import { ConnectedRouter } from "connected-react-router"
 import { createBrowserHistory } from "history"
-import { ApolloLink, ApolloClient, InMemoryCache } from 'apollo-boost'
+import { ApolloClient, InMemoryCache } from '@apollo/client'
 import { ApolloProvider } from '@apollo/react-hooks'
 import { BatchHttpLink } from 'apollo-link-batch-http'
+import { createUploadLink } from "apollo-upload-client"
 
 // styles
 import './styles/index.scss'
@@ -44,6 +45,16 @@ import Logoff from "./views/Logoff"
 import AddLogoff from "./views/AddLogoff"
 import { onError } from "apollo-link-error"
 import { UI } from "./actions/UIActions"
+import Products from "./views/Warehouse/Products"
+import Product from "./views/Warehouse/Product"
+import Warehouses from "./views/Warehouse/Warehouses"
+import AddWarehouse from './views/Warehouse/AddWarehouse'
+import MaterialChangelogs from "./views/Warehouse/MaterialChangelogs"
+import AddMaterialChangelog from "./views/Warehouse/AddMaterialChangelog"
+import introspectionQueryResultData from './graphql.fragmentTypes.json'
+import MaterialChangelog from "./views/Warehouse/MaterialChangelog"
+import Warehouse from "./views/Warehouse/Warehouse"
+import QRCodeGenerator from "./views/Warehouse/QRCodeGenerator"
 
 export default function Root() {
     Config.loadConfig()
@@ -51,6 +62,7 @@ export default function Root() {
     const { store } = configureStore(history)
     store.getState()
 
+    const uploadLink = createUploadLink({ credentials: 'include', uri: `${Config.apiEndpoint}/graphql` })
     const httpLink = new BatchHttpLink({ credentials: 'include', uri: `${Config.apiEndpoint}/graphql` })
     const errorLink = onError(({ graphQLErrors, networkError, operation }) => {
         if (graphQLErrors)
@@ -67,10 +79,12 @@ export default function Root() {
             console.error(`[Network error]: ${networkError}`)
         }
     })
-
     const apolloClient = new ApolloClient({
-        link: ApolloLink.from([errorLink, httpLink]),
-        cache: new InMemoryCache()
+        // @ts-ignore
+        link: uploadLink,
+        cache: new InMemoryCache({
+            possibleTypes: introspectionQueryResultData.__schema.types.map((type) => { return { name: type.name, types: type.possibleTypes.map(t => t.name) } }).reduce((p, c) => { p[c.name] = c.types; return p }, {} as { [type: string]: string[] })
+        })
     })
 
     return (
@@ -95,8 +109,8 @@ export default function Root() {
                             <SecureRoute exact path="/dashboard" roles={[AuthRoles.AUTHENTICATED]} component={Dashboard} />
                             <SecureRoute exact path="/members" roles={[AuthRoles.MEMBERS_READ]} component={Members} />
                             <SecureRoute exact path="/mailing-lists" roles={[AuthRoles.MAILING_LISTS]} component={MailingLists} />
-                            <SecureRoute exact path="/draft/collection-points" roles={[AuthRoles.DRAFT_READ]} component={CollectionPoints} />
-                            <SecureRoute exact path="/draft/collection-point/add" roles={[AuthRoles.DRAFT_EDIT, AuthRoles.DRAFT_CREATE]} component={AddCollectionPoint} />
+                            <SecureRoute exact path="/draft/collection-points" roles={[AuthRoles.COLLECTIONPOINT_READ]} component={CollectionPoints} />
+                            <SecureRoute exact path="/draft/collection-point/add" roles={[AuthRoles.COLLECTIONPOINT_EDIT, AuthRoles.COLLECTIONPOINT_CREATE]} component={AddCollectionPoint} />
                             <SecureRoute exact path="/draft/logoffs" roles={[AuthRoles.LOGOFFS_READ]} component={Logoffs} />
                             <SecureRoute exact path="/draft/logoff/add" roles={[AuthRoles.LOGOFFS_CREATE]} component={AddLogoff} />
                             <SecureRoute exact path="/draft/logoff/:id" roles={[AuthRoles.LOGOFFS_READ, AuthRoles.AUTHENTICATED]} component={Logoff} />
@@ -115,6 +129,15 @@ export default function Root() {
                             <SecureRoute exact path="/payout/:id/:memberId" roles={[AuthRoles.PAYOUTS_READ]} component={PayoutMember} />
                             <SecureRoute exact path="/users" roles={[AuthRoles.ADMIN]} component={Users} />
                             <SecureRoute exact path="/user/:id" roles={[AuthRoles.ADMIN]} component={User} />
+                            <SecureRoute exact path="/warehouse/products" roles={[AuthRoles.PRODUCT_READ]} component={Products} />
+                            <SecureRoute exact path="/warehouse/product/:id" roles={[AuthRoles.PRODUCT_READ]} component={Product} />
+                            <SecureRoute exact path="/warehouse/warehouses" roles={[AuthRoles.WAREHOUSE_READ]} component={Warehouses} />
+                            <SecureRoute exact path="/warehouse/add" roles={[AuthRoles.WAREHOUSE_CREATE]} component={AddWarehouse} />
+                            <SecureRoute exact path="/warehouse/changelogs" roles={[AuthRoles.MATERIAL_CHANGELOG_READ]} component={MaterialChangelogs} />
+                            <SecureRoute exact path="/warehouse/changelogs/add" roles={[AuthRoles.MATERIAL_CHANGELOG_CREATE]} component={AddMaterialChangelog} />
+                            <SecureRoute exact path="/warehouse/changelog/:id" roles={[AuthRoles.MATERIAL_CHANGELOG_READ]} component={MaterialChangelog} />
+                            <SecureRoute exact path="/warehouse/qr-code" roles={[AuthRoles.WAREHOUSE_READ, AuthRoles.PRODUCT_READ, AuthRoles.MATERIAL_CHANGELOG_READ]} component={QRCodeGenerator} />
+                            <SecureRoute exact path="/warehouse/:id" roles={[AuthRoles.WAREHOUSE_READ, AuthRoles.WAREHOUSE_CREATE]} component={Warehouse} />
                             <Route path="/*" component={Error404} />
                         </Switch>
                     </ApolloProvider>

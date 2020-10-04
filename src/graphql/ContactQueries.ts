@@ -1,4 +1,4 @@
-import { gql } from "apollo-boost";
+import gql from "graphql-tag";
 
 export const GET_ALL_MEMBERS_SELECT = gql`
   query GET_ALL_MEMBERS_SELECT {
@@ -9,6 +9,17 @@ export const GET_ALL_MEMBERS_SELECT = gql`
     }
   }
 `;
+
+export const GET_ALL_SUPPLIERS_SELECT = gql`
+  query GET_ALL_SUPPLIERS_SELECT {
+    getSuppliersAll {
+      id
+      firstname
+      lastname
+    }
+  }
+`;
+
 
 export const GET_ALL_MEMBERS = gql`
   query GET_ALL_MEMBERS {
@@ -139,6 +150,19 @@ export const EDIT_CONTACT = gql`
   mutation EDIT_CONTACT($data: EditContact!) {
     editContact(data: $data) {
       id
+    }
+  }
+`;
+
+
+export const GET_CONTACT_STOCK = gql`
+  query GET_CONTACT_STOCK($id: ID!) {
+    getContactStock(id: $id) {
+      amount
+      number
+      product {
+        internName
+      }
     }
   }
 `;

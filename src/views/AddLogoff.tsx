@@ -131,6 +131,7 @@ export default function AddLogoff(props: RouteComponentProps) {
                                 ]}
                                 addNew={true}
                                 data={logoffs as ExtendedLogoffBase[]}
+                                className="table-sm-rows"
                             />
                             <Button variant="primary" block={true} onClick={onSave}>Speichern</Button>
                         </form>

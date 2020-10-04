@@ -1,4 +1,4 @@
-import { gql } from "apollo-boost";
+import gql from "graphql-tag";
 
 export const GET_COMPENSATION = gql`
   query GET_COMPENSATION($id: Int!) {
@@ -60,6 +60,18 @@ export const GET_COMPENSATION = gql`
       bexioBill
       transferCompensation {
         id
+      }
+      materialChangelogToProducts {
+        id
+        product {
+          id
+          internName
+          salePrice
+        }
+        amount
+        changelog {
+          id
+        }
       }
     }
   }

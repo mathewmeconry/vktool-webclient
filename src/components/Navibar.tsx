@@ -33,10 +33,19 @@ export default function Navibar(props: { open: boolean }) {
                 {renderElement(<NavibarElement to="/mailing-lists" text="Verteiler" leftIcon="mail-bulk" />, [AuthRoles.MAILING_LISTS])}
                 {renderElement(
                     <NavibarLevelHeader text="Aufgebot" leftIcon="address-book" id="draft" level={1}>
-                        {renderElement(<NavibarElement to="/draft/collection-points" leftIcon="map-marker-alt" text="Abholpunkte" />, [AuthRoles.DRAFT_READ])}
+                        {renderElement(<NavibarElement to="/draft/collection-points" leftIcon="map-marker-alt" text="Abholpunkte" />, [AuthRoles.COLLECTIONPOINT_READ])}
                         {renderElement(<NavibarElement to="/draft/logoffs" leftIcon="user-times" text="Abmeldungen" />, [AuthRoles.LOGOFFS_READ])}
                     </NavibarLevelHeader>
-                    , [AuthRoles.DRAFT_READ, AuthRoles.LOGOFFS_READ]
+                    , [AuthRoles.COLLECTIONPOINT_READ, AuthRoles.LOGOFFS_READ]
+                )}
+                {renderElement(
+                    <NavibarLevelHeader text="Material" leftIcon="warehouse" id="warehouse" level={1}>
+                        {renderElement(<NavibarElement to="/warehouse/changelogs" leftIcon="exchange-alt" text="Änderungen" />, [AuthRoles.MATERIAL_CHANGELOG_READ])}
+                        {renderElement(<NavibarElement to="/warehouse/products" leftIcon="boxes" text="Produkte" />, [AuthRoles.PRODUCT_READ])}
+                        {renderElement(<NavibarElement to="/warehouse/warehouses" leftIcon="map-marker-alt" text="Lagerräume" />, [AuthRoles.WAREHOUSE_READ])}
+                        {renderElement(<NavibarElement to="/warehouse/qr-code" leftIcon="qrcode" text="QR Code Generator" />, [AuthRoles.WAREHOUSE_READ, AuthRoles.PRODUCT_READ, AuthRoles.MATERIAL_CHANGELOG_READ])}
+                    </NavibarLevelHeader>
+                    , [AuthRoles.PRODUCT_READ, AuthRoles.MATERIAL_CHANGELOG_READ]
                 )}
                 {renderElement(<NavibarElement to="/orders" text="Aufträge" leftIcon="file-alt" />, [AuthRoles.ORDERS_READ])}
                 {renderElement(

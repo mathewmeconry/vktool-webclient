@@ -14,11 +14,11 @@ import { useQuery } from 'react-apollo'
 import LoadingDots from './LoadingDots'
 
 export enum PaginationFilterOperator {
-	'=' = '=',
-	'>=' = '>=',
-	'<=' = '<=',
-	'<' = '<',
-	'>' = '>',
+    '=' = '=',
+    '>=' = '>=',
+    '<=' = '<=',
+    '<' = '<',
+    '>' = '>',
 }
 
 export interface InputPaginationFilter {
@@ -38,7 +38,7 @@ export interface GraphQLDataListProps<T> extends React.Props<any> {
     panelActions?: JSX.Element[]
     additionalTitleStuff?: JSX.Element[],
     tableColumns: GraphQLTableColumn[],
-    viewLocation: string,
+    viewLocation?: string,
     rowActions?: JSX.Element[],
     query: DocumentNode
     filterQuery?: DocumentNode
@@ -50,6 +50,8 @@ export interface GraphQLDataListProps<T> extends React.Props<any> {
     customFilters?: CustomFilter[]
     selectedCustomFilter?: Array<InputPaginationFilter>
     forceRerender?: Array<any>
+    suffix?: string
+    prefix?: string
 }
 
 export default function GraphQLDataList<T extends Base>(props: GraphQLDataListProps<T> & RouteComponentProps) {
@@ -77,7 +79,7 @@ export default function GraphQLDataList<T extends Base>(props: GraphQLDataListPr
     }, [props.forceRerender, filter])
 
     function elementView(event: React.MouseEvent<HTMLButtonElement>) {
-        if (event.currentTarget.parentNode && event.currentTarget.parentNode.parentNode && event.currentTarget.parentNode.parentNode.parentElement) {
+        if (props.viewLocation && event.currentTarget.parentNode && event.currentTarget.parentNode.parentNode && event.currentTarget.parentNode.parentNode.parentElement) {
             let id = event.currentTarget.parentNode.parentNode.parentElement.getAttribute('data-key')
 
             // open a new tap when the middle button is pressed (buttonID 1)
@@ -168,7 +170,7 @@ export default function GraphQLDataList<T extends Base>(props: GraphQLDataListPr
                                 {
                                     text: 'Actions', keys: ['id'], content:
                                         <div className="btn-group">
-                                            <button className="btn btn-success view" onMouseUp={elementView}><FontAwesomeIcon icon="eye" /></button>
+                                            {props.viewLocation && <button className="btn btn-success view" onMouseUp={elementView}><FontAwesomeIcon icon="eye" /></button>}
                                             {props.rowActions}
                                         </div>
                                 }

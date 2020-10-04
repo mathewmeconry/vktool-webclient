@@ -1,55 +1,62 @@
-@import '../../node_modules/bootstrap-scss/variables';
+@import "../../node_modules/bootstrap-scss/variables";
 
 .button-loading {
     width: 9pt;
-    height: 9pt;  
-    fill: #FFF;  
+    height: 9pt;
+    fill: #fff;
 }
 
-.btn-outline-primary {
+.btn-outline-primary,
+.btn-link {
     .button-loading {
-        fill: $primary
+        fill: $primary;
     }
 }
 
 .btn-outline-secondary {
     .button-loading {
-        fill: $secondary
+        fill: $secondary;
     }
 }
 
 .btn-outline-success {
     .button-loading {
-        fill: $success
+        fill: $success;
     }
 }
 
 .btn-outline-info {
     .button-loading {
-        fill: $info
+        fill: $info;
     }
 }
 
 .btn-outline-warning {
     .button-loading {
-        fill: $warning
+        fill: $warning;
     }
 }
 
 .btn-outline-danger {
     .button-loading {
-        fill: $danger
+        fill: $danger;
     }
 }
 
 .btn-outline-light {
     .button-loading {
-        fill: $light
+        fill: $light;
     }
 }
 
 .btn-outline-dark {
     .button-loading {
-        fill: $dark
+        fill: $dark;
+    }
+}
+
+button[class*="btn-outline"]:hover {
+    .button-loading {
+        fill: #fff;
     }
 }
