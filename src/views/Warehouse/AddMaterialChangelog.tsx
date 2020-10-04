@@ -274,7 +274,11 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
     }
 
     function onProductScanClose(results: Result[]): void {
-        setProducts([...products, ...results.map(r => JSON.parse(r.getText()))])
+        setProducts([...products, ...results.map(r => JSON.parse(r.getText())).map(r => {
+            r.productId = r.id.toString(); 
+            r.charge = r.charge.toString(); 
+            return r
+        })])
         setProductScanning(false)
     }
 
