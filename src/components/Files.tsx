@@ -12,7 +12,7 @@ export default function Files(props: FilesProps) {
         <Panel title="Dateien">
             {props.files.map(file => {
                 return (
-                    <a className="file" href={`${Config.apiEndpoint}/static/${file.filename}`} target="_blank">{file.name}</a>
+                    <a key={file.filename} className="file" href={`${Config.apiEndpoint}/static/${file.filename}`} target="_blank">{file.name}</a>
                 )
             })}
         </Panel>

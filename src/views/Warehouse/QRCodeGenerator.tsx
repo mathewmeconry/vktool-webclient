@@ -102,7 +102,7 @@ export default function QRCodeGenerator() {
                                 <h5>Verrechnen</h5>
                                 <ButtonGroup toggle>
                                     {[{ name: 'Ja', value: 'true' }, { name: 'Nein', value: 'false' }].map((radio) => (
-                                        <label className={`btn btn-primary ${charge === radio.value ? 'active' : ''}`}>
+                                        <label key={radio.value} className={`btn btn-primary ${charge === radio.value ? 'active' : ''}`}>
                                             <input
                                                 key={`charge-${radio.name}`}
                                                 name="charge"
@@ -111,8 +111,7 @@ export default function QRCodeGenerator() {
                                                 value={radio.value}
                                                 onClick={(e: React.MouseEvent<HTMLInputElement>) => onChargeChange(radio.value)}
                                                 required={true}
-                                            >
-                                            </input>
+                                            />
                                             {radio.name}
                                         </label>
                                     ))}

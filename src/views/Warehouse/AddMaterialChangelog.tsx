@@ -187,7 +187,7 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
         return (
             <ButtonGroup toggle>
                 {[{ name: 'Ja', value: 'true' }, { name: 'Nein', value: 'false' }].map((radio) => (
-                    <label className={`btn btn-primary ${value === radio.value ? 'active' : ''}`}>
+                    <label key={`${tdkey}-${radio.value}`}className={`btn btn-primary ${value === radio.value ? 'active' : ''}`}>
                         <input
                             key={`${tdkey}-${radio.name}`}
                             name="charge"
