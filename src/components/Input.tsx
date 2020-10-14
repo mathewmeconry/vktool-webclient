@@ -27,8 +27,10 @@ export default class Input extends Component<InputProps> {
         switch (this.props.type) {
             case 'checkbox':
                 input = <Checkbox checked={this.props.value} editable={this.props.editable} onChange={(event) => onChange(this.props.name, event.target.checked)} label='' required={!!this.props.required} aria-describedby={this.props.name} className={this.props.className} />
+                break
             case 'textarea':
                 input = <textarea name={this.props.name} value={this.props.value} onChange={(event) => onChange(this.props.name, event.target.value)} className={'form-entry form-control' + ((!this.props.editable) ? '-plaintext' : '') + ` ${this.props.className}`} readOnly={!this.props.editable} required={!!this.props.required} aria-describedby={this.props.name} />
+                break
             case 'date':
                 value = this.props.value
                 if (typeof this.props.value === 'string') value = new Date(this.props.value)
@@ -37,9 +39,13 @@ export default class Input extends Component<InputProps> {
                 if (this.props.editable) {
                     input = <ReactDatePicker name={this.props.name} onChange={(date, event) => onChange(this.props.name, date)} selected={value} className={'form-entry form-control' + ` ${this.props.className}`} allowSameDay={true} required={!!this.props.required} dateFormat="dd.MM.yyyy" disabledKeyboardNavigation={true} aria-describedby={this.props.name} />
                 } else {
-                    if (value instanceof Date) input = value.toLocaleDateString()
-                    input = ''
+                    if (value instanceof Date) {
+                        input = value.toLocaleString()
+                    } else {
+                        input = ''
+                    }
                 }
+                break
             case 'datetime':
                 value = this.props.value
                 if (typeof this.props.value === 'string') value = new Date(this.props.value)
@@ -48,17 +54,23 @@ export default class Input extends Component<InputProps> {
                 if (this.props.editable) {
                     input = <ReactDatePicker name={this.props.name} onChange={(date, event) => onChange(this.props.name, date)} selected={value} showTimeSelect={true} className={'form-entry form-control' + ` ${this.props.className}`} required={!!this.props.required} timeFormat="HH:mm" dateFormat="dd.MM.yyyy HH:mm" disabledKeyboardNavigation={true} shouldCloseOnSelect={false} aria-describedby={this.props.name} />
                 } else {
-                    if (value instanceof Date) input = value.toLocaleString()
-                    input = ''
+                    if (value instanceof Date) {
+                        input = value.toLocaleString()
+                    } else {
+                        input = ''
+                    }
                 }
+                break
             case 'select':
                 if (this.props.options) {
                     input = (<select name={this.props.name} value={this.props.value} onChange={(event) => onChange(this.props.name, event.target.value)} className={'form-entry form-control' + ((!this.props.editable) ? '-plaintext' : '') + ` ${this.props.className}`} required={!!this.props.required} aria-describedby={this.props.name}>
                         {this.props.options.map(option => <option value={option}>{option}</option>)}
                     </select>)
                 }
+                break
             default:
                 input = <input name={this.props.name} type={this.props.type || 'text'} value={this.props.value} onChange={(event) => onChange(this.props.name, event.target.value)} className={'form-entry form-control' + ((!this.props.editable) ? '-plaintext' : '') + ` ${this.props.className}`} readOnly={!this.props.editable} required={!!this.props.required} aria-describedby={this.props.name} />
+                break
         }
 
         let prepend = null

@@ -13,10 +13,9 @@ input[type="checkbox"] {
   outline: none;
   border: 1px solid $gray-800;
   transform: translateX(100%);
-}
-input[type="checkbox"] {
   margin-left: -20px;
   vertical-align: middle;
+  flex: unset !important;
 }
 input[type="checkbox"]:checked::before,
 input[type="checkbox"]:hover::before {
