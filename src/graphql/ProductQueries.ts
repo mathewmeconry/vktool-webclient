@@ -27,6 +27,7 @@ export const GET_PRODUCTS = gql`
         }
         delivererName
         internName
+        weight
       }
     }
   }

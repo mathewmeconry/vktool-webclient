@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useMutation, useQuery } from "react-apollo"
 import { useDispatch } from "react-redux"
 import { RouteComponentProps } from "react-router"
@@ -13,8 +13,10 @@ import { Page } from "../../components/Page"
 import Panel from "../../components/Panel"
 import Row from "../../components/Row"
 import Stock, { StockType } from "../../components/Stock"
+import Config from "../../Config"
+import MaterialChangelogToProduct from "../../entities/MaterialChangelogToProduct"
 import { default as WarehouseEntity } from "../../entities/Warehouse"
-import { EDIT_WAREHOUSE, GET_WAREHOUSE } from "../../graphql/WarehouseQueries"
+import { EDIT_WAREHOUSE, GET_WAREHOUSE, GET_WAREHOUSE_STOCK } from "../../graphql/WarehouseQueries"
 import { AuthRoles } from "../../interfaces/AuthRoles"
 
 
@@ -23,6 +25,21 @@ export default function Warehouse(props: RouteComponentProps<{ id: string }>) {
     const [editable, setEditable] = useState(false)
     const [warehouse, setWarehouse] = useState<WarehouseEntity>()
     const [editWarehouse] = useMutation<{ editWarehouse: WarehouseEntity }>(EDIT_WAREHOUSE)
+    const stock = useQuery<{ getWarehouseStock: MaterialChangelogToProduct[] }>(GET_WAREHOUSE_STOCK, { variables: { id: parseInt(props.match.params.id) }, fetchPolicy: 'cache-and-network' })
+    const [currentWeight, setCurrentWeight] = useState(0)
+
+    useEffect(() => {
+        const data = stock.data?.getWarehouseStock || []
+        let weight = 0
+        for(const entry of data) {
+            if(entry.product.weight && entry.amount > 0) {
+                weight += entry.product.weight * entry.amount
+            }
+        }
+        setCurrentWeight(weight)
+    },[stock.data?.getWarehouseStock])
+
+
     const dispatch = useDispatch()
     let formEl: HTMLFormElement
 
@@ -78,14 +95,15 @@ export default function Warehouse(props: RouteComponentProps<{ id: string }>) {
     }
 
     function renderPanelActions() {
+        const actions = [<Action key="pdf-export" onClick={async () => { window.open(`${Config.apiEndpoint}/api/warehouse/${warehouse?.id}/report/pdf`) }} icon='file-pdf' />]
         if (editable) {
-            return [
-                <Action icon="save" key="save" onClick={onSave} />,
-                <Action icon="times" key="cancel" onClick={onAbort} />
-            ]
+            actions.push(<Action icon="save" key="save" onClick={onSave} />)
+            actions.push(<Action icon="times" key="cancel" onClick={onAbort} />)
+            return actions
         }
 
-        return [<Action icon="pencil-alt" key="edit" onClick={async () => { setEditable(true) }} roles={[AuthRoles.WAREHOUSE_CREATE]} />]
+        actions.push(<Action icon="pencil-alt" key="edit" onClick={async () => { setEditable(true) }} roles={[AuthRoles.WAREHOUSE_CREATE]} />)
+        return actions
     }
 
 
@@ -97,6 +115,7 @@ export default function Warehouse(props: RouteComponentProps<{ id: string }>) {
                         <form id="editWarehouse" ref={(ref: HTMLFormElement) => { formEl = ref }}>
                             <FormEntry id="name" title="Name" value={warehouse?.name} editable={editable} onChange={onInputChange} required={true} />
                             <FormEntry id="maxWeight" title="Maximal Gewicht" value={warehouse?.maxWeight} editable={editable} onChange={onInputChange} append="kg" />
+                            <FormEntry id="currentWeight" title="Jetztiges Gewicht" value={currentWeight} editable={false} append="kg" />
                         </form>
                     </Panel>
                 </Column>

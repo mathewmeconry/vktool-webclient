@@ -456,6 +456,9 @@ export default class Table<T extends { id: string | number }> extends Component<
                 }
             }
             let trKey = id
+            if(dataEntry.id) {
+                trKey = dataEntry.id.toString()
+            }
             rows.push(<tr key={trKey} data-key={trKey.replace(/^_/, '')}>{row}</tr>)
         }
 

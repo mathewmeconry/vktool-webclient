@@ -16,7 +16,7 @@ export default function Signature(props: SignatureProps) {
     const [canvasProps, setCanvasProps] = useState<React.CanvasHTMLAttributes<HTMLCanvasElement>>({})
 
     async function lockScreen(ref: RefObject<HTMLElement>) {
-        if (ref.current?.requestFullscreen) {
+        if (ref.current?.requestFullscreen && props.fullscreen) {
             try {
                 await ref.current?.requestFullscreen()
                 await screen.orientation.lock('landscape')

@@ -49,4 +49,6 @@ export default class MaterialChangelog extends Base {
   public deletedBy?: User;
 
   public deletedById?: number;
+
+  public remarks?: string
 }

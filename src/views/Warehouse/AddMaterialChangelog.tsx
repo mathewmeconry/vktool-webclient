@@ -28,6 +28,7 @@ import QRScanner from "../../components/QRScanner"
 import { Result } from '@zxing/library'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { QRCodePayload, QRCodeType } from "../../components/QRCode"
+import Input from '../../components/Input'
 
 enum InOutTypes {
     MEMBER = 'member',
@@ -51,27 +52,31 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
     const [signature, setSignature] = useState('')
     const [isProductScanning, setProductScanning] = useState(false)
     const [isTypeScanning, setTypeScanning] = useState<'' | 'in' | 'out'>('')
+    const [remarks, setRemarks] = useState('')
+    const [date, setDate] = useState(new Date())
+    const [currentWeight, setCurrentWeight] = useState(0)
     const { data, error, loading } = useQuery<{ getProductsAll: Product[] }>(GET_ALL_PRODUCT_SELECT)
 
     useEffect(() => {
-        if (outType === InOutTypes.WAREHOUSE) {
-            const warehouse = outState as Warehouse
+        if (inType === InOutTypes.WAREHOUSE) {
+            const warehouse = inState as Warehouse
             if (warehouse && warehouse.maxWeight && !loading && data?.getProductsAll) {
-                const currentWeight = products.filter(p => p.productId).map((selectedProduct) => {
+                const currWeight = products.filter(p => p.productId).map((selectedProduct) => {
                     const product = data.getProductsAll.find(p => p.id === parseInt(selectedProduct.productId))
                     if (product) {
                         return (product.weight || 0) * (parseInt(selectedProduct.amount) || 0)
                     }
                     return 0
                 }).reduce((p, c) => p + c, 0)
-                if (warehouse.maxWeight < currentWeight) {
+                setCurrentWeight(currWeight)
+                if (warehouse.maxWeight < currWeight) {
                     setOverloaded(true)
                     return
                 }
             }
         }
         setOverloaded(false)
-    }, [products, outState, loading, data])
+    }, [products, inState, loading, data])
 
     useEffect(() => {
         if (inType as string === 'scan' || outType as string === 'scan') {
@@ -106,9 +111,12 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
     }
 
     function renderOverloaded() {
-        const warehouse = outState as Warehouse
-        if (isOverloaded && warehouse && warehouse.maxWeight) {
-            return <p className="text-danger">Das maximal Gewicht von {warehouse.maxWeight} kg wurde überschritten!</p>
+        const warehouse = inState as Warehouse
+        if (warehouse && warehouse.maxWeight) {
+            if (isOverloaded) {
+                return <p className="text-danger">Das maximal Gewicht von {warehouse.maxWeight} kg wurde um {currentWeight - warehouse.maxWeight} kg überschritten!</p>
+            }
+            return <p className="">Das jetztige Gewicht beträgt {currentWeight} kg</p>
         }
         return null
     }
@@ -162,10 +170,11 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
                             out: outState?.id,
                             inType: [InOutTypes.MEMBER, InOutTypes.SUPPLIER].includes(inType) ? 'CONTACT' : 'WAREHOUSE',
                             outType: [InOutTypes.MEMBER, InOutTypes.SUPPLIER].includes(outType) ? 'CONTACT' : 'WAREHOUSE',
-                            date: new Date(),
+                            date,
                             products: products.map(p => { return { changelogId: -1, charge: p.charge === 'true', amount: parseInt(p.amount), number: (p.number) ? parseInt(p.number) : undefined, productId: parseInt(p.productId) } }),
                             files,
-                            signature
+                            signature,
+                            remarks
                         }
                     }
                 })
@@ -173,7 +182,7 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
                     return false
                 }
                 dispatch(UI.showSuccess('Gespeichert'))
-                props.history.push('/warehouse/changelogs')
+                props.history.push(`/warehouse/changelog/${result.data?.addMaterialChangelog?.id}`)
             } else {
                 dispatch(UI.showError('Korrigiere zuerst die Fehler'))
             }
@@ -187,7 +196,7 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
         return (
             <ButtonGroup toggle>
                 {[{ name: 'Ja', value: 'true' }, { name: 'Nein', value: 'false' }].map((radio) => (
-                    <label key={`${tdkey}-${radio.value}`}className={`btn btn-primary ${value === radio.value ? 'active' : ''}`}>
+                    <label key={`${tdkey}-${radio.value}`} className={`btn btn-primary ${value === radio.value ? 'active' : ''}`}>
                         <input
                             key={`${tdkey}-${radio.name}`}
                             name="charge"
@@ -275,8 +284,8 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
 
     function onProductScanClose(results: Result[]): void {
         setProducts([...products, ...results.map(r => JSON.parse(r.getText())).map(r => {
-            r.productId = r.id.toString(); 
-            r.charge = r.charge.toString(); 
+            r.productId = r.id.toString()
+            r.charge = r.charge.toString()
             return r
         })])
         setProductScanning(false)
@@ -291,7 +300,7 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
 
     function validateTypeScan(result: Result, previousResults: Result[]): boolean {
         const resultObj: QRCodePayload = JSON.parse(result.getText())
-        if([QRCodeType.WAREHOUSE, QRCodeType.MEMBER, QRCodeType.SUPPLIER].includes(resultObj.type) && resultObj.id) {
+        if ([QRCodeType.WAREHOUSE, QRCodeType.MEMBER, QRCodeType.SUPPLIER].includes(resultObj.type) && resultObj.id) {
             return true
         }
         return false
@@ -339,6 +348,9 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
                 <Column>
                     <Panel scrollable={false}>
                         <form id="addWarehouse" ref={(ref: HTMLFormElement) => { formEl = ref }}>
+                            <h5>Datum</h5>
+                            <Input type="date" name="date" editable={true} value={date} onChange={(name, value) => setDate(value)} />
+                            <br></br>
                             <h5>Von*</h5>
                             {renderInOut('out', outType, setOutType, outState, setOutState)}
                             <br></br>
@@ -364,6 +376,10 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
                             <FileUploader onDone={(file: IFile) => { setFiles([...files, file]) }} onRemove={(name: string) => { setFiles([...files].filter(f => f.name !== name)) }} />
                             <br></br>
                             {renderSignature()}
+                            <br></br>
+                            <h5>Bemerkungen</h5>
+                            <Input key="remarks" name="remarks" type="textarea" editable={true} value={remarks} onChange={(name, value) => { setRemarks(value) }} />
+                            <br></br>
                             <Button variant="primary" block={true} onClick={onSave}>Speichern</Button>
                         </form>
                     </Panel>
