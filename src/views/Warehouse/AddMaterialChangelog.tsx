@@ -53,6 +53,7 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
     const [isProductScanning, setProductScanning] = useState(false)
     const [isTypeScanning, setTypeScanning] = useState<'' | 'in' | 'out'>('')
     const [remarks, setRemarks] = useState('')
+    const [date, setDate] = useState(new Date())
     const { data, error, loading } = useQuery<{ getProductsAll: Product[] }>(GET_ALL_PRODUCT_SELECT)
 
     useEffect(() => {
@@ -164,7 +165,7 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
                             out: outState?.id,
                             inType: [InOutTypes.MEMBER, InOutTypes.SUPPLIER].includes(inType) ? 'CONTACT' : 'WAREHOUSE',
                             outType: [InOutTypes.MEMBER, InOutTypes.SUPPLIER].includes(outType) ? 'CONTACT' : 'WAREHOUSE',
-                            date: new Date(),
+                            date,
                             products: products.map(p => { return { changelogId: -1, charge: p.charge === 'true', amount: parseInt(p.amount), number: (p.number) ? parseInt(p.number) : undefined, productId: parseInt(p.productId) } }),
                             files,
                             signature,
@@ -176,7 +177,7 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
                     return false
                 }
                 dispatch(UI.showSuccess('Gespeichert'))
-                props.history.push(`/warehouse/changelog/${result.data?.id}`)
+                props.history.push(`/warehouse/changelog/${result.data?.addMaterialChangelog?.id}`)
             } else {
                 dispatch(UI.showError('Korrigiere zuerst die Fehler'))
             }
@@ -342,6 +343,9 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
                 <Column>
                     <Panel scrollable={false}>
                         <form id="addWarehouse" ref={(ref: HTMLFormElement) => { formEl = ref }}>
+                            <h5>Datum</h5>
+                            <Input type="date" name="date" editable={true} value={date} onChange={(name, value) => setDate(value)} />
+                            <br></br>
                             <h5>Von*</h5>
                             {renderInOut('out', outType, setOutType, outState, setOutState)}
                             <br></br>
