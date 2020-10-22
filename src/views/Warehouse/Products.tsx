@@ -14,6 +14,7 @@ export default function Products(props: RouteComponentProps) {
             tableColumns={[
                 { text: 'Name', keys: ['internName'], sortable: true },
                 { text: 'Lieferant', keys: { 'contact': ['firstname', 'lastname'] }, sortKey: 'contact.firstname', sortable: true },
+                { text: 'Gewicht', keys: ['weight'], sortable: true, suffix: ' kg' }
             ]}
             defaultSortBy='internName'
             defaultSortDirection={PaginationSortDirections.ASC}
