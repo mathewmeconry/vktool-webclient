@@ -25,7 +25,7 @@ export default class FormEntry extends Component<FormEntryProps> {
     };
 
     public renderChildren() {
-        if (!this.props.editable && typeof this.props.value !== 'undefined') {
+        if (!this.props.editable && typeof this.props.value !== 'undefined' && (this.props.prepend || this.props.append)) {
             return `${this.props.prepend || ''} ${this.props.value || ''} ${this.props.append || ''}`
         }
 

@@ -35,12 +35,11 @@ export default class Input extends Component<InputProps> {
                 value = this.props.value
                 if (typeof this.props.value === 'string') value = new Date(this.props.value)
                 if (this.props.value === '') value = null
-
                 if (this.props.editable) {
                     input = <ReactDatePicker name={this.props.name} onChange={(date, event) => onChange(this.props.name, date)} selected={value} className={'form-entry form-control' + ` ${this.props.className}`} allowSameDay={true} required={!!this.props.required} dateFormat="dd.MM.yyyy" disabledKeyboardNavigation={true} aria-describedby={this.props.name} />
                 } else {
                     if (value instanceof Date) {
-                        input = value.toLocaleString()
+                        input = value.toLocaleDateString()
                     } else {
                         input = ''
                     }
