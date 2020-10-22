@@ -54,27 +54,29 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
     const [isTypeScanning, setTypeScanning] = useState<'' | 'in' | 'out'>('')
     const [remarks, setRemarks] = useState('')
     const [date, setDate] = useState(new Date())
+    const [currentWeight, setCurrentWeight] = useState(0)
     const { data, error, loading } = useQuery<{ getProductsAll: Product[] }>(GET_ALL_PRODUCT_SELECT)
 
     useEffect(() => {
-        if (outType === InOutTypes.WAREHOUSE) {
-            const warehouse = outState as Warehouse
+        if (inType === InOutTypes.WAREHOUSE) {
+            const warehouse = inState as Warehouse
             if (warehouse && warehouse.maxWeight && !loading && data?.getProductsAll) {
-                const currentWeight = products.filter(p => p.productId).map((selectedProduct) => {
+                const currWeight = products.filter(p => p.productId).map((selectedProduct) => {
                     const product = data.getProductsAll.find(p => p.id === parseInt(selectedProduct.productId))
                     if (product) {
                         return (product.weight || 0) * (parseInt(selectedProduct.amount) || 0)
                     }
                     return 0
                 }).reduce((p, c) => p + c, 0)
-                if (warehouse.maxWeight < currentWeight) {
+                setCurrentWeight(currWeight)
+                if (warehouse.maxWeight < currWeight) {
                     setOverloaded(true)
                     return
                 }
             }
         }
         setOverloaded(false)
-    }, [products, outState, loading, data])
+    }, [products, inState, loading, data])
 
     useEffect(() => {
         if (inType as string === 'scan' || outType as string === 'scan') {
@@ -109,9 +111,12 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
     }
 
     function renderOverloaded() {
-        const warehouse = outState as Warehouse
-        if (isOverloaded && warehouse && warehouse.maxWeight) {
-            return <p className="text-danger">Das maximal Gewicht von {warehouse.maxWeight} kg wurde überschritten!</p>
+        const warehouse = inState as Warehouse
+        if (warehouse && warehouse.maxWeight) {
+            if (isOverloaded) {
+                return <p className="text-danger">Das maximal Gewicht von {warehouse.maxWeight} kg wurde um {currentWeight - warehouse.maxWeight} kg überschritten!</p>
+            }
+            return <p className="">Das jetztige Gewicht beträgt {currentWeight} kg</p>
         }
         return null
     }

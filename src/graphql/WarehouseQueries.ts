@@ -71,6 +71,7 @@ export const GET_WAREHOUSE_STOCK = gql`
       product {
         id
         internName
+        weight
       }
     }
   }
