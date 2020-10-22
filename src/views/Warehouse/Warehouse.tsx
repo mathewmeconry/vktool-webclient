@@ -13,6 +13,7 @@ import { Page } from "../../components/Page"
 import Panel from "../../components/Panel"
 import Row from "../../components/Row"
 import Stock, { StockType } from "../../components/Stock"
+import Config from "../../Config"
 import { default as WarehouseEntity } from "../../entities/Warehouse"
 import { EDIT_WAREHOUSE, GET_WAREHOUSE } from "../../graphql/WarehouseQueries"
 import { AuthRoles } from "../../interfaces/AuthRoles"
@@ -78,14 +79,15 @@ export default function Warehouse(props: RouteComponentProps<{ id: string }>) {
     }
 
     function renderPanelActions() {
+        const actions = [<Action key="pdf-export" onClick={async () => { window.open(`${Config.apiEndpoint}/api/warehouse/${warehouse?.id}/report/pdf`) }} icon='file-pdf' />]
         if (editable) {
-            return [
-                <Action icon="save" key="save" onClick={onSave} />,
-                <Action icon="times" key="cancel" onClick={onAbort} />
-            ]
+            actions.push(<Action icon="save" key="save" onClick={onSave} />)
+            actions.push(<Action icon="times" key="cancel" onClick={onAbort} />)
+            return actions
         }
 
-        return [<Action icon="pencil-alt" key="edit" onClick={async () => { setEditable(true) }} roles={[AuthRoles.WAREHOUSE_CREATE]} />]
+        actions.push(<Action icon="pencil-alt" key="edit" onClick={async () => { setEditable(true) }} roles={[AuthRoles.WAREHOUSE_CREATE]} />)
+        return actions
     }
 
 
