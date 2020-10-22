@@ -42,7 +42,7 @@ export default function Product(props: RouteComponentProps<{ id: string }>) {
         const result = await editProduct({
             variables: {
                 data: {
-                    weight: parseFloat(weight.toString()),
+                    weight: parseFloat(weight.toString().replace(/,/, '.')),
                     id: productResult.id,
                 }
             }
