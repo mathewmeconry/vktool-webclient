@@ -93,6 +93,7 @@ export default function MaterialChangelog(props: RouteComponentProps<{ id: strin
                     <Panel title="Informationen" scrollable={false}>
                         <FormEntry type="date" id="date" title="Datum" value={changelog.date} />
                         <FormEntry type="text" id="creator" title="Ersteller" value={changelog.creator.displayName} />
+                        <FormEntry type="textarea" id="remarks" title="Bemerkungen" value={changelog.remarks || ''} />
                     </Panel>
                 </Column>
             </Row>

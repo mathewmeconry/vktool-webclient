@@ -28,6 +28,7 @@ import QRScanner from "../../components/QRScanner"
 import { Result } from '@zxing/library'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { QRCodePayload, QRCodeType } from "../../components/QRCode"
+import Input from '../../components/Input'
 
 enum InOutTypes {
     MEMBER = 'member',
@@ -51,6 +52,7 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
     const [signature, setSignature] = useState('')
     const [isProductScanning, setProductScanning] = useState(false)
     const [isTypeScanning, setTypeScanning] = useState<'' | 'in' | 'out'>('')
+    const [remarks, setRemarks] = useState('')
     const { data, error, loading } = useQuery<{ getProductsAll: Product[] }>(GET_ALL_PRODUCT_SELECT)
 
     useEffect(() => {
@@ -165,7 +167,8 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
                             date: new Date(),
                             products: products.map(p => { return { changelogId: -1, charge: p.charge === 'true', amount: parseInt(p.amount), number: (p.number) ? parseInt(p.number) : undefined, productId: parseInt(p.productId) } }),
                             files,
-                            signature
+                            signature,
+                            remarks
                         }
                     }
                 })
@@ -173,7 +176,7 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
                     return false
                 }
                 dispatch(UI.showSuccess('Gespeichert'))
-                props.history.push('/warehouse/changelogs')
+                props.history.push(`/warehouse/changelog/${result.data?.id}`)
             } else {
                 dispatch(UI.showError('Korrigiere zuerst die Fehler'))
             }
@@ -187,7 +190,7 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
         return (
             <ButtonGroup toggle>
                 {[{ name: 'Ja', value: 'true' }, { name: 'Nein', value: 'false' }].map((radio) => (
-                    <label key={`${tdkey}-${radio.value}`}className={`btn btn-primary ${value === radio.value ? 'active' : ''}`}>
+                    <label key={`${tdkey}-${radio.value}`} className={`btn btn-primary ${value === radio.value ? 'active' : ''}`}>
                         <input
                             key={`${tdkey}-${radio.name}`}
                             name="charge"
@@ -275,8 +278,8 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
 
     function onProductScanClose(results: Result[]): void {
         setProducts([...products, ...results.map(r => JSON.parse(r.getText())).map(r => {
-            r.productId = r.id.toString(); 
-            r.charge = r.charge.toString(); 
+            r.productId = r.id.toString()
+            r.charge = r.charge.toString()
             return r
         })])
         setProductScanning(false)
@@ -291,7 +294,7 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
 
     function validateTypeScan(result: Result, previousResults: Result[]): boolean {
         const resultObj: QRCodePayload = JSON.parse(result.getText())
-        if([QRCodeType.WAREHOUSE, QRCodeType.MEMBER, QRCodeType.SUPPLIER].includes(resultObj.type) && resultObj.id) {
+        if ([QRCodeType.WAREHOUSE, QRCodeType.MEMBER, QRCodeType.SUPPLIER].includes(resultObj.type) && resultObj.id) {
             return true
         }
         return false
@@ -364,6 +367,10 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
                             <FileUploader onDone={(file: IFile) => { setFiles([...files, file]) }} onRemove={(name: string) => { setFiles([...files].filter(f => f.name !== name)) }} />
                             <br></br>
                             {renderSignature()}
+                            <br></br>
+                            <h5>Bemerkungen</h5>
+                            <Input key="remarks" name="remarks" type="textarea" editable={true} value={remarks} onChange={(name, value) => { setRemarks(value) }} />
+                            <br></br>
                             <Button variant="primary" block={true} onClick={onSave}>Speichern</Button>
                         </form>
                     </Panel>

@@ -50,6 +50,7 @@ export const GET_MATERIAL_CHANGELOG = gql`
         filename
       }
       signature
+      remarks
       changes {
         id
         amount
