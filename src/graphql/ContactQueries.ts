@@ -161,6 +161,7 @@ export const GET_CONTACT_STOCK = gql`
       amount
       number
       product {
+        id
         internName
       }
     }

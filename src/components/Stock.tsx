@@ -36,15 +36,30 @@ export default function Stock(props: StockProps) {
         data = query.data?.getWarehouseStock
     }
 
+    const aggregated: Array<MaterialChangelogToProduct & { numbers?: string }> = []
+    for (const entry of (data || [])) {
+        const foundIndex = aggregated.findIndex(e => e.product.id === entry.product.id)
+        if (foundIndex > -1) {
+            aggregated[foundIndex].amount += entry.amount
+            if (entry.number) {
+                aggregated[foundIndex].numbers += `${((aggregated[foundIndex].numbers || '').length > 0) ? ',' : ''}${entry.number}`
+            }
+        } else {
+            const e = JSON.parse(JSON.stringify(entry))
+            e.numbers = (e.number || '').toString()
+            aggregated.push(e)
+        }
+    }
+
     return (
         <Panel title="Material" >
             <Table
                 columns={[
                     { keys: { 'product': ['internName'] }, text: 'Produkt', sortable: true, searchable: true },
                     { keys: ['amount'], text: 'Anzahl', sortable: true, searchable: true },
-                    { keys: ['number'], text: 'Nummer', sortable: true, searchable: true }
+                    { keys: ['numbers'], text: 'Nummern', sortable: true, searchable: true }
                 ]}
-                data={data || []}
+                data={aggregated}
             />
         </Panel>
     )
