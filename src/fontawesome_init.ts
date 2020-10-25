@@ -39,7 +39,8 @@ import {
   faLongArrowAltRight,
   faExclamationCircle,
   faTimesCircle,
-  faQrcode
+  faQrcode,
+  faLightbulb
 } from "@fortawesome/free-solid-svg-icons";
 import { fab } from "@fortawesome/free-brands-svg-icons";
 //@ts-ignore
@@ -85,5 +86,6 @@ library.add(
   faLongArrowAltRight,
   faExclamationCircle,
   faTimesCircle,
-  faQrcode
+  faQrcode,
+  faLightbulb
 );
