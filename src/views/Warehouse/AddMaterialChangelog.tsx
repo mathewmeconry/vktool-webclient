@@ -105,7 +105,7 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
                     <WarehouseSelect onChange={(warehouse: Warehouse[]) => setSelectedValue(warehouse[0])} isMulti={false} defaultValue={[selectedValue?.id?.toString() || '']} className={classNames} />
                     {id === 'in' && renderOverloaded()}
                 </Tab>
-                {currentDevice.mobile() && <Tab eventKey="scan" title="Scannen"></Tab>}
+                {(currentDevice.mobile() || currentDevice.tablet()) && <Tab eventKey="scan" title="Scannen"></Tab>}
             </Tabs>
         )
     }
@@ -235,7 +235,7 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
                 </>
             )
 
-            if (!currentDevice.mobile()) {
+            if (!currentDevice.mobile() && !currentDevice.tablet()) {
                 let classNames = ''
                 if (wasValidated) {
                     if (signature) {
@@ -370,7 +370,7 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
                                 data={products as AddMaterialChangelogToProduct[]}
                                 className="table-sm-rows"
                             />
-                            {currentDevice.mobile() && <Button variant="primary" block={true} onClick={() => setProductScanning(true)}><FontAwesomeIcon icon="qrcode"></FontAwesomeIcon> Scannen</Button>}
+                            {(currentDevice.mobile() || currentDevice.tablet()) && <Button variant="primary" block={true} onClick={() => setProductScanning(true)}><FontAwesomeIcon icon="qrcode"></FontAwesomeIcon> Scannen</Button>}
                             <br></br>
                             <h5>Dateien / Bilder</h5>
                             <FileUploader onDone={(file: IFile) => { setFiles([...files, file]) }} onRemove={(name: string) => { setFiles([...files].filter(f => f.name !== name)) }} />

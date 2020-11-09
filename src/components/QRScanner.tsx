@@ -1,4 +1,4 @@
-import React, { RefObject, useEffect, useRef } from "react"
+import React, { RefObject, useEffect, useRef, useState } from "react"
 import { BrowserQRCodeReader, Result } from "@zxing/library"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 
@@ -24,9 +24,13 @@ export default function QRScanner(props: QRScannerProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const videoRef = useRef<HTMLVideoElement>(null)
     const results: Result[] = []
+    const [lightbulb, setLightbulb] = useState(false)
 
-    function startScanner() {
-        codeReader.decodeFromVideoDevice(null, "qr-video", (result) => {
+    async function startScanner() {
+        const devices = await navigator.mediaDevices.enumerateDevices()
+        const filtered = devices.filter(d => d.kind === 'videoinput')
+        // @ts-ignore
+        codeReader.decodeFromConstraints({ video: { deviceId: { exact: filtered.slice(-1)[0].deviceId }, focusMode: 'continuous' } }, "qr-video", (result) => {
             resetCanvas()
             if (result) {
                 try {
@@ -148,13 +152,30 @@ export default function QRScanner(props: QRScannerProps) {
         }
     }, [])
 
+    useEffect(() => {
+        try {
+            if (videoRef && videoRef.current && videoRef.current.srcObject) {
+                // @ts-ignore
+                videoRef.current.srcObject.getVideoTracks()[0].applyConstraints({ advanced: [{ torch: lightbulb }] })
+            }
+        } catch (e) {
+            // ignore here
+        }
+    }, [lightbulb])
+
     return (
         <div className={`qrscanner ${props.className}`} ref={divRef}>
+            <FontAwesomeIcon
+                icon="lightbulb"
+                className="lightbulb"
+                onClick={() => setLightbulb(!lightbulb)}
+                size="10x"
+            />
             <FontAwesomeIcon
                 icon="times-circle"
                 className="close"
                 onClick={close}
-                size="5x"
+                size="10x"
             />
             <canvas className="qrscanner-canvas" ref={canvasRef}></canvas>
             <video id="qr-video" className="qrscanner-video" ref={videoRef}></video>

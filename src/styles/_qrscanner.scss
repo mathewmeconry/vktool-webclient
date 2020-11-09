@@ -26,11 +26,20 @@ div.qrscanner {
         left: 0;
     }
 
-    .close {
+    .close,
+    .lightbulb {
         position: fixed;
-        top: 10px;
-        right: 10px;
         cursor: pointer;
         z-index: 110;
+        width: 25px;
+        height: 25px;
+    }
+    .close {
+        top: 10px;
+        right: 10px;
+    }
+    .lightbulb {
+        top: 10px;
+        right: 40px;
     }
 }
