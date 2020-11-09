@@ -46,7 +46,8 @@ export default function MailingLists() {
                 group.bexioId === 27 ||
                 group.bexioId === 26 ||
                 group.bexioId === 10 ||
-                group.bexioId === 14
+                group.bexioId === 14 || 
+                group.bexioId === 35
             )) {
                 mailingLists.vks.push(member.mail)
                 if (member.mailSecond) mailingLists.vks.push(member.mailSecond)
@@ -60,7 +61,8 @@ export default function MailingLists() {
                 group.bexioId === 28 ||
                 group.bexioId === 29 ||
                 group.bexioId === 15 ||
-                group.bexioId === 14
+                group.bexioId === 14 || 
+                group.bexioId === 35
             )) {
                 mailingLists.squad.push(member.mail)
                 if (member.mailSecond) mailingLists.squad.push(member.mailSecond)

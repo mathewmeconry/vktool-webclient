@@ -101,4 +101,4 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<State, undefined, AnyAction>
 }
 
 //@ts-ignore
-export const NavibarElement = withRouter(connect(mapStateToProps, mapDispatchToProps)(_NavibarElement))
+export const NavibarElement: React.ComponentClass<NavibarElementProps> = withRouter(connect(mapStateToProps, mapDispatchToProps)(_NavibarElement))

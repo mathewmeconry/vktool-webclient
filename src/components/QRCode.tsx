@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { BrowserQRCodeSvgWriter } from "@zxing/library"
+import { BrowserQRCodeSvgWriter, EncodeHintType, QRCodeDecoderErrorCorrectionLevel } from "@zxing/library"
 import Canvg from 'canvg'
 
 interface QRCodeProps {
@@ -28,6 +28,8 @@ export default function QRCode(props: QRCodeProps) {
 
     useEffect(() => {
         if (props.content) {
+            const hints: Map<EncodeHintType, any> = new Map()
+            hints.set(EncodeHintType.ERROR_CORRECTION, QRCodeDecoderErrorCorrectionLevel.L)
             const clean = cleanContent(props.content)
             const svg = codeWriter.write(JSON.stringify(clean), props.width, props.height)
             const text = document.createElementNS('http://www.w3.org/2000/svg', 'text')

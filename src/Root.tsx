@@ -8,10 +8,10 @@ import SecureRoute from "./components/SecureRoute"
 import Config from './Config'
 import { ConnectedRouter } from "connected-react-router"
 import { createBrowserHistory } from "history"
-import { ApolloClient, InMemoryCache } from '@apollo/client'
+import { ApolloClient, InMemoryCache, from } from '@apollo/client'
 import { ApolloProvider } from '@apollo/react-hooks'
-import { BatchHttpLink } from 'apollo-link-batch-http'
 import { createUploadLink } from "apollo-upload-client"
+import { onError } from "@apollo/client/link/error";
 
 // styles
 import './styles/index.scss'
@@ -43,7 +43,6 @@ import AddPayout from "./views/AddPayout"
 import Logoffs from "./views/Logoffs"
 import Logoff from "./views/Logoff"
 import AddLogoff from "./views/AddLogoff"
-import { onError } from "apollo-link-error"
 import { UI } from "./actions/UIActions"
 import Products from "./views/Warehouse/Products"
 import Product from "./views/Warehouse/Product"
@@ -63,7 +62,6 @@ export default function Root() {
     store.getState()
 
     const uploadLink = createUploadLink({ credentials: 'include', uri: `${Config.apiEndpoint}/graphql` })
-    const httpLink = new BatchHttpLink({ credentials: 'include', uri: `${Config.apiEndpoint}/graphql` })
     const errorLink = onError(({ graphQLErrors, networkError, operation }) => {
         if (graphQLErrors)
             graphQLErrors.map(({ message, path }) => {
@@ -80,8 +78,7 @@ export default function Root() {
         }
     })
     const apolloClient = new ApolloClient({
-        // @ts-ignore
-        link: uploadLink,
+        link: from([uploadLink, errorLink]),
         cache: new InMemoryCache({
             possibleTypes: introspectionQueryResultData.__schema.types.map((type) => { return { name: type.name, types: type.possibleTypes.map(t => t.name) } }).reduce((p, c) => { p[c.name] = c.types; return p }, {} as { [type: string]: string[] })
         })
@@ -101,7 +98,7 @@ export default function Root() {
                     pauseOnHover={true}
                 />
                 <ConnectedRouter history={history} >
-                    <ApolloProvider client={apolloClient}>
+                    <ApolloProvider client={apolloClient as any}>
                         <Switch>
                             <Route exact path="/" component={() => { return (<Redirect to="/login" />) }} />
                             <Route exact path="/login" component={Login} />
