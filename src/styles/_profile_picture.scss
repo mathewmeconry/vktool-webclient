@@ -1,0 +1,15 @@
+#profilepicture {
+    height: 200px;
+    display: flex;
+
+    svg, img {
+        height: 200px;
+        font-size: 150px;
+        margin: 0 auto;
+    }
+}
+
+#profilepicture-input {
+    visibility: hidden;
+    display: none;
+}

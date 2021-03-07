@@ -133,6 +133,7 @@ export const GET_CONTACT = gql`
       iban
       accountHolder
       rank
+      profilePicture
     }
   }
 `;

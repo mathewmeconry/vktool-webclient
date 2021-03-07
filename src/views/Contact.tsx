@@ -24,6 +24,7 @@ import { useDispatch } from "react-redux"
 import { UI } from "../actions/UIActions"
 import { Error403 } from "../components/Errors/403"
 import Stock, { StockType } from "../components/Stock"
+import ProfilePicture from "../components/ProfilePicture"
 
 export default function Contact(props: RouteComponentProps<{ id: string }>) {
     const [editable, setEditable] = useState(false)
@@ -216,6 +217,7 @@ export default function Contact(props: RouteComponentProps<{ id: string }>) {
                     </Panel>
                 </Column>
                 <Column className="col-md-6">
+                    <ProfilePicture contactId={data?.getContact.id || -1} />
                     <Panel title="Finanzen">
                         <div className="container-fluid">
                             <FormEntry id="bankName" title="Bank" value={contact.bankName || ''} editable={editable} onChange={onInputChange} />

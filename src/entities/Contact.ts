@@ -76,4 +76,6 @@ export default class Contact extends BexioBase {
     public iban?: string
     public accountHolder?: string
     public moreMails?: Array<string>
+
+    public profilePicture?: string
 }
