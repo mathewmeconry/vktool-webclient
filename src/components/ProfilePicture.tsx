@@ -20,7 +20,7 @@ export default function ProfilePicture(props: ProfilePictureProps) {
 
         if (data?.getContact.profilePicture) {
             return (
-                    <img src={data?.getContact.profilePicture} />
+                    <img src={`data:image/png;base64,${data?.getContact.profilePicture}`} />
             )
         }
 
