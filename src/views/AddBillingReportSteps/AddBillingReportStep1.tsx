@@ -40,7 +40,7 @@ export default function AddBillingReportStep1(props: Step1Props) {
         let options = [<option key="none" value="">Bitte Wählen</option>]
         for (let order of openOrders) {
             // only show the contact if the contact is not a privat person (identified that companies doesn't have any firstname)
-            if (!order.contact.firstname) {
+            if (order.contact && !order.contact.firstname) {
                 options.push(<option key={order.documentNr} value={order.id}>{`${order.title} (${order.contact.lastname})`}</option>)
             } else {
                 options.push(<option key={order.documentNr} value={order.id}>{`${order.title}`}</option>)
