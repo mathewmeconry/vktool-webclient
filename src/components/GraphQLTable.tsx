@@ -10,7 +10,6 @@ import StringIndexed from '../interfaces/StringIndexed'
 import Base from '../entities/Base'
 import { Pagination } from 'react-bootstrap'
 import Select from 'react-select'
-import { InputPaginationFilter } from './GraphQLDataList'
 
 export interface GraphQLTableColumn {
     text: string

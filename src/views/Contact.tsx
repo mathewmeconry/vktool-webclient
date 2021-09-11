@@ -25,6 +25,7 @@ import { UI } from "../actions/UIActions"
 import { Error403 } from "../components/Errors/403"
 import Stock, { StockType } from "../components/Stock"
 import ProfilePicture from "../components/ProfilePicture"
+import ContactMaterialChangelogs from "../components/ContactMaterialChangelogs"
 
 export default function Contact(props: RouteComponentProps<{ id: string }>) {
     const [editable, setEditable] = useState(false)
@@ -239,6 +240,9 @@ export default function Contact(props: RouteComponentProps<{ id: string }>) {
             <Row>
                 <Column className="col-md-6">
                     <Stock type={StockType.CONTACT} id={contact.id} />
+                </Column>
+                <Column className="col-md-6">
+                    <ContactMaterialChangelogs id={contact.id} {...props} />
                 </Column>
             </Row>
         </Page>

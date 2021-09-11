@@ -123,3 +123,12 @@ export const ADD_MATERIAL_CHANGELOG = gql`
     }
   }
 `;
+
+export const GET_MATERIAL_CHANGELOGS_CONTACT = gql`
+  query GET_MATERIAL_CHANGELOGS_CONTACT($id: Int!) {
+    getContactMaterialChangelogs(id: $id) {
+      id
+      date
+    }
+  }
+`;
