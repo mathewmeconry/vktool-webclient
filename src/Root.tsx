@@ -78,7 +78,8 @@ export default function Root() {
         }
     })
     const apolloClient = new ApolloClient({
-        link: from([uploadLink, errorLink]),
+        // ignore it for now. It works :sweat_smile:
+        link: from([uploadLink as any, errorLink]),
         cache: new InMemoryCache({
             possibleTypes: introspectionQueryResultData.__schema.types.map((type) => { return { name: type.name, types: type.possibleTypes.map(t => t.name) } }).reduce((p, c) => { p[c.name] = c.types; return p }, {} as { [type: string]: string[] })
         })

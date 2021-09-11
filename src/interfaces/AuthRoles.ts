@@ -49,6 +49,7 @@ export enum AuthRoles {
 
   WAREHOUSE_READ = "WAREHOUSE_READ",
   WAREHOUSE_CREATE = "WAREHOUSE_CREATE",
+	WAREHOUSE_OVERLOAD = 'warehouse_overload',
 
   ADMIN = "ADMIN",
 }

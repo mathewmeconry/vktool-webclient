@@ -29,6 +29,8 @@ import { Result } from '@zxing/library'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { QRCodePayload, QRCodeType } from "../../components/QRCode"
 import Input from '../../components/Input'
+import { GET_MY_ROLES } from "../../graphql/UserQueries"
+import { Authroles } from "../../generated/graphql"
 
 enum InOutTypes {
     MEMBER = 'member',
@@ -56,6 +58,7 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
     const [date, setDate] = useState(new Date())
     const [currentWeight, setCurrentWeight] = useState(0)
     const { data, error, loading } = useQuery<{ getProductsAll: Product[] }>(GET_ALL_PRODUCT_SELECT)
+    const { data: rolesQueryData } = useQuery(GET_MY_ROLES)
 
     useEffect(() => {
         if (inType === InOutTypes.WAREHOUSE) {
@@ -112,7 +115,7 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
 
     function renderOverloaded() {
         const warehouse = inState as Warehouse
-        if (warehouse && warehouse.maxWeight) {
+        if (warehouse && warehouse.maxWeight && rolesQueryData?.me?.roles.filter((rec: Authroles) => [Authroles.WarehouseOverload, Authroles.Admin].includes(rec)).length > 0) {
             if (isOverloaded) {
                 return <p className="text-danger">Das maximal Gewicht von {warehouse.maxWeight} kg wurde um {currentWeight - warehouse.maxWeight} kg überschritten!</p>
             }
