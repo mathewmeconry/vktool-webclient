@@ -198,21 +198,27 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
     function renderCharge(tdkey: string, value: string, onChange: (name: string, value: string) => void, required: boolean = false): JSX.Element {
         return (
             <ButtonGroup toggle>
-                {[{ name: 'Ja', value: 'true' }, { name: 'Nein', value: 'false' }].map((radio) => (
-                    <label key={`${tdkey}-${radio.value}`} className={`btn btn-primary ${value === radio.value ? 'active' : ''}`}>
-                        <input
-                            key={`${tdkey}-${radio.name}`}
-                            name="charge"
-                            type="radio"
-                            checked={value === radio.value}
-                            value={radio.value}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange('charge', e.target.value)}
-                            required={required}
-                        >
-                        </input>
-                        {radio.name}
-                    </label>
-                ))}
+                {[{ name: 'Ja', value: 'true' }, { name: 'Nein', value: 'false' }].map((radio) => {
+                    let colorClass = 'bg-success'
+                    if (radio.value === 'false') {
+                        colorClass = 'bg-danger'
+                    }
+                    return (
+                        <label key={`${tdkey}-${radio.value}`} className={`btn btn-primary ${value === radio.value ? `active ${colorClass}` : ''}`}>
+                            <input
+                                key={`${tdkey}-${radio.name}`}
+                                name="charge"
+                                type="radio"
+                                checked={value === radio.value}
+                                value={radio.value}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange('charge', e.target.value)}
+                                required={required}
+                            >
+                            </input>
+                            {radio.name}
+                        </label>
+                    )
+                })}
             </ButtonGroup>
         )
     }
