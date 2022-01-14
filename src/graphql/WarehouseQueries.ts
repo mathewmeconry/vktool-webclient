@@ -65,9 +65,9 @@ export const GET_WAREHOUSE = gql`
 
 export const GET_WAREHOUSE_STOCK = gql`
   query GET_WAREHOUSE_STOCK($id: ID!) {
-    getWarehouseStock(id: $id) {
-      amount
-      number
+    getWarehouseStock(warehouseId: $id) {
+      inAmount,
+      outAmount,
       product {
         id
         internName

@@ -158,9 +158,9 @@ export const EDIT_CONTACT = gql`
 
 export const GET_CONTACT_STOCK = gql`
   query GET_CONTACT_STOCK($id: ID!) {
-    getContactStock(id: $id) {
-      amount
-      number
+    getContactStock(contactId: $id) {
+      inAmount,
+      outAmount,
       product {
         id
         internName
