@@ -104,7 +104,6 @@ export default function MaterialChangelog(props: RouteComponentProps<{ id: strin
                             columns={[
                                 { keys: { product: ['internName'] }, text: 'Produkt', sortable: true },
                                 { keys: ['amount'], text: 'Anzahl', sortable: true },
-                                { keys: ['number'], text: 'Nummer', sortable: true },
                                 { keys: ['charge'], text: 'Verrechnet', sortable: true },
                             ]}
                             data={changelog.changes}

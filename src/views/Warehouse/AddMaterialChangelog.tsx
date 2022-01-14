@@ -371,7 +371,6 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
                                 columns={[
                                     { keys: ['productId'], text: 'Produkt', className: "w-50", editable: true, editContent: (tdKey, value, onChange, required) => <ProductSelect key={tdKey} onChange={(value: Product[]) => onChange(tdKey, value[0].id.toString())} defaultValue={[value]} isMulti={false} required={required} />, onChange: onProductChange, required: true },
                                     { keys: ['amount'], text: 'Anzahl', editable: true, type: 'number', onChange: onProductChange, required: true },
-                                    { keys: ['number'], text: 'Nummer', editable: true, type: 'number', onChange: onProductChange, required: false },
                                     { keys: ['charge'], text: 'Verrechnen', editable: true, editContent: renderCharge, onChange: onProductChange, required: true },
                                     { text: 'Actions', keys: ['id'], content: <button className="btn btn-danger" onClick={removeTableItem}>⨯</button> }
                                 ]}
