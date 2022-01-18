@@ -52,6 +52,36 @@ export const GET_PRODUCT = gql`
       salePrice
       remarks
       weight
+      locations {
+        amount
+        location
+      }
+      changelogs {
+        id
+        date
+        in {
+          ... on Contact {
+            id
+            firstname
+            lastname
+          }
+          ... on Warehouse {
+            id
+            name
+          }
+        }
+        out {
+          ... on Contact {
+            id
+            firstname
+            lastname
+          }
+          ... on Warehouse {
+            id
+            name
+          }
+        }
+      }
     }
   }
 `;
@@ -71,6 +101,18 @@ export const GET_ALL_PRODUCT_SELECT = gql`
       internName
       internCode
       weight
+    }
+  }
+`;
+
+export const GET_ALL_PRODUCTS_STOCKTAKING = gql`
+  query GET_ALL_PRODUCTS_STOCKTAKING {
+    getProductsAll {
+      id
+      internName
+      internCode
+      weight
+      articleGroupId
     }
   }
 `;

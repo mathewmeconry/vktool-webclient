@@ -5,6 +5,14 @@ import MaterialChangelogToProduct from "./MaterialChangelogToProduct";
 import User from "./User";
 import Warehouse from "./Warehouse";
 
+export class StockEntry {
+	public productName: string;
+	
+	public amount: number;
+	
+	public location: string;
+}
+
 export default class MaterialChangelog extends Base {
   public date: Date;
 

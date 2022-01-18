@@ -14,12 +14,18 @@ import { AuthRoles } from "../../interfaces/AuthRoles"
 import Action from "../../components/Action"
 import { UI } from "../../actions/UIActions"
 import { useDispatch } from "react-redux"
+import Table from "../../components/Table"
+import MaterialChangelog, { StockEntry } from "../../entities/MaterialChangelog"
+import Contact from "../../entities/Contact"
+import Warehouse from "../../entities/Warehouse"
+import { Button } from "react-bootstrap"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 
 
 export default function Product(props: RouteComponentProps<{ id: string }>) {
     const [editable, setEditable] = useState(false)
     const [weight, setWeight] = useState(0)
-    const product = useQuery<{ getProduct: ProductEntity.default }>(GET_PRODUCT, { variables: { id: parseInt(props.match.params.id) } })
+    const product = useQuery<{ getProduct: ProductEntity.default & { locations: StockEntry[], changelogs: Array<MaterialChangelog & { in: Contact | Warehouse, out: Contact | Warehouse }> } }>(GET_PRODUCT, { variables: { id: parseInt(props.match.params.id) } })
     const [editProduct] = useMutation(EDIT_PRODUCT)
     const productResult = product.data?.getProduct
     const dispatch = useDispatch()
@@ -69,8 +75,26 @@ export default function Product(props: RouteComponentProps<{ id: string }>) {
         }
 
         return [<Action icon="pencil-alt" key="edit" onClick={async () => { setEditable(true) }} roles={[AuthRoles.PRODUCT_EDIT]} />]
-
     }
+
+    function changelogView(event: React.MouseEvent<HTMLButtonElement>) {
+        if (event.currentTarget.parentNode && event.currentTarget.parentNode.parentNode && event.currentTarget.parentNode.parentNode.parentElement) {
+            let id = event.currentTarget.parentNode.parentNode.parentElement.getAttribute('data-key')
+
+            // open a new tap when the middle button is pressed (buttonID 1)
+            if (event.button == 1) {
+                window.open((document.location as Location).origin + '/warehouse/changelog/' + id)
+            } else {
+                props.history.push('/warehouse/changelog/' + id)
+            }
+        }
+    }
+
+    const changelogsReduced = productResult.changelogs.map((changelog) => ({
+        ...changelog,
+        inName: (changelog.in as Warehouse).name || `${(changelog.in as Contact).firstname} ${(changelog.in as Contact).lastname}`,
+        outName: (changelog.out as Warehouse).name || `${(changelog.out as Contact).firstname} ${(changelog.out as Contact).lastname}`,
+    }))
 
     return (
         <Page title={productResult.internName}>
@@ -82,7 +106,7 @@ export default function Product(props: RouteComponentProps<{ id: string }>) {
                         <FormEntry id="internDescription" title="Beschreibung" unsecure={true}>{productResult.internDescription}</FormEntry>
                         <FormEntry id="purchasePrice" title="Einkaufspreis">{productResult.purchasePrice || 0} CHF</FormEntry>
                         <FormEntry id="salePrice" title="Verkaufspreis">{productResult.salePrice || 0} CHF</FormEntry>
-                        <FormEntry id="weight" title="Gewicht in kg" editable={editable} onChange={(name, value) => setWeight(value)} value={weight} append="kg"/>
+                        <FormEntry id="weight" title="Gewicht in kg" editable={editable} onChange={(name, value) => setWeight(value)} value={weight} append="kg" />
                     </Panel>
                 </Column>
                 <Column className="col-md-6">
@@ -90,6 +114,53 @@ export default function Product(props: RouteComponentProps<{ id: string }>) {
                         <FormEntry id="name" title="Name">{productResult?.contact?.firstname} {productResult?.contact?.lastname}</FormEntry>
                         <FormEntry id="delivererName" title="Produktname">{productResult.delivererName}</FormEntry>
                         <FormEntry id="delivererDescription" title="Beschreibung" unsecure={true}>{productResult.delivererDescription}</FormEntry>
+                    </Panel>
+                </Column>
+            </Row>
+            <Row>
+                <Column className="col-md-6">
+                    <Panel title="Lagerorte">
+                        <Table
+                            columns={[
+                                {
+                                    text: 'Ort',
+                                    keys: ['location']
+                                }, {
+                                    text: 'Anzahl',
+                                    keys: ['amount']
+                                }
+                            ]}
+                            data={productResult.locations.map((l: StockEntry, index: number) => ({
+                                location: l.location,
+                                amount: l.amount,
+                                id: index
+                            }))}
+                        />
+                    </Panel>
+                </Column>
+                <Column className="col-md-6">
+                    <Panel title="Verschiebungen">
+                        <Table
+                            columns={[
+                                {
+                                    text: 'Datum',
+                                    keys: ['date'],
+                                    format: 'toLocaleDateString'
+                                }, {
+                                    text: 'Von',
+                                    keys: ['outName']
+                                }, {
+                                    text: 'Zu',
+                                    keys: ['inName']
+                                },
+                                {
+                                    text: 'Actions', keys: ['_id'], content: <div className="btn-group">
+                                        <Button variant="success" className="view" onMouseUp={changelogView}><FontAwesomeIcon icon="eye" /></Button>
+                                    </div>
+                                }
+                            ]}
+                            data={changelogsReduced}
+                        />
                     </Panel>
                 </Column>
             </Row>
