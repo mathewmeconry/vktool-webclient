@@ -23,7 +23,8 @@ export default function Warehouses(props: RouteComponentProps) {
             searchable={false}
             panelActions={[
                 <Action icon="plus" to="/warehouse/add" roles={[AuthRoles.WAREHOUSE_CREATE]} />,
-                <Action key="pdf-export" onClick={async () => { window.open(`${Config.apiEndpoint}/api/warehouses/report/pdf`) }} icon='file-pdf' />
+                <Action key="pdf-export" onClick={async () => { window.open(`${Config.apiEndpoint}/api/warehouses/report/pdf`) }} icon='file-pdf' />,
+                <Action key="pdf-partial-export" onClick={async () => { window.open(`${Config.apiEndpoint}/api/warehouses/report/finance/pdf`) }} icon='chart-pie' />
             ]}
             {...props}
         />
