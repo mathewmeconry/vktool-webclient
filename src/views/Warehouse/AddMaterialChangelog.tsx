@@ -128,6 +128,7 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
         if (newly) {
             const product: Partial<AddMaterialChangelogToProduct> = {}
             product[name as keyof AddMaterialChangelogToProduct] = value
+            product.amount = '1'
             switch (name as keyof AddMaterialChangelogToProduct) {
                 case 'amount':
                     product['number'] = undefined
