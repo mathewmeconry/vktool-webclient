@@ -282,7 +282,7 @@ export default function AddMaterialChangelog(props: RouteComponentProps) {
                 if (!obj.amount && !obj.number) {
                     return true
                 }
-                return (obj.amount > 1 && !obj.number) || (obj.number && obj.amount === 1)
+                return (obj.amount >= 1 && !obj.number) || (obj.number && obj.amount === 1)
             }
         }
         return false
