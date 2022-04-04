@@ -71,7 +71,7 @@ export default function AddLogoff(props: RouteComponentProps) {
             }
             // @ts-ignore
             logoff[name] = value
-            logoff.state = LogoffState.APPROVED
+            logoff.state = isAllowedToAddLogoff() ? LogoffState.APPROVED : LogoffState.PENDING
             setLogoffs([...logoffs, logoff])
         } else {
             if (id) {
@@ -111,7 +111,11 @@ export default function AddLogoff(props: RouteComponentProps) {
                     return false
                 }
                 dispatch(UI.showSuccess('Gespeichert'))
-                props.history.push('/draft/logoffs')
+                if (isAllowedToAddLogoff()) {
+                    props.history.push('/draft/logoffs')
+                } else {
+                    props.history.push('/dashboard')
+                }
             } else {
                 dispatch(UI.showError('Korrigiere zuerst die Fehler'))
             }
@@ -122,7 +126,7 @@ export default function AddLogoff(props: RouteComponentProps) {
     }
 
     let stateOptions = ['approved', 'pending', 'declined']
-    if(!isAllowedToAddLogoff()) {
+    if (!isAllowedToAddLogoff()) {
         stateOptions = ['pending']
     }
 
@@ -135,7 +139,12 @@ export default function AddLogoff(props: RouteComponentProps) {
                             <Row>
                                 <Col>
                                     <h5>Mitglied</h5>
-                                    <MemberSelect onChange={onSelectChange} defaultValue={(member) ? [member.toString()] : undefined} required={true} disabled={!isAllowedToAddLogoff()} />
+                                    {isAllowedToAddLogoff() &&
+                                        <MemberSelect onChange={onSelectChange} defaultValue={(member) ? [member.toString()] : undefined} required={true} disabled={!isAllowedToAddLogoff()} />
+                                    }
+                                    {!isAllowedToAddLogoff() &&
+                                        <h5>{me.data?.me.displayName}</h5>
+                                    }
                                 </Col>
                                 <Col lg={2} md={3} sm={4}>
                                     <h5>Benachrichtigen</h5>

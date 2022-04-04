@@ -15,11 +15,16 @@ import { useQuery, useMutation } from "react-apollo"
 import { GET_LOGOFF, CHANGE_LOGOFF_STATE } from "../graphql/LogoffQueries"
 import { useDispatch } from "react-redux"
 import { UI } from "../actions/UIActions"
+import { Error403 } from "../components/Errors/403"
 
 export default function Logoff(props: RouteComponentProps<{ id: string }>) {
     const logoff = useQuery<{ getLogoff: LogoffEntity }>(GET_LOGOFF, { variables: { id: parseInt(props.match.params.id) }, fetchPolicy: 'cache-and-network' })
     const [changeStateMutation] = useMutation(CHANGE_LOGOFF_STATE)
     const dispatch = useDispatch()
+
+    if (logoff.error?.message && logoff.error?.message.indexOf('Access denied!') > -1) {
+        return <Error403 />
+    }
 
     async function changeState(state: LogoffState) {
         const result = await changeStateMutation({ variables: { id: logoff.data?.getLogoff.id, state, notify: true } })
