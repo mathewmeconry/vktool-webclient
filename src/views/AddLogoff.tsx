@@ -13,9 +13,11 @@ import Input from "../components/Input"
 import { ADD_LOGOFFS } from "../graphql/LogoffQueries"
 import { RouteComponentProps } from "react-router"
 import { ValueType } from "react-select/lib/types"
-import { useMutation } from "react-apollo"
+import { useMutation, useQuery } from "react-apollo"
 import { useDispatch } from "react-redux"
 import { UI } from "../actions/UIActions"
+import { GET_MY_ROLES, GET_ME } from "../graphql/UserQueries"
+import { AuthRoles } from "../interfaces/AuthRoles"
 
 export interface AddLogoffState { contact?: Contact, logoffs: Array<ExtendedLogoffBase>, notify: boolean }
 
@@ -31,8 +33,22 @@ export default function AddLogoff(props: RouteComponentProps) {
     const [logoffs, setLogoffs] = useState<Partial<ExtendedLogoffBase>[]>([])
     const [addLogoffs, { data }] = useMutation(ADD_LOGOFFS)
     const dispatch = useDispatch()
+    const ŕoles = useQuery<{ me: { roles: AuthRoles[] } }>(GET_MY_ROLES)
+    const me = useQuery<{ me: { displayName: string, bexioContact: { id: number } } }>(GET_ME)
+
+    if (me.data && me.data.me && me.data.me.bexioContact.id && !member && !isAllowedToAddLogoff()) {
+        setMember(me.data.me.bexioContact.id)
+    }
+
+    function isAllowedToAddLogoff() {
+        return ŕoles.data && ŕoles.data.me && ŕoles.data.me.roles.includes(AuthRoles.LOGOFFS_CREATE)
+    }
 
     function onSelectChange(contacts: Contact[]) {
+        if (!isAllowedToAddLogoff()) {
+            setMember(me.data?.me.bexioContact.id)
+            return
+        }
         if (contacts) {
             setMember(contacts[0].id)
         } else {
@@ -105,6 +121,11 @@ export default function AddLogoff(props: RouteComponentProps) {
         return false
     }
 
+    let stateOptions = ['approved', 'pending', 'declined']
+    if(!isAllowedToAddLogoff()) {
+        stateOptions = ['pending']
+    }
+
     return (
         <Page title="Abmeldungen hinzufügen">
             <Row>
@@ -114,11 +135,11 @@ export default function AddLogoff(props: RouteComponentProps) {
                             <Row>
                                 <Col>
                                     <h5>Mitglied</h5>
-                                    <MemberSelect onChange={onSelectChange} defaultValue={(member) ? [member.toString()] : undefined} required={true} />
+                                    <MemberSelect onChange={onSelectChange} defaultValue={(member) ? [member.toString()] : undefined} required={true} disabled={!isAllowedToAddLogoff()} />
                                 </Col>
                                 <Col lg={2} md={3} sm={4}>
                                     <h5>Benachrichtigen</h5>
-                                    <Input type="checkbox" className="d-flex justify-content-center" name="notify" key="notify" value={notify} onChange={onInputChange} editable={true} />
+                                    <Input type="checkbox" className="d-flex justify-content-center" name="notify" key="notify" value={notify} onChange={onInputChange} editable={isAllowedToAddLogoff()} />
                                 </Col>
                             </Row>
                             <br></br>
@@ -126,7 +147,7 @@ export default function AddLogoff(props: RouteComponentProps) {
                                 columns={[
                                     { keys: ['from'], text: 'Von', editable: true, type: 'datetime', onChange: onLogoffChange, required: true },
                                     { keys: ['until'], text: 'Bis', editable: true, type: 'datetime', onChange: onLogoffChange, required: true },
-                                    { keys: ['state'], text: 'Status', editable: true, type: 'select', options: ['approved', 'pending', 'declined'], onChange: onLogoffChange, required: true },
+                                    { keys: ['state'], text: 'Status', editable: true, type: 'select', options: stateOptions, onChange: onLogoffChange, required: true },
                                     { keys: ['remarks'], text: 'Bemerkungen', editable: true, type: 'text', onChange: onLogoffChange, required: false },
                                 ]}
                                 addNew={true}

@@ -33,13 +33,15 @@ export default function Navibar(props: { open: boolean }) {
                 {renderElement(<NavibarElement to="/mailing-lists" text="Verteiler" leftIcon="mail-bulk" />, [AuthRoles.MAILING_LISTS])}
                 {renderElement(
                     <NavibarLevelHeader text="Aufgebot" leftIcon="address-book" id="draft" level={1}>
+                        {renderElement(<NavibarElement to="/draft/logoff/add" leftIcon="plus" text="Abmeldung erstellen" />, [AuthRoles.AUTHENTICATED])}
                         {renderElement(<NavibarElement to="/draft/collection-points" leftIcon="map-marker-alt" text="Abholpunkte" />, [AuthRoles.COLLECTIONPOINT_READ])}
                         {renderElement(<NavibarElement to="/draft/logoffs" leftIcon="user-times" text="Abmeldungen" />, [AuthRoles.LOGOFFS_READ])}
                     </NavibarLevelHeader>
-                    , [AuthRoles.COLLECTIONPOINT_READ, AuthRoles.LOGOFFS_READ]
+                    , [AuthRoles.AUTHENTICATED]
                 )}
                 {renderElement(
                     <NavibarLevelHeader text="Material" leftIcon="warehouse" id="warehouse" level={1}>
+                        {renderElement(<NavibarElement to="/warehouse/stocktakings" leftIcon="cubes" text="Inventuren" />, [AuthRoles.MATERIAL_CHANGELOG_READ])}
                         {renderElement(<NavibarElement to="/warehouse/changelogs" leftIcon="exchange-alt" text="Änderungen" />, [AuthRoles.MATERIAL_CHANGELOG_READ])}
                         {renderElement(<NavibarElement to="/warehouse/products" leftIcon="boxes" text="Produkte" />, [AuthRoles.PRODUCT_READ])}
                         {renderElement(<NavibarElement to="/warehouse/warehouses" leftIcon="map-marker-alt" text="Lagerräume" />, [AuthRoles.WAREHOUSE_READ])}
@@ -51,10 +53,10 @@ export default function Navibar(props: { open: boolean }) {
                 {renderElement(
                     <NavibarLevelHeader text="Verrechnungsrapporte" leftIcon="file-signature" id="billingreports" level={1}>
                         {renderElement(<NavibarElement to="/billing-reports/add" leftIcon="plus" text="Erstellen" />, [AuthRoles.BILLINGREPORTS_CREATE])}
-                        <NavibarElement to="/billing-reports" leftIcon="list" text="Alle" />
+                        {renderElement(<NavibarElement to="/billing-reports" leftIcon="list" text="Alle" />, [AuthRoles.BILLINGREPORTS_READ, AuthRoles.BILLINGREPORTS_APPROVE])}
                         <NavibarElement to="https://vkazu.sharepoint.com/:w:/r/Vorlagen/Verrechungsrapport.docx?d=w66977fb79dfd4ab3832ca05fd6d9b8d2&csf=1&e=Spme13" text="Word Vorlage" leftIcon="file-word" />
                     </NavibarLevelHeader>
-                    , [AuthRoles.BILLINGREPORTS_READ, AuthRoles.BILLINGREPORTS_CREATE]
+                    , [AuthRoles.AUTHENTICATED]
                 )}
                 {renderElement(<NavibarElement to="/compensations" leftIcon="dollar-sign" text="Entschädigungen" />, [AuthRoles.COMPENSATIONS_READ])}
                 {renderElement(<NavibarElement to="/payouts" text="Auszahlungen" leftIcon="file-invoice-dollar" />, [AuthRoles.PAYOUTS_READ])}

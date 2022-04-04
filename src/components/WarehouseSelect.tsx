@@ -16,7 +16,9 @@ interface WarehouseSelectProps {
 }
 
 export default function WarehouseSelect(props: WarehouseSelectProps) {
-    const { loading, error, data } = useQuery<{ getWarehousesAll: Warehouse[] }>(GET_ALL_WAREHOUSE_SELECT)
+    const { loading, error, data } = useQuery<{ getWarehousesAll: Warehouse[] }>(GET_ALL_WAREHOUSE_SELECT, {
+        fetchPolicy: 'cache-first'
+    })
 
     let valueProps = []
     if (props.defaultValue instanceof Array) {

@@ -12,7 +12,8 @@ interface MemberSelectProps {
     onChange: Function,
     ref?: Function,
     required?: boolean,
-    className?: string
+    className?: string,
+    disabled?: boolean
 }
 
 export default function MemberSelect(props: MemberSelectProps) {
@@ -69,6 +70,7 @@ export default function MemberSelect(props: MemberSelectProps) {
         required={!!props.required}
         className={props.className}
         styles={{ menu: (provided) => ({ ...provided, zIndex: 90 }) }}
+        isDisabled={props.disabled || false}
     />)
 
 }
