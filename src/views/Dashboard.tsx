@@ -27,6 +27,10 @@ export default function Dashboard(props: RouteComponentProps) {
             shortcuts.push(<Link key="billingreport" to="/billing-reports/add/" className="btn btn-block btn-outline-primary">Verrechnungsrapport erstellen</Link>)
         }
 
+        if(me.data.me.bexioContact) {
+            shortcuts.push(<Link key="addLogoffs" to="/draft/logoff/add/" className="btn btn-block btn-outline-primary">Abmeldung erstellen</Link>)
+        }
+
         if (me.data.me.bexioContact && (roles.data.me.roles.includes(AuthRoles.CONTACTS_READ) || roles.data.me.roles.includes(AuthRoles.ADMIN))) {
             shortcuts.push(<Link key="profile" to={`/contact/${me.data.me.bexioContact.id}`} className="btn btn-block btn-outline-primary">Mein Profil</Link>)
         }
