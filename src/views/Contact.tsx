@@ -152,7 +152,7 @@ export default function Contact(props: RouteComponentProps<{ id: string }>) {
             }
 
             if (myroles.data.me.roles.indexOf(AuthRoles.MEMBERS_READ) > -1 || isAdmin) {
-                actions.push(<a target="_blank" href={"https://vkazu.sharepoint.com/leitung/Personalakten?viewpath=/leitung/Personalakten&id=/leitung/Personalakten/" + contact.firstname + " " + contact.lastname} className="btn btn-block btn-outline-primary">Personalakte öffnen</a>)
+                actions.push(<a target="_blank" href={"https://vkazu.sharepoint.com/teams/gruppe.leitung/Freigegebene%20Dokumente/Mitglieder/" + contact.firstname + " " + contact.lastname} className="btn btn-block btn-outline-primary">Personalakte öffnen</a>)
             }
 
             if (actions.length > 0) {
