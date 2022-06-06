@@ -97,11 +97,14 @@ export default class AddBillingReportStep2 extends Component<Step2Props, { table
             let id = event.currentTarget.parentNode.parentElement.getAttribute('data-key')
 
             if (id) {
-                let entries = this.state.tableEntries
-                delete entries[id.replace('_', '')]
-                this.setState({
-                    tableEntries: entries
-                })
+                let entries = {...this.state.tableEntries}
+                let entryIndex = Object.keys(entries).find(key => id && entries[key].id === parseInt(id))
+                if(entryIndex) {
+                    delete entries[entryIndex]
+                    this.setState({
+                        tableEntries: entries
+                    })
+                }
             }
         }
     }
