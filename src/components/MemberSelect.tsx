@@ -17,12 +17,12 @@ interface MemberSelectProps {
 }
 
 export default function MemberSelect(props: MemberSelectProps) {
-    const { loading, error, data } = useQuery<{ getMembersAll: Contact[] }>(GET_ALL_MEMBERS_SELECT)
+    const { loading, error, data } = useQuery<{ getMembersDropdown: Contact[] }>(GET_ALL_MEMBERS_SELECT)
 
     let valueProps = []
     if (props.defaultValue instanceof Array) {
         for (let id of props.defaultValue) {
-            const member = (data?.getMembersAll || []).find(rec => rec.id.toString() === id)
+            const member = (data?.getMembersDropdown || []).find(rec => rec.id.toString() === id)
             if (member) {
                 valueProps.push({
                     value: member.id.toString(),
@@ -49,18 +49,20 @@ export default function MemberSelect(props: MemberSelectProps) {
     }
 
     function onChange(opt: ValueType<{ label: string, value: string }>) {
-        let ops: Array<{ label: string, value: string }> = [opt as { label: string, value: string }]
-        if (props.isMulti) {
-            ops = opt as Array<{ label: string, value: string }>
-        }
+        if (opt) {
+            let ops: Array<{ label: string, value: string }> = [opt as { label: string, value: string }]
+            if (props.isMulti) {
+                ops = opt as Array<{ label: string, value: string }>
+            }
 
-        props.onChange(ops.map(r => data?.getMembersAll.find(m => m.id === parseInt(r.value))))
+            props.onChange(ops.map(r => data?.getMembersDropdown.find(m => m.id === parseInt(r.value))))
+        }
     }
 
 
     return (<Select
         isClearable={true}
-        options={prepareOptions(data.getMembersAll)}
+        options={prepareOptions(data.getMembersDropdown)}
         backspaceRemovesValue={true}
         hideSelectedOptions={true}
         openMenuOnFocus={true}

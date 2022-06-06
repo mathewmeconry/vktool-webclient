@@ -2,7 +2,7 @@ import gql from "graphql-tag";
 
 export const GET_ALL_MEMBERS_SELECT = gql`
   query GET_ALL_MEMBERS_SELECT {
-    getMembersAll {
+    getMembersDropdown {
       id
       firstname
       lastname

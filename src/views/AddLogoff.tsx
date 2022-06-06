@@ -49,7 +49,7 @@ export default function AddLogoff(props: RouteComponentProps) {
             setMember(me.data?.me.bexioContact.id)
             return
         }
-        if (contacts) {
+        if (contacts && contacts.length > 0) {
             setMember(contacts[0].id)
         } else {
             setMember(undefined)
