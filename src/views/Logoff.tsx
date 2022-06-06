@@ -82,6 +82,7 @@ export default function Logoff(props: RouteComponentProps<{ id: string }>) {
                         <FormEntry id="until" title="Bis">{new Date(logoff.data?.getLogoff.until).toLocaleString()}</FormEntry>
                         <FormEntry id="state" title="Status"><div className={"badge " + statusBadgeClass}>{logoff.data?.getLogoff.state}</div></FormEntry>
                         <FormEntry id="creator" title="Ersteller">{logoff.data?.getLogoff.createdBy.displayName}</FormEntry>
+                        {logoff.data?.getLogoff.createdAt ? <FormEntry id="createdAt" title="Erstellt am">{new Date(logoff.data?.getLogoff.createdAt).toLocaleString()}</FormEntry> : ''}
                         <FormEntry id="changedStateBy" title="Status geändert von">{logoff.data?.getLogoff?.changedStateBy?.displayName}</FormEntry>
                         <FormEntry id="remarks" title="Bemerkungen">{logoff.data?.getLogoff.remarks}</FormEntry>
                     </Panel>

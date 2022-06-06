@@ -26,6 +26,7 @@ export const GET_LOGOFF = gql`
         id
         displayName
       }
+      createdAt
       changedStateBy {
         id
         displayName

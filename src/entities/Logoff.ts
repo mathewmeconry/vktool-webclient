@@ -21,6 +21,8 @@ export default class Logoff extends Base {
 
     public createdBy: User
 
+    public createdAt?: Date
+
     public changedStateBy: User
 
     public deletedAt?: Date
