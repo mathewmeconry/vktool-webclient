@@ -5,15 +5,22 @@ import Order from "../../entities/Order"
 import { useQuery } from "react-apollo"
 import { GET_OPEN_ORDERS } from "../../graphql/OrderQueries"
 import LoadingDots from "../../components/LoadingDots"
+import Select from "react-select"
+import { OptionsType, ValueType } from "react-select/lib/types"
 
 export interface Step1Props {
     onNext: (data: StringIndexed<any>) => void,
 }
 
+interface SelectOrder {
+    value: number,
+    label: string
+}
+
 export default function AddBillingReportStep1(props: Step1Props) {
     let formEl: HTMLFormElement
     const [date, setDate] = useState('')
-    const [order, setOrder] = useState<number>()
+    const [order, setOrder] = useState<SelectOrder>()
     const { loading, error, data } = useQuery<{ getOpenOrders: Order[] }>(GET_OPEN_ORDERS)
 
     if (error) return null
@@ -26,7 +33,7 @@ export default function AddBillingReportStep1(props: Step1Props) {
 
                 if (valid) {
                     props.onNext({
-                        order: openOrders.filter(rec => rec.id === order),
+                        order: openOrders.filter(rec => rec.id === order?.value),
                         date: new Date(date)
                     })
                 }
@@ -36,17 +43,20 @@ export default function AddBillingReportStep1(props: Step1Props) {
         }
     }
 
-    function renderOptions(openOrders: Order[]) {
-        let options = [<option key="none" value="">Bitte Wählen</option>]
-        for (let order of openOrders) {
-            // only show the contact if the contact is not a privat person (identified that companies doesn't have any firstname)
-            if (order.contact && !order.contact.firstname) {
-                options.push(<option key={order.documentNr} value={order.id}>{`${order.title} (${order.contact.lastname})`}</option>)
-            } else {
-                options.push(<option key={order.documentNr} value={order.id}>{`${order.title}`}</option>)
-            }
-        }
 
+
+    function prepareOptions(orders: Order[]): SelectOrder[] {
+        const options = []
+        for (const order of orders) {
+            let label = order.title
+            if (order.contact && !order.contact.firstname) {
+                label = `${order.title} (${order.contact.lastname})`
+            }
+            options.push({
+                value: order.id,
+                label
+            })
+        }
         return options
     }
 
@@ -56,12 +66,15 @@ export default function AddBillingReportStep1(props: Step1Props) {
         const name = target.name
 
         switch (name) {
-            case 'order':
-                setOrder(parseInt(value))
-                break
             case 'date':
                 setDate(value)
                 break
+        }
+    }
+
+    function onSelectChange(opt: ValueType<SelectOrder>) {
+        if (opt && !(opt instanceof Array)) {
+            setOrder(opt as SelectOrder)
         }
     }
 
@@ -69,9 +82,14 @@ export default function AddBillingReportStep1(props: Step1Props) {
         if (loading) return <LoadingDots />
 
         return (
-            <select className='form-control' name="order" id="order" onChange={onInputChange} value={order} required={true}>
-                {renderOptions(data?.getOpenOrders || [])}
-            </select>
+            <Select
+                options={prepareOptions(data?.getOpenOrders || [])}
+                backspaceRemovesValue={false}
+                isMulti={false}
+                onChange={onSelectChange}
+                value={order}
+                required={true}
+            />
         )
     }
 
