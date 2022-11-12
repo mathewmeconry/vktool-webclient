@@ -53,14 +53,14 @@ export default function Navibar(props: { open: boolean }) {
                     <NavibarLevelHeader text="Verrechnungsrapporte" leftIcon="file-signature" id="billingreports" level={1}>
                         {renderElement(<NavibarElement to="/billing-reports/add" leftIcon="plus" text="Erstellen" />, [AuthRoles.BILLINGREPORTS_CREATE])}
                         {renderElement(<NavibarElement to="/billing-reports" leftIcon="list" text="Alle" />, [AuthRoles.BILLINGREPORTS_READ, AuthRoles.BILLINGREPORTS_APPROVE])}
-                        <NavibarElement to="https://vkazu.sharepoint.com/:w:/g/EfTzqaycSiBHgg-dvxC2VggB43MJDCxlmAhRiT4B5F_U2Q?e=Erb9Rv" text="Word Vorlage" leftIcon="file-word" />
+                        <NavibarElement to="https://vkazu.sharepoint.com/:b:/r/teams/VerkehrskadettenAbt.Zrcher-Unterland/Freigegebene%20Dokumente/04_Vorlagen/VK_Verrechnungsrapport.pdf?csf=1&web=1&e=3O9fGi" text="Word Vorlage" leftIcon="file-word" />
                     </NavibarLevelHeader>
                     , [AuthRoles.AUTHENTICATED]
                 )}
                 {renderElement(<NavibarElement to="/compensations" leftIcon="dollar-sign" text="Entschädigungen" />, [AuthRoles.COMPENSATIONS_READ])}
                 {renderElement(<NavibarElement to="/payouts" text="Auszahlungen" leftIcon="file-invoice-dollar" />, [AuthRoles.PAYOUTS_READ])}
                 {renderElement(<NavibarElement to="/users" text="Benutzer" leftIcon="user" />, [AuthRoles.ADMIN])}
-                <NavibarElement to="https://vkazu.sharepoint.com/Freigegebene%20Dokumente/Forms/AllItems.aspx" text="Dokumente" leftIcon="external-link-alt" />
+                <NavibarElement to="https://vkazu.sharepoint.com/teams/VerkehrskadettenAbt.Zrcher-Unterland/Freigegebene%20Dokumente/Forms/AllItems.aspx" text="Dokumente" leftIcon="external-link-alt" />
                 <NavibarElement to={`${Config.apiEndpoint}/api/logout`} text="Abmelden" leftIcon="power-off" />
             </ol>
         </div>
