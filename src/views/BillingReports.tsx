@@ -5,6 +5,7 @@ import { RouteComponentProps } from 'react-router-dom'
 import { PaginationSortDirections } from '../graphql/Interfaces'
 
 export default function BillingReports(props: RouteComponentProps) {
+    
     return (
         <GraphQLDataList
             query={GET_BILLINGREPORTS}

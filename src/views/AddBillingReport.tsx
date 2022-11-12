@@ -106,7 +106,7 @@ export default function AddBillingReport(props: AddBillingReportProps) {
             return false
         }
         dispatch(UI.showSuccess('Gespeichert'))
-        props.history.push('/billing-reports')
+        props.history.push(`/billing-report/${compResult.data.addBillingReport.id}`)
 
         return true
     }

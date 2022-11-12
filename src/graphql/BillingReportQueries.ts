@@ -33,6 +33,7 @@ export const GET_BILLINGREPORTS = gql`
           displayName
         }
         state
+        signature
       }
     }
   }
@@ -78,6 +79,7 @@ export const GET_BILLINGREPORT = gql`
           lastname
         }
       }
+      signature
     }
   }
 `;
@@ -110,6 +112,14 @@ export const EDIT_BILLINGREPORT = gql`
 export const CHANGE_BILLINGREPORT_STATE = gql`
   mutation CHANGE_BILLINGREPORT_STATE($id: Int!, $state: BillingReportState!) {
     changeBillingReportState(state: $state, id: $id) {
+      id
+    }
+  }
+`;
+
+export const ADD_BILLINGREPORT_SIGNATURE = gql`
+  mutation ADD_BILLINGREPORT_SIGNATURE($id: Int!, $signature: String!) {
+    signBillingReport(id: $id, signature: $signature) {
       id
     }
   }

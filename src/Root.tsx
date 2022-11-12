@@ -54,6 +54,7 @@ import introspectionQueryResultData from './graphql.fragmentTypes.json'
 import MaterialChangelog from "./views/Warehouse/MaterialChangelog"
 import Warehouse from "./views/Warehouse/Warehouse"
 import QRCodeGenerator from "./views/Warehouse/QRCodeGenerator"
+import BillingReportSign from "./views/BillingReportSign"
 
 export default function Root() {
     Config.loadConfig()
@@ -118,6 +119,7 @@ export default function Root() {
                             <SecureRoute exact path="/billing-reports" roles={[AuthRoles.BILLINGREPORTS_READ, AuthRoles.BILLINGREPORTS_CREATE]} component={BillingReports} />
                             <SecureRoute exact path="/billing-reports/add" roles={[AuthRoles.BILLINGREPORTS_CREATE]} component={AddBillingReport} />
                             <SecureRoute exact path="/billing-report/:id" roles={[AuthRoles.BILLINGREPORTS_CREATE, AuthRoles.BILLINGREPORTS_READ]} component={BillingReport} />
+                            <SecureRoute exact path="/billing-report/sign/:id" roles={[AuthRoles.BILLINGREPORTS_CREATE]} component={BillingReportSign} />
                             <SecureRoute exact path="/compensations" roles={[AuthRoles.COMPENSATIONS_READ]} component={Compensations} />
                             <SecureRoute exact path="/compensations/add" roles={[AuthRoles.COMPENSATIONS_CREATE]} component={AddCompensation} />
                             <SecureRoute exact path="/compensation/:id" roles={[AuthRoles.COMPENSATIONS_READ, AuthRoles.AUTHENTICATED]} component={Compensation} />

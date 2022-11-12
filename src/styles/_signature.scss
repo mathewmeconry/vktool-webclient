@@ -19,6 +19,10 @@
         right: 10px;
         cursor: pointer;
     }
+    .sigCanvas {
+        height: calc(100% - 70px);
+        width: 100%;
+    }
 }
 
 .signature-preview {

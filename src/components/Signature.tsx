@@ -1,6 +1,7 @@
 import React, { RefObject, useEffect, useRef, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import SignaturePad from 'react-signature-canvas'
+import Button from './Button'
 
 export interface SignatureProps {
     fullscreen?: boolean
@@ -52,8 +53,8 @@ export default function Signature(props: SignatureProps) {
     function updateCanvas() {
         if (props.fullscreen) {
             setCanvasProps({
-                width: window.outerWidth - 40,
-                height: window.outerHeight - 100
+                width: window.outerWidth - 45,
+                height: window.outerHeight - 115
             })
             return
         }
@@ -69,17 +70,22 @@ export default function Signature(props: SignatureProps) {
         }
     }
 
+    async function onClose() {
+        await unlockScreen()
+        if (props.onClose) {
+            props.onClose()
+        }
+        screen.orientation.unlock()
+    }
+
     return (
         <div className={`border signature-div ${props.fullscreen ? 'fullscreen' : ''} ${props.className}`} ref={divRef}>
             {props.fullscreen && <h2>Unterschrift</h2>}
-            {props.fullscreen && <FontAwesomeIcon icon="times-circle" className="close" onClick={async () => {
-                await unlockScreen()
-                if (props.onClose) {
-                    props.onClose()
-                }
-                screen.orientation.unlock()
-            }} />}
-            <SignaturePad canvasProps={{ ...canvasProps, className: 'sigCanvas' }} ref={canvasRef} onEnd={onEnd}></SignaturePad>
+            {props.fullscreen && <FontAwesomeIcon icon="times-circle" className="close" onClick={onClose} />}
+            <div className='sigCanvas'>
+                <SignaturePad canvasProps={{ ...canvasProps, className: '' }} ref={canvasRef} onEnd={onEnd}></SignaturePad>
+            </div>
+            <Button block={true} onClick={onClose}>Speichern</Button>
         </div>
     )
 }

@@ -85,6 +85,10 @@ export default function BillingReport(props: RouteComponentProps<{ id: string }>
         refetchAndSet()
     }
 
+    async function sign(): Promise<void> {
+        props.history.push('/billing-report/sign/' + data?.getBillingReport.id)
+    }
+
     async function decline(): Promise<void> {
         const result = await changeBillingReportStateMutation({
             variables: {
@@ -97,6 +101,17 @@ export default function BillingReport(props: RouteComponentProps<{ id: string }>
         }
         dispatch(UI.showError('Abgelehnt'))
         refetchAndSet()
+    }
+
+    function renderSignature() {
+        if (billingReport?.signature) {
+            return (
+                <Panel title="Unterschrift">
+                    <img src={billingReport.signature} style={{ width: '100%' }} />
+                </Panel>
+            )
+        }
+        return null
     }
 
     async function deleteCompensation(event: React.MouseEvent<HTMLButtonElement>) {
@@ -304,6 +319,9 @@ export default function BillingReport(props: RouteComponentProps<{ id: string }>
         if (billingReport?.state === 'pending') {
             actions.push(<Button id="approve" block={true} variant="outline-success" onClick={approve} roles={[AuthRoles.BILLINGREPORTS_APPROVE]}>Genehmigen</Button>)
         }
+        if (billingReport?.state === 'unsigned') {
+            actions.push(<Button id="sign" block={true} variant="outline-success" onClick={sign}>Unterschreiben</Button>)
+        }
 
         return actions
     }
@@ -374,6 +392,11 @@ export default function BillingReport(props: RouteComponentProps<{ id: string }>
                             data={billingReport?.compensations.map(c => { return { ...c, from: new Date(c.from), until: new Date(c.until) } }) || []}
                         ></Table>
                     </Panel>
+                </Column>
+            </Row>
+            <Row>
+                <Column className="col-md-6 col-sm-12">
+                    {renderSignature()}
                 </Column>
             </Row>
         </Page >
