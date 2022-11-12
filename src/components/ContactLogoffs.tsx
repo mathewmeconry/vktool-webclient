@@ -30,6 +30,12 @@ export default class ContactLogoff extends Component<{ contactId: number } & Rou
         }
     }
 
+    public renderTitle() {
+        return (
+            <span className="panel-title">Abmeldungen (Neue Abmeldungen auf <a href="https://my.vkazu.ch/">https://my.vkazu.ch/</a>)</span>
+        )
+    }
+
     public render() {
         const actions: Array<React.ReactElement> = [<Button variant="success" className="view" onMouseUp={this.logoffView}><FontAwesomeIcon icon="eye" /></Button>]
 
@@ -37,7 +43,7 @@ export default class ContactLogoff extends Component<{ contactId: number } & Rou
             <Query<{ getContactLogoffs: Logoff[] }> query={GET_LOGOFFS_BY_CONTACT} variables={{ id: this.props.contactId }} fetchPolicy='cache-and-network'>
                 {(result) => {
                     if (result.loading) return (
-                        <Panel title={`Abmeldungen`} scrollable={true}>
+                        <Panel title={this.renderTitle()} scrollable={true}>
                             <Loading />
                         </Panel>
                     )
@@ -45,7 +51,7 @@ export default class ContactLogoff extends Component<{ contactId: number } & Rou
                     if (!result.data) return null
 
                     return (
-                        <Panel title={`Abmeldungen`} scrollable={true}>
+                        <Panel title={this.renderTitle()} scrollable={true}>
                             <Table<Logoff>
                                 columns={[
                                     { text: 'Von', keys: ['from'], sortable: true, format: 'toLocaleString' },
