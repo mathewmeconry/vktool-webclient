@@ -21,13 +21,14 @@ import Modal from '../components/Modal'
 import { ButtonGroup } from 'react-bootstrap'
 import AddBillingReportStep2 from './AddBillingReportSteps/AddBillingReportStep2'
 import Button from '../components/Button'
-import { GET_BILLINGREPORT, EDIT_BILLINGREPORT, CHANGE_BILLINGREPORT_STATE } from '../graphql/BillingReportQueries'
+import { GET_BILLINGREPORT, EDIT_BILLINGREPORT, CHANGE_BILLINGREPORT_STATE, SEND_BILLINGREPORT_RECEIPT } from '../graphql/BillingReportQueries'
 import { useQuery, useMutation } from 'react-apollo'
 import { DELETE_COMPENSATION, ADD_ORDERCOMPENSATIONS } from '../graphql/CompensationQueries'
 import { GET_MY_ROLES, GET_MY_ID } from '../graphql/UserQueries'
 import Table from '../components/Table'
 import { UI } from '../actions/UIActions'
 import { useDispatch } from 'react-redux'
+import Config from '../Config'
 
 export default function BillingReport(props: RouteComponentProps<{ id: string }>) {
     const { loading, error, data, refetch } = useQuery<{ getBillingReport: BillingReportEntity.default }>(GET_BILLINGREPORT, { variables: { id: parseInt(props.match.params.id), fetchPolicy: 'cache-and-network' } })
@@ -43,6 +44,8 @@ export default function BillingReport(props: RouteComponentProps<{ id: string }>
     const [changeBillingReportStateMutation] = useMutation(CHANGE_BILLINGREPORT_STATE)
     const [addOrderCompensationsMutation] = useMutation(ADD_ORDERCOMPENSATIONS)
     const [deleteCompensationMutation] = useMutation(DELETE_COMPENSATION)
+    const [sendBillingReportReceipt] = useMutation(SEND_BILLINGREPORT_RECEIPT)
+
     const dispatch = useDispatch()
 
     if (loading) return <Loading />
@@ -226,6 +229,19 @@ export default function BillingReport(props: RouteComponentProps<{ id: string }>
         }
     }
 
+    async function sendReceipt() {
+        const result = await sendBillingReportReceipt({
+            variables: {
+                id: billingReport?.id
+            }
+        })
+        if (result.data.sendBillingReportReceiptMail) {
+            dispatch(UI.showSuccess('Quittung versendet'))
+            return
+        }
+        dispatch(UI.showError('Quittungsversand fehlgeschlagen'))
+    }
+
     function renderCompensationDeletionModal() {
         if (toDeleteCompensation) {
             return (
@@ -322,6 +338,12 @@ export default function BillingReport(props: RouteComponentProps<{ id: string }>
         if (billingReport?.state === 'unsigned') {
             actions.push(<Button id="sign" block={true} variant="outline-success" onClick={sign}>Unterschreiben</Button>)
         }
+        if (billingReport?.signature) {
+            actions.push(<Button block={true} variant="outline-secondary" onClick={sendReceipt}>Quittung schicken</Button>)
+            actions.push(<Button block={true} variant="outline-secondary" onClick={() => {
+                window.open(`${Config.apiEndpoint}/api/billing-report/receipt/${billingReport.id}/pdf`)
+            }}>Quittung herunterladen</Button>)
+        }
 
         return actions
     }
@@ -395,7 +417,7 @@ export default function BillingReport(props: RouteComponentProps<{ id: string }>
                 </Column>
             </Row>
             <Row>
-                <Column className="col-md-6 col-sm-12">
+                <Column>
                     {renderSignature()}
                 </Column>
             </Row>

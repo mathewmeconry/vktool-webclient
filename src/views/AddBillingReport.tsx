@@ -43,7 +43,7 @@ export default function AddBillingReport(props: AddBillingReportProps) {
         for (const key in data) {
             switch (key) {
                 case 'order':
-                    setOrder(data[key][0])
+                    setOrder(data[key])
                     break
                 case 'date':
                     setDate(data[key])
@@ -106,7 +106,7 @@ export default function AddBillingReport(props: AddBillingReportProps) {
             return false
         }
         dispatch(UI.showSuccess('Gespeichert'))
-        props.history.push(`/billing-report/${compResult.data.addBillingReport.id}`)
+        props.history.push(`/billing-report/${result.data?.addBillingReport.id}`)
 
         return true
     }

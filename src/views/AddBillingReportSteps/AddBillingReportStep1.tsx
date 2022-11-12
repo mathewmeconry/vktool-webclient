@@ -6,7 +6,7 @@ import { useQuery } from "react-apollo"
 import { GET_OPEN_ORDERS } from "../../graphql/OrderQueries"
 import LoadingDots from "../../components/LoadingDots"
 import Select from "react-select"
-import { OptionsType, ValueType } from "react-select/lib/types"
+import { ValueType } from "react-select/lib/types"
 
 export interface Step1Props {
     onNext: (data: StringIndexed<any>) => void,
@@ -28,12 +28,12 @@ export default function AddBillingReportStep1(props: Step1Props) {
     function validate(openOrders: Order[]) {
         return async (): Promise<boolean> => {
             if (formEl) {
-                let valid = formEl.checkValidity()
+                let valid = formEl.checkValidity() && !!order?.value
                 formEl.className = 'was-validated'
 
                 if (valid) {
                     props.onNext({
-                        order: openOrders.filter(rec => rec.id === order?.value),
+                        order: openOrders.find(rec => rec.id === order?.value),
                         date: new Date(date)
                     })
                 }

@@ -12,14 +12,16 @@ import Panel from '../components/Panel';
 import Row from '../components/Row';
 import Signature from '../components/Signature';
 import Table from '../components/Table';
+import Config from '../Config';
 import BillingReport from '../entities/BillingReport';
 import OrderCompensation from '../entities/OrderCompensation';
 import User from '../entities/User';
-import { ADD_BILLINGREPORT_SIGNATURE, GET_BILLINGREPORT } from '../graphql/BillingReportQueries';
+import { ADD_BILLINGREPORT_SIGNATURE, GET_BILLINGREPORT, SEND_BILLINGREPORT_RECEIPT } from '../graphql/BillingReportQueries';
 
 export default function BillingReportSign(props: RouteComponentProps<{ id: string }>) {
     const { loading, error, data, refetch } = useQuery<{ getBillingReport: BillingReport }>(GET_BILLINGREPORT, { variables: { id: parseInt(props.match.params.id), fetchPolicy: 'cache-and-network' } })
-    const [signBillingReport, { }] = useMutation(ADD_BILLINGREPORT_SIGNATURE)
+    const [signBillingReport] = useMutation(ADD_BILLINGREPORT_SIGNATURE)
+    const [sendBillingReportReceipt] = useMutation(SEND_BILLINGREPORT_RECEIPT)
     const [signing, setSigning] = useState(false)
     let signature = ''
     const dispatch = useDispatch()
@@ -56,10 +58,40 @@ export default function BillingReportSign(props: RouteComponentProps<{ id: strin
         }
     }
 
+    async function sendReceipt() {
+        const result = await sendBillingReportReceipt({
+            variables: {
+                id: billingReport?.id
+            }
+        })
+        if (result.data.sendBillingReportReceiptMail) {
+            dispatch(UI.showSuccess('Quittung versendet'))
+            return
+        }
+        dispatch(UI.showError('Quittungsversand fehlgeschlagen'))
+    }
+
     if (signing) {
         return (
             <Signature fullscreen={true} onEnd={onSignatureEnd} onClose={onClose} />
         )
+    }
+
+    const combinedComps: {
+        [index: string]: { id: number, from: Date; until: Date; charge: string; amount: number };
+    } = {};
+    for (const comp of billingReport?.compensations || []) {
+        const compReduceId = `${comp.from}_${comp.until}_${comp.charge}`;
+        if (!combinedComps.hasOwnProperty(compReduceId)) {
+            combinedComps[compReduceId] = {
+                id: Object.keys(combinedComps).length,
+                from: new Date(comp.from),
+                until: new Date(comp.until),
+                charge: comp.charge ? 'Ja' : 'Nein',
+                amount: 0,
+            };
+        }
+        ++combinedComps[compReduceId].amount;
     }
 
     return (
@@ -79,18 +111,18 @@ export default function BillingReportSign(props: RouteComponentProps<{ id: strin
             <Row>
                 <Column>
                     <Panel title="Verkehrskadetten">
-                        <Table<OrderCompensation>
+                        <Table<{ id: number, from: Date; until: Date; charge: string; amount: number }>
                             columns={[
-                                { text: 'Name', keys: { 'member': ['firstname', 'lastname'] }, sortable: true },
+                                { text: 'Anzahl', keys: ['amount'], sortable: true },
                                 { text: 'Von', keys: ['from'], format: 'toLocaleTimeString', sortable: true },
                                 { text: 'Bis', keys: ['until'], format: 'toLocaleTimeString', sortable: true },
-                                { text: 'Verrechnen', keys: ['charge'], sortable: true },
+                                { text: 'Verrechnet', keys: ['charge'], sortable: true },
                             ]}
                             defaultSort={{
                                 keys: ['from'],
                                 direction: 'desc'
                             }}
-                            data={billingReport?.compensations.map(c => { return { ...c, from: new Date(c.from), until: new Date(c.until) } }) || []}
+                            data={combinedComps}
                         ></Table>
                     </Panel>
                 </Column>
@@ -99,6 +131,13 @@ export default function BillingReportSign(props: RouteComponentProps<{ id: strin
                 <Column>
                     {billingReport?.state === 'unsigned' &&
                         <Button block={true} onClick={() => setSigning(true)}>Unterschreiben</Button>}
+                    {billingReport?.state === 'pending' &&
+                        <>
+                            <Button block={true} variant='success' onClick={() => sendReceipt()}>Quittung Senden</Button>
+                            <Button block={true} variant="primary" onClick={() => {
+                                window.open(`${Config.apiEndpoint}/api/billing-report/receipt/${billingReport.id}/pdf`)
+                            }}>Quittung herunterladen</Button>
+                        </>}
                 </Column>
             </Row>
         </Page>

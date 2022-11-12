@@ -124,3 +124,9 @@ export const ADD_BILLINGREPORT_SIGNATURE = gql`
     }
   }
 `;
+
+export const SEND_BILLINGREPORT_RECEIPT = gql`
+  mutation SEND_BILLINGREPORT_RECEIPT($id: Int!) {
+    sendBillingReportReceiptMail(id: $id)
+  }
+`;
