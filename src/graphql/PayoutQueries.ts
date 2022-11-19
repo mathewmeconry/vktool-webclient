@@ -79,3 +79,9 @@ export const TRANSFER_PAYOUT = gql`
     transferPayout(id: $id, memberIds: $memberIds)
   }
 `;
+
+export const MARK_AS_PAIED_BULK = gql`
+  mutation MARK_AS_PAIED_BULK($id: Int!, $memberIds: [Int!]!) {
+    markAsPaiedBulk(id: $id, memberIds: $memberIds)
+  }
+`

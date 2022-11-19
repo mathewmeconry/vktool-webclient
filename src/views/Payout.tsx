@@ -16,7 +16,7 @@ import StringIndexed from "../interfaces/StringIndexed"
 import { AuthRoles } from "../interfaces/AuthRoles"
 import { RouteComponentProps } from "react-router-dom"
 import { useQuery, useMutation } from "react-apollo"
-import { GET_PAYOUT, SEND_PAYOUT_MAIL, SEND_PAYOUT_BEXIO, RECLAIM_PAYOUT, TRANSFER_PAYOUT } from "../graphql/PayoutQueries"
+import { GET_PAYOUT, SEND_PAYOUT_MAIL, SEND_PAYOUT_BEXIO, RECLAIM_PAYOUT, TRANSFER_PAYOUT, MARK_AS_PAIED_BULK } from "../graphql/PayoutQueries"
 import Compensation from "../entities/Compensation"
 import axios from 'axios'
 import { default as PayoutEntity } from '../entities/Payout'
@@ -34,6 +34,7 @@ export default function Payout(props: RouteComponentProps<{ id: string }>) {
     const [sendBexioMutation] = useMutation(SEND_PAYOUT_BEXIO)
     const [reclaimMutation] = useMutation(RECLAIM_PAYOUT)
     const [transferMutation] = useMutation(TRANSFER_PAYOUT)
+    const [markAsPaiedBulk] = useMutation(MARK_AS_PAIED_BULK)
 
     const dispatch = useDispatch()
 
@@ -121,6 +122,23 @@ export default function Payout(props: RouteComponentProps<{ id: string }>) {
         }
     }
 
+    async function markAsPaied() {
+        if (selected.length > 0) {
+            const result = await markAsPaiedBulk({
+                variables: {
+                    id: payout.data?.getPayout.id, memberIds: selected
+                }
+            })
+            if (result.errors) {
+                dispatch(UI.showError('Etwas ist fehlgeschlagen'))
+                return
+            }
+            dispatch(UI.showSuccess('Erfolgreich als bezahlt markiert'))
+            return
+        }
+        dispatch(UI.showError('Zuerst eine Auswahl tätigen'))
+    }
+
     function renderMailModal() {
         if (selected.length === 0) {
             return (
@@ -130,7 +148,7 @@ export default function Payout(props: RouteComponentProps<{ id: string }>) {
                     body={
                         <span>
                             Willst du wirklich eine E-Mail <b>an alle</b> mit der Entschädigungsauszahlung senden?
-                    </span>
+                        </span>
                     }
                     footer={<ButtonGroup>
                         <Button variant="success" onClick={sendMails}>Senden</Button>
@@ -147,7 +165,7 @@ export default function Payout(props: RouteComponentProps<{ id: string }>) {
                     body={
                         <span>
                             Willst du wirklich eine E-Mail <b>an folgende Personen</b> mit der Entschädigungsauszahlung senden?
-                        <ul>
+                            <ul>
                                 {selected.map(el => {
                                     const member: Contact | undefined = payout.data?.getPayout.compensations.find(c => c.member.id === el)?.member
                                     return (<li>{member?.lastname} {member?.firstname}</li>)
@@ -174,7 +192,7 @@ export default function Payout(props: RouteComponentProps<{ id: string }>) {
                     body={
                         <span>
                             Willst du wirklich <b>alle</b> Entschädigungen an Bexio übertragen?
-                    </span>
+                        </span>
                     }
                     footer={<ButtonGroup>
                         <Button variant="success" onClick={sendToBexio}>Ja</Button>
@@ -191,7 +209,7 @@ export default function Payout(props: RouteComponentProps<{ id: string }>) {
                     body={
                         <span>
                             Willst du wirklich <b>folgende Entschädigungen</b> an Bexio übertragen?
-                        <ul>
+                            <ul>
                                 {selected.map(el => {
                                     const member: Contact | undefined = payout.data?.getPayout.compensations.find(c => c.member.id === el)?.member
                                     return (<li>{member?.lastname} {member?.firstname}</li>)
@@ -258,7 +276,8 @@ export default function Payout(props: RouteComponentProps<{ id: string }>) {
                         <Button block={true} variant="outline-primary" roles={[AuthRoles.PAYOUTS_SEND]} onClick={async () => { setShowModal(true); setModalType('bexio') }}>An Bexio übertragen</Button>
                         <Button block={true} variant="outline-primary" onClick={() => getBankingXml()}>Banking XML herunterladen</Button>
                         <Button block={true} variant="outline-primary" onClick={reclaim}>Neu Berechnen</Button>
-                        <Button block={true} variant="outline-primary" roles={[AuthRoles.PAYOUTS_SEND]} onClick={() => transfer()}>Übertragen</Button>
+                        <Button block={true} variant="outline-primary" roles={[AuthRoles.PAYOUTS_EDIT]} onClick={() => markAsPaied()}>Als bezahlt markieren</Button>
+                        <Button block={true} variant="outline-primary" roles={[AuthRoles.PAYOUTS_EDIT]} onClick={() => transfer()}>Übertragen</Button>
                     </Panel>
                 </Column>
             </Row>
