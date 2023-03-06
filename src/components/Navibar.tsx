@@ -52,7 +52,7 @@ export default function Navibar(props: { open: boolean }) {
                 {renderElement(
                     <NavibarLevelHeader text="Verrechnungsrapporte" leftIcon="file-signature" id="billingreports" level={1}>
                         {renderElement(<NavibarElement to="/billing-reports/add" leftIcon="plus" text="Erstellen" />, [AuthRoles.BILLINGREPORTS_CREATE])}
-                        {renderElement(<NavibarElement to="/billing-reports" leftIcon="list" text="Alle" />, [AuthRoles.BILLINGREPORTS_READ, AuthRoles.BILLINGREPORTS_APPROVE])}
+                        {renderElement(<NavibarElement to="/billing-reports" leftIcon="list" text="Alle" />, [AuthRoles.BILLINGREPORTS_READ, AuthRoles.BILLINGREPORTS_APPROVE,  AuthRoles.BILLINGREPORTS_CREATE])}
                         <NavibarElement to="https://vkazu.sharepoint.com/:b:/r/teams/VerkehrskadettenAbt.Zrcher-Unterland/Freigegebene%20Dokumente/04_Vorlagen/VK_Verrechnungsrapport.pdf?csf=1&web=1&e=3O9fGi" text="Word Vorlage" leftIcon="file-word" />
                     </NavibarLevelHeader>
                     , [AuthRoles.AUTHENTICATED]
