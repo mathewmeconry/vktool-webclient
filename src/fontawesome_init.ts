@@ -10,6 +10,7 @@ import {
   faFilePdf,
   faExternalLinkAlt,
   faFileExcel,
+  faFileCsv,
   faPowerOff,
   faTrash,
   faSave,
@@ -42,7 +43,7 @@ import {
   faQrcode,
   faLightbulb,
   faCubes,
-  faChartPie
+  faChartPie,
 } from "@fortawesome/free-solid-svg-icons";
 import { fab } from "@fortawesome/free-brands-svg-icons";
 //@ts-ignore
@@ -91,5 +92,6 @@ library.add(
   faQrcode,
   faLightbulb,
   faCubes,
-  faChartPie
+  faChartPie,
+  faFileCsv
 );

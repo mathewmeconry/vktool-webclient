@@ -26,7 +26,8 @@ export default function Members(props: RouteComponentProps) {
             { text: 'E-Mail 2', keys: ['mailSecond'], link: true, linkPrefix: 'mailto:', sortable: true },
         ]}
         panelActions={[
-            <Action key="pdf-export" onClick={async () => { window.open(`${Config.apiEndpoint}/api/members/pdf`) }} icon='file-pdf' />
+            <Action key="pdf-export" onClick={async () => { window.open(`${Config.apiEndpoint}/api/members/pdf`) }} icon='file-pdf' />,
+            <Action key="csv-export" onClick={async () => { window.open(`${Config.apiEndpoint}/api/members/csv`) }} icon='file-csv' />
         ]}
         defaultSortBy='lastname'
         pollInterval={10000}
