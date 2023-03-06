@@ -14,7 +14,6 @@ import Signature from '../components/Signature';
 import Table from '../components/Table';
 import Config from '../Config';
 import BillingReport from '../entities/BillingReport';
-import OrderCompensation from '../entities/OrderCompensation';
 import User from '../entities/User';
 import { ADD_BILLINGREPORT_SIGNATURE, GET_BILLINGREPORT, SEND_BILLINGREPORT_RECEIPT } from '../graphql/BillingReportQueries';
 

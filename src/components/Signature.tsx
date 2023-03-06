@@ -2,6 +2,7 @@ import React, { RefObject, useEffect, useRef, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import SignaturePad from 'react-signature-canvas'
 import Button from './Button'
+import { ButtonGroup } from 'react-bootstrap'
 
 export interface SignatureProps {
     fullscreen?: boolean
@@ -54,7 +55,7 @@ export default function Signature(props: SignatureProps) {
         if (props.fullscreen) {
             setCanvasProps({
                 width: window.outerWidth - 45,
-                height: window.outerHeight - 115
+                height: window.outerHeight - 150
             })
             return
         }
@@ -66,16 +67,32 @@ export default function Signature(props: SignatureProps) {
 
     function onEnd() {
         if (props.onEnd) {
-            props.onEnd(canvasRef.current?.toDataURL() || '')
+            props.onEnd(canvasRef.current?.getTrimmedCanvas().toDataURL() || '')
         }
     }
 
     async function onClose() {
+        if (props.onEnd) {
+            props.onEnd('')
+        }
+        await onSave()
+    }
+
+    async function onSave() {
         await unlockScreen()
         if (props.onClose) {
             props.onClose()
         }
         screen.orientation.unlock()
+    }
+
+    async function onReset() {
+        if (props.onEnd) {
+            props.onEnd('')
+        }
+        if (canvasRef && canvasRef.current) {
+            canvasRef.current.clear()
+        }
     }
 
     return (
@@ -85,7 +102,10 @@ export default function Signature(props: SignatureProps) {
             <div className='sigCanvas'>
                 <SignaturePad canvasProps={{ ...canvasProps, className: '' }} ref={canvasRef} onEnd={onEnd}></SignaturePad>
             </div>
-            <Button block={true} onClick={onClose}>Speichern</Button>
+            <ButtonGroup>
+                <Button block={false} size="lg" variant='info' onClick={onReset}>Löschen</Button>
+                <Button block={false} size="lg" onClick={onSave}>Speichern</Button>
+            </ButtonGroup>
         </div>
     )
 }
