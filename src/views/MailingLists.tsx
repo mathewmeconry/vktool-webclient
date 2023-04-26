@@ -12,7 +12,7 @@ import { useDispatch } from "react-redux"
 import { UI } from "../actions/UIActions"
 
 export default function MailingLists() {
-    const { loading, error, data } = useQuery<{ getMembersAll: Contact[] }>(GET_ALL_MEMBERS)
+    const { loading, data } = useQuery<{ getMembersAll: Contact[] }>(GET_ALL_MEMBERS)
     const dispatch = useDispatch()
 
     if (loading || !data) {
@@ -36,18 +36,18 @@ export default function MailingLists() {
 
             // VKs
             if (member.contactGroups.find(group =>
-                group.bexioId === 17 ||
-                group.bexioId === 13 ||
-                group.bexioId === 11 ||
-                group.bexioId === 12 ||
-                group.bexioId === 28 ||
-                group.bexioId === 29 ||
-                group.bexioId === 15 ||
-                group.bexioId === 27 ||
-                group.bexioId === 26 ||
                 group.bexioId === 10 ||
-                group.bexioId === 14 || 
-                group.bexioId === 35
+                group.bexioId === 11 ||
+                group.bexioId === 52 ||
+                group.bexioId === 12 ||
+                group.bexioId === 13 ||
+                group.bexioId === 35 ||
+                group.bexioId === 14 ||
+                group.bexioId === 50 ||
+                group.bexioId === 51 ||
+                group.bexioId === 15 ||
+                group.bexioId === 29 ||
+                group.bexioId === 28
             )) {
                 mailingLists.vks.push(member.mail)
                 if (member.mailSecond) mailingLists.vks.push(member.mailSecond)
@@ -57,12 +57,13 @@ export default function MailingLists() {
             // Squad
             if (member.contactGroups.find(group =>
                 group.bexioId === 13 ||
-                group.bexioId === 12 ||
-                group.bexioId === 28 ||
-                group.bexioId === 29 ||
+                group.bexioId === 35 ||
+                group.bexioId === 14 ||
+                group.bexioId === 50 ||
+                group.bexioId === 51 ||
                 group.bexioId === 15 ||
-                group.bexioId === 14 || 
-                group.bexioId === 35
+                group.bexioId === 29 ||
+                group.bexioId === 28
             )) {
                 mailingLists.squad.push(member.mail)
                 if (member.mailSecond) mailingLists.squad.push(member.mailSecond)
@@ -76,7 +77,7 @@ export default function MailingLists() {
                 mailingLists.vst = mailingLists.vst.concat(member.moreMails || [])
             }
 
-            // Condor
+            // Fackof
             if (member.contactGroups.find(group => group.bexioId === 22)) {
                 mailingLists.con.push(member.mail)
                 if (member.mailSecond) mailingLists.con.push(member.mailSecond)
