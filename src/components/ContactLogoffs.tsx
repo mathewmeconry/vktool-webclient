@@ -32,7 +32,7 @@ export default class ContactLogoff extends Component<{ contactId: number } & Rou
 
     public renderTitle() {
         return (
-            <span className="panel-title">Abmeldungen (Neue Abmeldungen auf <a href="https://my.vkazu.ch/">https://my.vkazu.ch/</a>)</span>
+            <span className="panel-title">Abmeldungen (Neue Abmeldungen auf <a href="https://my.vkazu.ch/logoffs/newlogoff">https://my.vkazu.ch/</a>)</span>
         )
     }
 
